@@ -1,0 +1,5 @@
+# OS / editor noise
+.DS_Store
+.vscode/
+.idea/
+*.swp

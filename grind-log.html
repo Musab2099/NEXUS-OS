@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050506">
+<title>Grind Log</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="sync.js" defer></script>
+<script src="topbar.js" defer></script>
+<style>
+:root {
+  --bg: #050506;
+  --bg-deep: #050506;
+  --bg-card: rgba(255,255,255,0.04);
+  --bg-secondary: rgba(255,255,255,0.035);
+  --glass-bg: rgba(255,255,255,0.04);
+  --glass-shadow: 0 1px 0 0 rgba(255,255,255,0.06) inset, 0 12px 40px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.25);
+  --text-primary: #FAFAFA;
+  --text-secondary: #B8B6B0;
+  --text-tertiary: #76746E;
+  --text-quaternary: #4D4B47;
+  --accent: #E07658;
+  --success: #6BE3A4;
+  --warning: #F2C063;
+  --danger: #FF6B6B;
+  --xp-color: #A78BFA;
+  --xp-glow: rgba(167,139,250,0.35);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+html, body { scrollbar-width: none; -ms-overflow-style: none; }
+*::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
+
+body::before {
+  content: '';
+  position: fixed; inset: -10%;
+  z-index: -2;
+  background:
+    radial-gradient(60% 45% at 75% 10%, rgba(167,139,250,0.18) 0%, transparent 55%),
+    radial-gradient(55% 45% at 18% 90%, rgba(107,227,164,0.08) 0%, transparent 55%),
+    linear-gradient(180deg, #0A0A0B 0%, #050506 100%);
+  filter: blur(40px) saturate(1.05);
+  pointer-events: none;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(rgba(255,255,255,0.014) 1px, transparent 1px);
+  background-size: 3px 3px;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.shell {
+  max-width: 720px;
+  margin: 0 auto;
+  padding-top: max(24px, env(safe-area-inset-top));
+  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+}
+
+/* ===== BACK BTN ===== */
+.back-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px 8px 10px;
+  margin: 0 0 18px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-family: var(--font);
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s, color 0.15s;
+}
+.back-btn:hover { background: rgba(255,255,255,0.07); color: var(--text-primary); }
+
+/* ===== SECTION TITLE ===== */
+.section-title {
+  font-size: 10.5px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-tertiary);
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px;
+}
+.section-title::before { content: ''; width: 18px; height: 1px; background: var(--text-tertiary); opacity: 0.6; }
+.section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent); }
+
+/* ===== CARD ===== */
+.card {
+  background: var(--glass-bg);
+  border: 1px solid rgba(255,255,255,0);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  backdrop-filter: blur(24px) saturate(1.2);
+  -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  box-shadow: var(--glass-shadow);
+  position: relative; overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 14px; right: 14px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+  pointer-events: none;
+}
+
+/* ===== HERO XP CARD ===== */
+.xp-hero {
+  background: linear-gradient(135deg, rgba(167,139,250,0.10), rgba(107,227,164,0.05)) !important;
+  border: 1px solid rgba(167,139,250,0.22) !important;
+  margin-bottom: 14px;
+}
+.xp-hero::after {
+  content: '';
+  position: absolute; top: -40px; right: -40px;
+  width: 180px; height: 180px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(167,139,250,0.20), transparent 70%);
+  filter: blur(24px); pointer-events: none;
+}
+.xp-hero-top {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  flex-wrap: wrap; gap: 12px; margin-bottom: 16px; position: relative;
+}
+.xp-hero-left {}
+.xp-eyebrow {
+  font-size: 10px; letter-spacing: 0.20em; font-weight: 700;
+  text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 6px;
+}
+.xp-total {
+  font-size: 52px; font-weight: 800; letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums; line-height: 1;
+  color: var(--text-primary);
+}
+.xp-total-unit {
+  font-size: 20px; font-weight: 600;
+  color: var(--xp-color); margin-left: 4px;
+  letter-spacing: 0;
+}
+.xp-rank-wrap { text-align: right; }
+.xp-rank-label {
+  font-size: 10px; letter-spacing: 0.16em; font-weight: 700;
+  text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 4px;
+}
+.xp-rank-name {
+  font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+  color: var(--xp-color);
+  text-shadow: 0 0 20px var(--xp-glow);
+}
+.xp-bar-wrap { position: relative; }
+.xp-bar-track {
+  height: 8px; border-radius: 4px;
+  background: rgba(255,255,255,0.06); overflow: hidden;
+}
+.xp-bar-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--xp-color), #6BE3A4);
+  box-shadow: 0 0 12px rgba(167,139,250,0.5);
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.xp-bar-label {
+  font-size: 10px; color: var(--text-tertiary);
+  font-family: var(--font-mono); margin-top: 6px;
+  display: flex; justify-content: space-between;
+}
+
+/* ===== STATS GRID ===== */
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  margin-bottom: 14px;
+}
+@media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+.stat-box {
+  background: rgba(255,255,255,0.025);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.stat-box-label {
+  font-size: 9.5px; letter-spacing: 0.16em; font-weight: 700;
+  text-transform: uppercase; color: var(--text-tertiary);
+  font-family: var(--font-mono);
+}
+.stat-box-val {
+  font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums;
+  color: var(--text-primary); line-height: 1.1;
+}
+.stat-box-sub { font-size: 10px; color: var(--text-tertiary); font-family: var(--font-mono); }
+
+/* ===== CATEGORY GRID ===== */
+.cat-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+  margin-bottom: 14px;
+}
+@media (max-width: 480px) { .cat-grid { grid-template-columns: 1fr; } }
+.cat-card {
+  background: rgba(255,255,255,0.025);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  border: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  user-select: none;
+}
+.cat-card:hover { background: rgba(255,255,255,0.05); }
+.cat-card:active { transform: scale(0.98); }
+.cat-card.selected {
+  border-color: var(--cat-color, rgba(255,255,255,0.20));
+  background: rgba(255,255,255,0.06);
+  box-shadow: 0 0 0 1px var(--cat-color, transparent);
+}
+.cat-card-top {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+.cat-emoji { font-size: 20px; }
+.cat-name { font-size: 13px; font-weight: 700; color: var(--text-primary); flex: 1; }
+.cat-xp-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+  padding: 2px 8px; border-radius: 999px;
+  background: rgba(255,255,255,0.06); color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+.cat-card.selected .cat-xp-badge {
+  background: var(--cat-bg, rgba(255,255,255,0.08));
+  color: var(--cat-color, var(--text-primary));
+}
+.cat-bar-track {
+  height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,0.05);
+  overflow: hidden; margin-top: 2px;
+}
+.cat-bar-fill {
+  height: 100%; border-radius: 2px;
+  background: var(--cat-color, rgba(255,255,255,0.30));
+  transition: width 0.4s ease;
+  box-shadow: 0 0 6px var(--cat-color, transparent);
+}
+.cat-today-xp {
+  font-size: 10px; color: var(--text-tertiary);
+  font-family: var(--font-mono); margin-top: 6px;
+}
+
+/* ===== LOG TASK FORM ===== */
+.log-form-card { margin-bottom: 14px; }
+.log-form-eyebrow {
+  font-size: 10px; letter-spacing: 0.18em; font-weight: 700;
+  text-transform: uppercase; color: var(--text-tertiary);
+  font-family: var(--font-mono); margin-bottom: 12px;
+}
+.log-form-row {
+  display: grid; grid-template-columns: 1fr 80px auto;
+  gap: 6px; align-items: stretch;
+  padding: 4px;
+  background: rgba(0,0,0,0.30);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+}
+@media (max-width: 500px) {
+  .log-form-row { grid-template-columns: 1fr 70px auto; }
+}
+.log-input {
+  background: transparent; border: none; outline: none;
+  color: var(--text-primary); font-family: inherit; font-size: 14px;
+  padding: 10px 12px;
+}
+.log-input::placeholder { color: var(--text-tertiary); }
+.log-xp-input {
+  background: transparent; border: none; outline: none;
+  color: var(--xp-color); font-family: var(--font-mono);
+  font-size: 14px; font-weight: 700; text-align: center;
+  padding: 10px 8px;
+  -moz-appearance: textfield;
+}
+.log-xp-input::-webkit-outer-spin-button,
+.log-xp-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.log-xp-input::placeholder { color: var(--text-tertiary); }
+.log-add-btn {
+  padding: 0 14px;
+  background: linear-gradient(180deg, #A78BFA, #8B6FE0);
+  color: #fff; border: none; border-radius: 9px;
+  font-family: inherit; font-size: 13px; font-weight: 700;
+  cursor: pointer; white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(167,139,250,0.28);
+  transition: transform 0.12s, box-shadow 0.18s;
+}
+.log-add-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(167,139,250,0.42); }
+.log-add-btn:active { transform: scale(0.97); }
+
+/* ===== QUICK XP PILLS (preset tasks) ===== */
+.quick-pills {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;
+}
+.quick-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border-radius: 999px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text-secondary); font-size: 11.5px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.quick-pill:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+.quick-pill:active { transform: scale(0.96); }
+.quick-pill .pill-xp {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--xp-color); font-weight: 700; opacity: 0.85;
+}
+
+/* ===== TODAY'S TASKS LIST ===== */
+.task-list { display: flex; flex-direction: column; gap: 6px; }
+.task-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.025);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  transition: background 0.15s;
+}
+.task-row:hover { background: rgba(255,255,255,0.045); }
+.task-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--cat-color, rgba(255,255,255,0.30));
+  box-shadow: 0 0 6px var(--cat-color, transparent);
+  flex-shrink: 0;
+}
+.task-name {
+  flex: 1; font-size: 13.5px; font-weight: 600;
+  color: var(--text-primary); min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.task-cat-pill {
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em;
+  padding: 2px 7px; border-radius: 999px;
+  background: rgba(255,255,255,0.04);
+  color: var(--text-tertiary); font-family: var(--font-mono);
+  text-transform: uppercase; flex-shrink: 0;
+}
+.task-xp {
+  font-size: 13px; font-weight: 700;
+  color: var(--xp-color); font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums; flex-shrink: 0;
+}
+.task-del {
+  background: transparent; border: none;
+  color: var(--text-tertiary); cursor: pointer;
+  font-size: 15px; padding: 2px 6px; border-radius: 6px;
+  opacity: 0.5; flex-shrink: 0;
+}
+.task-row:hover .task-del { opacity: 1; }
+.task-del:hover { color: var(--danger); background: rgba(255,107,107,0.10); }
+
+.tasks-empty {
+  text-align: center; padding: 20px 0;
+  font-size: 12px; color: var(--text-tertiary);
+  font-style: italic;
+}
+
+/* ===== HISTORY CHART (14 days) ===== */
+.hist-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  margin-bottom: 14px;
+}
+@media (max-width: 480px) { .hist-grid { grid-template-columns: 1fr; } }
+.hist-chart-wrap {
+  background: rgba(255,255,255,0.025);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+.hist-chart-label {
+  font-size: 9.5px; letter-spacing: 0.16em; font-weight: 700;
+  text-transform: uppercase; color: var(--text-tertiary);
+  font-family: var(--font-mono); margin-bottom: 10px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.hist-chart-label span { color: var(--text-primary); font-size: 13px; }
+.hist-bar-row {
+  display: flex; align-items: flex-end; gap: 3px;
+  height: 64px;
+}
+.hist-bar {
+  flex: 1; border-radius: 3px 3px 0 0;
+  background: rgba(167,139,250,0.30);
+  min-height: 3px;
+  transition: height 0.3s ease;
+  cursor: default;
+}
+.hist-bar.today-bar { background: var(--xp-color); box-shadow: 0 0 8px var(--xp-glow); }
+.hist-day-labels {
+  display: flex; gap: 3px; margin-top: 4px;
+}
+.hist-day-lbl {
+  flex: 1; text-align: center;
+  font-size: 8px; color: var(--text-quaternary);
+  font-family: var(--font-mono);
+}
+.hist-day-lbl.today-lbl { color: var(--xp-color); font-weight: 700; }
+
+/* Category breakdown */
+.cat-breakdown { display: flex; flex-direction: column; gap: 8px; }
+.cat-break-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.cat-break-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+}
+.cat-break-name { font-size: 12px; color: var(--text-secondary); flex: 1; }
+.cat-break-xp {
+  font-size: 12px; font-weight: 700;
+  font-family: var(--font-mono); color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.cat-break-bar-track {
+  width: 80px; height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,0.06); overflow: hidden;
+}
+.cat-break-bar-fill {
+  height: 100%; border-radius: 2px;
+  background: currentColor; opacity: 0.7;
+  transition: width 0.4s ease;
+}
+
+/* Recent log rows */
+.recent-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 12px;
+}
+.recent-row:last-child { border-bottom: none; }
+.recent-date {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-tertiary); width: 64px; flex-shrink: 0;
+}
+.recent-task { flex: 1; color: var(--text-secondary); }
+.recent-xp { font-family: var(--font-mono); font-weight: 700; color: var(--xp-color); flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <a href="index.html" class="back-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    Back
+  </a>
+
+  <!-- XP HERO -->
+  <div class="card xp-hero">
+    <div class="xp-hero-top">
+      <div class="xp-hero-left">
+        <div class="xp-eyebrow">Total XP earned</div>
+        <div>
+          <span class="xp-total" id="xpTotal">0</span><span class="xp-total-unit">XP</span>
+        </div>
+      </div>
+      <div class="xp-rank-wrap">
+        <div class="xp-rank-label">Rank</div>
+        <div class="xp-rank-name" id="rankName">ROOKIE</div>
+      </div>
+    </div>
+    <div class="xp-bar-wrap">
+      <div class="xp-bar-track"><div class="xp-bar-fill" id="xpBarFill" style="width:0%"></div></div>
+      <div class="xp-bar-label"><span id="xpBarLeft">0 XP</span><span id="xpBarRight">1000 XP to next rank</span></div>
+    </div>
+  </div>
+
+  <!-- STATS ROW -->
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="stat-box-label">Today</div>
+      <div class="stat-box-val" id="todayXP">0</div>
+      <div class="stat-box-sub">XP earned</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-label">Streak</div>
+      <div class="stat-box-val" id="streakCount">0</div>
+      <div class="stat-box-sub">day streak</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-label">Best day</div>
+      <div class="stat-box-val" id="bestDay">0</div>
+      <div class="stat-box-sub">XP in a day</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-box-label">Tasks</div>
+      <div class="stat-box-val" id="totalTasks">0</div>
+      <div class="stat-box-sub">logged total</div>
+    </div>
+  </div>
+
+  <!-- LOG A TASK -->
+  <div class="section-title">Log a Task</div>
+  <div class="card log-form-card">
+    <div class="log-form-eyebrow">Select category, then log your task</div>
+
+    <!-- Category selector -->
+    <div class="cat-grid" id="catGrid"></div>
+
+    <!-- Quick preset pills -->
+    <div class="quick-pills" id="quickPills"></div>
+
+    <!-- Manual entry row -->
+    <div class="log-form-row">
+      <input class="log-input" type="text" id="taskInput" placeholder="What did you grind on?" autocomplete="off" />
+      <input class="log-xp-input" type="number" id="xpInput" placeholder="XP" min="1" max="999" />
+      <button class="log-add-btn" id="logAddBtn">+ Log</button>
+    </div>
+  </div>
+
+  <!-- TODAY'S TASKS -->
+  <div class="section-title">Today's Grind</div>
+  <div class="card">
+    <div class="task-list" id="taskList">
+      <div class="tasks-empty">Nothing logged yet — start your grind above.</div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="section-title">Analytics</div>
+  <div class="hist-grid">
+    <div class="hist-chart-wrap">
+      <div class="hist-chart-label">14-Day XP <span id="avgXpLabel">—</span></div>
+      <div class="hist-bar-row" id="histBarRow"></div>
+      <div class="hist-day-labels" id="histDayLabels"></div>
+    </div>
+    <div class="hist-chart-wrap">
+      <div class="hist-chart-label">Category Breakdown</div>
+      <div class="cat-breakdown" id="catBreakdown"></div>
+    </div>
+  </div>
+
+  <div class="section-title">Recent Activity</div>
+  <div class="card">
+    <div id="recentList"></div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ============================================================
+  // CATEGORIES
+  // ============================================================
+  const CATS = [
+    { id: 'code',    name: 'Code',      emoji: '💻', color: '#7DD3FC', bg: 'rgba(125,211,252,0.12)', xpDef: 50,
+      presets: [
+        { name: 'Built a feature', xp: 75 },
+        { name: 'Fixed a bug', xp: 40 },
+        { name: 'Pushed to GitHub', xp: 30 },
+        { name: 'Code review session', xp: 35 },
+        { name: 'Learned new concept', xp: 45 },
+      ]
+    },
+    { id: 'study',   name: 'Study',     emoji: '📚', color: '#6EE7B7', bg: 'rgba(110,231,183,0.12)', xpDef: 40,
+      presets: [
+        { name: 'Completed a lesson', xp: 35 },
+        { name: 'TryHackMe room', xp: 60 },
+        { name: 'PortSwigger lab', xp: 55 },
+        { name: 'Read for 30 min', xp: 25 },
+        { name: 'Took notes', xp: 20 },
+      ]
+    },
+    { id: 'fitness', name: 'Fitness',   emoji: '🏋️', color: '#F87171', bg: 'rgba(248,113,113,0.12)', xpDef: 45,
+      presets: [
+        { name: 'Completed workout', xp: 60 },
+        { name: 'Morning run / walk', xp: 40 },
+        { name: 'Planche practice', xp: 50 },
+        { name: 'Biked 30+ min', xp: 35 },
+        { name: 'Hit protein goal', xp: 20 },
+      ]
+    },
+    { id: 'content', name: 'Content',   emoji: '🎬', color: '#FBBF24', bg: 'rgba(251,191,36,0.12)', xpDef: 35,
+      presets: [
+        { name: 'Made a video', xp: 70 },
+        { name: 'Edited footage', xp: 45 },
+        { name: 'Posted to YouTube', xp: 55 },
+        { name: 'Wrote a script', xp: 30 },
+      ]
+    },
+    { id: 'focus',   name: 'Focus',     emoji: '🎯', color: '#A78BFA', bg: 'rgba(167,139,250,0.12)', xpDef: 30,
+      presets: [
+        { name: 'Pomodoro session', xp: 30 },
+        { name: 'No phone for 1hr', xp: 40 },
+        { name: 'Deep work block', xp: 55 },
+        { name: 'Planned tomorrow', xp: 20 },
+      ]
+    },
+    { id: 'other',   name: 'Other',     emoji: '⚡', color: '#B8B6B0', bg: 'rgba(184,182,176,0.10)', xpDef: 25,
+      presets: []
+    },
+  ];
+
+  // ============================================================
+  // RANK SYSTEM
+  // ============================================================
+  const RANKS = [
+    { name: 'ROOKIE',    min: 0,     max: 1000   },
+    { name: 'GRINDER',   min: 1000,  max: 3000   },
+    { name: 'HUSTLER',   min: 3000,  max: 6000   },
+    { name: 'FOCUSED',   min: 6000,  max: 12000  },
+    { name: 'ELITE',     min: 12000, max: 25000  },
+    { name: 'ASCENDANT', min: 25000, max: 50000  },
+    { name: 'LEGEND',    min: 50000, max: Infinity },
+  ];
+
+  function getRank(xp) {
+    for (let i = RANKS.length - 1; i >= 0; i--) {
+      if (xp >= RANKS[i].min) return { ...RANKS[i], idx: i };
+    }
+    return { ...RANKS[0], idx: 0 };
+  }
+
+  // ============================================================
+  // STORAGE
+  // ============================================================
+  const LS_KEY = 'grind_log_v1';
+  function load() {
+    try { const r = localStorage.getItem(LS_KEY); return r ? JSON.parse(r) : {}; } catch { return {}; }
+  }
+  function save(s) { try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch {} }
+  let S = load();
+  function gs(key, def) { return S[key] != null ? S[key] : def; }
+  function ss(key, val) { S[key] = val; save(S); }
+
+  function dateKey() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  function fmtDate(k) {
+    const [y,m,d] = k.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    const dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const mons = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return dows[dt.getDay()] + ' ' + mons[dt.getMonth()] + ' ' + d;
+  }
+
+  // ============================================================
+  // COMPUTED STATE
+  // ============================================================
+  function getAllLogs() {
+    const logs = gs('logs', []);
+    return Array.isArray(logs) ? logs : [];
+  }
+  function getTodayLogs() {
+    const today = dateKey();
+    return getAllLogs().filter(l => l.date === today);
+  }
+  function getTotalXP() {
+    return getAllLogs().reduce((s, l) => s + (l.xp || 0), 0);
+  }
+  function getTodayXP() {
+    return getTodayLogs().reduce((s, l) => s + (l.xp || 0), 0);
+  }
+  function getBestDay() {
+    const byDay = {};
+    getAllLogs().forEach(l => { byDay[l.date] = (byDay[l.date] || 0) + l.xp; });
+    return Object.values(byDay).reduce((m, v) => Math.max(m, v), 0);
+  }
+  function getStreak() {
+    const byDay = {};
+    getAllLogs().forEach(l => { byDay[l.date] = true; });
+    let streak = 0;
+    const today = new Date();
+    for (let i = 0; i < 365; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const k = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      if (byDay[k]) streak++;
+      else if (i > 0) break;
+    }
+    return streak;
+  }
+  function getXPByDay(n) {
+    const result = [];
+    const today = new Date();
+    const byDay = {};
+    getAllLogs().forEach(l => { byDay[l.date] = (byDay[l.date] || 0) + l.xp; });
+    for (let i = n - 1; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const k = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      const dows = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+      result.push({ key: k, xp: byDay[k] || 0, label: dows[d.getDay()], isToday: i === 0 });
+    }
+    return result;
+  }
+  function getXPByCat() {
+    const result = {};
+    getAllLogs().forEach(l => { result[l.cat] = (result[l.cat] || 0) + l.xp; });
+    return result;
+  }
+
+  // ============================================================
+  // SELECTED CATEGORY STATE
+  // ============================================================
+  let selectedCat = gs('selected_cat', 'code');
+
+  // ============================================================
+  // RENDER
+  // ============================================================
+  function renderHero() {
+    const total = getTotalXP();
+    const rank = getRank(total);
+    const nextRank = RANKS[rank.idx + 1];
+    const pct = nextRank
+      ? Math.min(100, ((total - rank.min) / (nextRank.min - rank.min)) * 100)
+      : 100;
+
+    document.getElementById('xpTotal').textContent = total.toLocaleString();
+    document.getElementById('rankName').textContent = rank.name;
+    document.getElementById('xpBarFill').style.width = pct + '%';
+    document.getElementById('xpBarLeft').textContent = total.toLocaleString() + ' XP';
+    document.getElementById('xpBarRight').textContent = nextRank
+      ? (nextRank.min - total).toLocaleString() + ' XP to ' + nextRank.name
+      : 'MAX RANK';
+  }
+
+  function renderStats() {
+    document.getElementById('todayXP').textContent = getTodayXP().toLocaleString();
+    document.getElementById('streakCount').textContent = getStreak();
+    document.getElementById('bestDay').textContent = getBestDay().toLocaleString();
+    document.getElementById('totalTasks').textContent = getAllLogs().length.toLocaleString();
+  }
+
+  function renderCatGrid() {
+    const grid = document.getElementById('catGrid');
+    const todayLogs = getTodayLogs();
+    grid.innerHTML = '';
+    CATS.forEach(cat => {
+      const todayCatXP = todayLogs.filter(l => l.cat === cat.id).reduce((s, l) => s + l.xp, 0);
+      const totalCatXP = getAllLogs().filter(l => l.cat === cat.id).reduce((s, l) => s + l.xp, 0);
+      const maxCat = Math.max(1, ...CATS.map(c => getAllLogs().filter(l => l.cat === c.id).reduce((s, l) => s + l.xp, 0)));
+      const pct = Math.min(100, (totalCatXP / maxCat) * 100);
+      const isSelected = cat.id === selectedCat;
+
+      const el = document.createElement('div');
+      el.className = 'cat-card' + (isSelected ? ' selected' : '');
+      el.style.setProperty('--cat-color', cat.color);
+      el.style.setProperty('--cat-bg', cat.bg);
+      el.innerHTML = `
+        <div class="cat-card-top">
+          <span class="cat-emoji">${cat.emoji}</span>
+          <span class="cat-name">${cat.name}</span>
+          <span class="cat-xp-badge">+${cat.xpDef} XP</span>
+        </div>
+        <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${pct}%;--cat-color:${cat.color}"></div></div>
+        <div class="cat-today-xp">${todayCatXP > 0 ? '+' + todayCatXP + ' XP today' : totalCatXP > 0 ? totalCatXP + ' XP total' : 'No XP yet'}</div>
+      `;
+      el.addEventListener('click', () => {
+        selectedCat = cat.id;
+        ss('selected_cat', selectedCat);
+        renderCatGrid();
+        renderQuickPills();
+        updateXpDefault();
+      });
+      grid.appendChild(el);
+    });
+  }
+
+  function renderQuickPills() {
+    const cat = CATS.find(c => c.id === selectedCat);
+    const wrap = document.getElementById('quickPills');
+    wrap.innerHTML = '';
+    if (!cat || !cat.presets.length) return;
+    cat.presets.forEach(p => {
+      const btn = document.createElement('button');
+      btn.className = 'quick-pill';
+      btn.innerHTML = `${escapeHtml(p.name)} <span class="pill-xp">+${p.xp}</span>`;
+      btn.addEventListener('click', () => {
+        document.getElementById('taskInput').value = p.name;
+        document.getElementById('xpInput').value = p.xp;
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function updateXpDefault() {
+    const cat = CATS.find(c => c.id === selectedCat);
+    const xpEl = document.getElementById('xpInput');
+    if (!xpEl.value && cat) xpEl.placeholder = cat.xpDef;
+  }
+
+  function renderTaskList() {
+    const list = document.getElementById('taskList');
+    const logs = getTodayLogs().slice().reverse();
+    if (!logs.length) {
+      list.innerHTML = '<div class="tasks-empty">Nothing logged yet — start your grind above.</div>';
+      return;
+    }
+    list.innerHTML = '';
+    logs.forEach((log, i) => {
+      const cat = CATS.find(c => c.id === log.cat) || CATS[CATS.length - 1];
+      const allLogs = getAllLogs();
+      const realIdx = allLogs.length - 1 - getTodayLogs().slice().reverse().indexOf(log);
+      const row = document.createElement('div');
+      row.className = 'task-row';
+      row.innerHTML = `
+        <div class="task-dot" style="background:${cat.color};box-shadow:0 0 6px ${cat.color}"></div>
+        <span class="task-name">${escapeHtml(log.name)}</span>
+        <span class="task-cat-pill">${cat.emoji} ${cat.name}</span>
+        <span class="task-xp">+${log.xp}</span>
+        <button class="task-del" data-idx="${realIdx}" aria-label="Delete">×</button>
+      `;
+      row.querySelector('.task-del').addEventListener('click', (e) => {
+        const idx = parseInt(e.target.dataset.idx, 10);
+        const all = getAllLogs();
+        all.splice(idx, 1);
+        ss('logs', all);
+        render();
+      });
+      list.appendChild(row);
+    });
+  }
+
+  function renderHistory() {
+    const days = getXPByDay(14);
+    const maxXP = Math.max(1, ...days.map(d => d.xp));
+    const avgXP = Math.round(days.reduce((s, d) => s + d.xp, 0) / 14);
+
+    document.getElementById('avgXpLabel').textContent = 'avg ' + avgXP + ' XP';
+
+    const barRow = document.getElementById('histBarRow');
+    const lblRow = document.getElementById('histDayLabels');
+    barRow.innerHTML = ''; lblRow.innerHTML = '';
+    days.forEach(d => {
+      const pct = Math.max(4, (d.xp / maxXP) * 100);
+      const bar = document.createElement('div');
+      bar.className = 'hist-bar' + (d.isToday ? ' today-bar' : '');
+      bar.style.height = pct + '%';
+      bar.title = d.key + ': ' + d.xp + ' XP';
+      barRow.appendChild(bar);
+
+      const lbl = document.createElement('div');
+      lbl.className = 'hist-day-lbl' + (d.isToday ? ' today-lbl' : '');
+      lbl.textContent = d.label;
+      lblRow.appendChild(lbl);
+    });
+
+    // Cat breakdown
+    const catXP = getXPByCat();
+    const totalXP = getTotalXP() || 1;
+    const breakdown = document.getElementById('catBreakdown');
+    breakdown.innerHTML = '';
+    CATS.filter(c => catXP[c.id] > 0).sort((a, b) => (catXP[b.id] || 0) - (catXP[a.id] || 0)).forEach(cat => {
+      const xp = catXP[cat.id] || 0;
+      const pct = Math.min(100, (xp / totalXP) * 100);
+      breakdown.innerHTML += `
+        <div class="cat-break-row">
+          <div class="cat-break-dot" style="background:${cat.color};color:${cat.color}"></div>
+          <span class="cat-break-name">${cat.emoji} ${cat.name}</span>
+          <div class="cat-break-bar-track" style="color:${cat.color}">
+            <div class="cat-break-bar-fill" style="width:${pct}%"></div>
+          </div>
+          <span class="cat-break-xp">${xp.toLocaleString()}</span>
+        </div>`;
+    });
+    if (!breakdown.innerHTML) breakdown.innerHTML = '<div style="font-size:12px;color:var(--text-tertiary);font-style:italic;text-align:center;padding:14px 0">No XP logged yet</div>';
+
+    // Recent activity
+    const recent = document.getElementById('recentList');
+    const all = getAllLogs().slice().reverse().slice(0, 20);
+    if (!all.length) { recent.innerHTML = '<div style="font-size:12px;color:var(--text-tertiary);font-style:italic;text-align:center;padding:14px 0">No activity yet</div>'; return; }
+    recent.innerHTML = all.map(l => {
+      const cat = CATS.find(c => c.id === l.cat) || CATS[CATS.length - 1];
+      return `<div class="recent-row">
+        <span class="recent-date">${fmtDate(l.date).slice(0, 9)}</span>
+        <span class="recent-task">${cat.emoji} ${escapeHtml(l.name)}</span>
+        <span class="recent-xp">+${l.xp}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function render() {
+    renderHero();
+    renderStats();
+    renderCatGrid();
+    renderQuickPills();
+    renderTaskList();
+    renderHistory();
+    updateXpDefault();
+  }
+
+  // ============================================================
+  // ADD TASK
+  // ============================================================
+  function addTask() {
+    const nameEl = document.getElementById('taskInput');
+    const xpEl = document.getElementById('xpInput');
+    const name = nameEl.value.trim();
+    if (!name) { nameEl.focus(); return; }
+    const cat = CATS.find(c => c.id === selectedCat) || CATS[0];
+    const xp = parseInt(xpEl.value) || cat.xpDef;
+    const logs = getAllLogs();
+    logs.push({ name, xp, cat: selectedCat, date: dateKey(), ts: Date.now() });
+    ss('logs', logs);
+    nameEl.value = ''; xpEl.value = '';
+    render();
+
+    // Flash the add button
+    const btn = document.getElementById('logAddBtn');
+    btn.textContent = '✓ Logged!';
+    setTimeout(() => { btn.textContent = '+ Log'; }, 1000);
+  }
+
+  document.getElementById('logAddBtn').addEventListener('click', addTask);
+  document.getElementById('taskInput').addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+  document.getElementById('xpInput').addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function fmtDate(k) {
+    const [y,m,d] = k.split('-').map(Number);
+    const dt = new Date(y, m-1, d);
+    const dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const mons = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return dows[dt.getDay()] + ' ' + mons[dt.getMonth()] + ' ' + d;
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
