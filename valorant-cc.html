@@ -1,795 +1,1261 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#050506">
-<title>Valorant Command Center</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="sync.js" defer></script>
-<script src="topbar.js" defer></script>
-<style>
-:root {
-  --bg: #050506;
-  --bg-deep: #050506;
-  --bg-card: rgba(255,255,255,0.04);
-  --glass-bg: rgba(255,255,255,0.04);
-  --glass-shadow: 0 1px 0 0 rgba(255,255,255,0.06) inset, 0 12px 40px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.25);
-  --text-primary: #FAFAFA;
-  --text-secondary: #B8B6B0;
-  --text-tertiary: #76746E;
-  --text-quaternary: #4D4B47;
-  --accent: #FF4655;
-  --accent-glow: rgba(255,70,85,0.30);
-  --success: #6BE3A4;
-  --warning: #F2C063;
-  --danger: #FF6B6B;
-  --val-red: #FF4655;
-  --val-teal: #2EE0CC;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  color-scheme: dark;
-}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050506">
+  <title>Valorant Command Center</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="sync.js" defer></script>
+  <script src="topbar.js" defer></script>
+  <style>
+    :root {
+      --bg: #050506;
+      --bg-deep: #050506;
+      --bg-card: rgba(255, 255, 255, 0.04);
+      --glass-bg: rgba(255, 255, 255, 0.04);
+      --glass-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.06) inset, 0 12px 40px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.25);
+      --text-primary: #FAFAFA;
+      --text-secondary: #B8B6B0;
+      --text-tertiary: #76746E;
+      --text-quaternary: #4D4B47;
+      --accent: #FF4655;
+      --accent-glow: rgba(255, 70, 85, 0.30);
+      --success: #6BE3A4;
+      --warning: #F2C063;
+      --danger: #FF6B6B;
+      --val-red: #FF4655;
+      --val-teal: #2EE0CC;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      color-scheme: dark;
+    }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body {
-  background: var(--bg-deep);
-  color: var(--text-primary);
-  font-family: var(--font);
-  -webkit-font-smoothing: antialiased;
-  min-height: 100%;
-  overflow-x: hidden;
-}
-html, body { scrollbar-width: none; -ms-overflow-style: none; }
-*::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-body::before {
-  content: '';
-  position: fixed; inset: -10%;
-  z-index: -2;
-  background:
-    radial-gradient(60% 45% at 80% 8%, rgba(255,70,85,0.16) 0%, transparent 55%),
-    radial-gradient(55% 45% at 15% 88%, rgba(46,224,204,0.07) 0%, transparent 55%),
-    linear-gradient(180deg, #0A0A0B 0%, #050506 100%);
-  filter: blur(40px) saturate(1.05);
-  pointer-events: none;
-}
-body::after {
-  content: '';
-  position: fixed; inset: 0;
-  z-index: -1;
-  background-image: radial-gradient(rgba(255,255,255,0.014) 1px, transparent 1px);
-  background-size: 3px 3px; opacity: 0.7;
-  pointer-events: none;
-}
+    html,
+    body {
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100%;
+      overflow-x: hidden;
+    }
 
-.shell {
-  max-width: 880px; margin: 0 auto;
-  padding-top: max(24px, env(safe-area-inset-top));
-  padding-bottom: calc(100px + env(safe-area-inset-bottom));
-  padding-left: max(16px, env(safe-area-inset-left));
-  padding-right: max(16px, env(safe-area-inset-right));
-}
+    html,
+    body {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
 
-.back-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 14px 8px 10px; margin: 0 0 18px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 999px;
-  color: var(--text-secondary);
-  font-family: var(--font); font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
-  text-decoration: none; -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s, color 0.15s;
-}
-.back-btn:hover { background: rgba(255,255,255,0.07); color: var(--text-primary); }
+    *::-webkit-scrollbar {
+      width: 0 !important;
+      height: 0 !important;
+      display: none !important;
+    }
 
-.section-title {
-  font-size: 10.5px; font-weight: 700;
-  letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--text-tertiary);
-  display: flex; align-items: center; gap: 12px;
-  margin-bottom: 14px;
-}
-.section-title::before { content: ''; width: 18px; height: 1px; background: var(--text-tertiary); opacity: 0.6; }
-.section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.08), transparent); }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: -10%;
+      z-index: -2;
+      background:
+        radial-gradient(60% 45% at 80% 8%, rgba(255, 70, 85, 0.16) 0%, transparent 55%),
+        radial-gradient(55% 45% at 15% 88%, rgba(46, 224, 204, 0.07) 0%, transparent 55%),
+        linear-gradient(180deg, #0A0A0B 0%, #050506 100%);
+      filter: blur(40px) saturate(1.05);
+      pointer-events: none;
+    }
 
-.card {
-  background: var(--glass-bg);
-  border: 1px solid rgba(255,255,255,0);
-  border-radius: var(--radius-lg);
-  padding: 18px 20px; margin-bottom: 12px;
-  backdrop-filter: blur(24px) saturate(1.2);
-  -webkit-backdrop-filter: blur(24px) saturate(1.2);
-  box-shadow: var(--glass-shadow);
-  position: relative; overflow: hidden;
-}
-.card::before {
-  content: '';
-  position: absolute; top: 0; left: 14px; right: 14px; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
-  pointer-events: none;
-}
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.014) 1px, transparent 1px);
+      background-size: 3px 3px;
+      opacity: 0.7;
+      pointer-events: none;
+    }
 
-/* ===== HERO CARD ===== */
-.hero-card {
-  background: linear-gradient(135deg, rgba(255,70,85,0.10), rgba(46,224,204,0.05)) !important;
-  border: 1px solid rgba(255,70,85,0.22) !important;
-}
-.hero-card::after {
-  content: '';
-  position: absolute; top: -50px; right: -50px;
-  width: 200px; height: 200px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,70,85,0.18), transparent 70%);
-  filter: blur(30px); pointer-events: none;
-}
-.hero-top {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  flex-wrap: wrap; gap: 12px; margin-bottom: 20px; position: relative;
-}
-.hero-left {}
-.hero-eyebrow {
-  font-size: 10px; letter-spacing: 0.20em; font-weight: 700;
-  text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 6px;
-}
-.hero-rank {
-  font-size: 42px; font-weight: 800; letter-spacing: -0.03em;
-  line-height: 1; color: var(--text-primary);
-}
-.hero-rank-badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  margin-top: 8px; padding: 6px 12px;
-  background: rgba(255,70,85,0.12);
-  border: 1px solid rgba(255,70,85,0.30);
-  border-radius: 999px;
-  font-size: 12px; font-weight: 700; color: var(--val-red);
-  font-family: var(--font-mono); letter-spacing: 0.06em;
-}
-.hero-right { text-align: right; }
-.hero-wr-label {
-  font-size: 10px; letter-spacing: 0.16em; font-weight: 700;
-  text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 4px;
-}
-.hero-wr {
-  font-size: 38px; font-weight: 800; letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-}
-.hero-wr.positive { color: var(--success); }
-.hero-wr.negative { color: var(--danger); }
-.hero-wr.neutral  { color: var(--text-secondary); }
-.hero-wr-sub { font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono); margin-top: 2px; }
+    .shell {
+      max-width: 880px;
+      margin: 0 auto;
+      padding-top: max(24px, env(safe-area-inset-top));
+      padding-bottom: calc(100px + env(safe-area-inset-bottom));
+      padding-left: max(16px, env(safe-area-inset-left));
+      padding-right: max(16px, env(safe-area-inset-right));
+    }
 
-/* ===== STATS STRIP ===== */
-.stats-strip {
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
-  margin-bottom: 14px;
-}
-@media (max-width: 600px) { .stats-strip { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 380px) { .stats-strip { grid-template-columns: repeat(2, 1fr); } }
-.stat-box {
-  background: rgba(255,255,255,0.025);
-  border-radius: var(--radius-md); padding: 12px 14px;
-  display: flex; flex-direction: column; gap: 3px;
-}
-.stat-label {
-  font-size: 9.5px; letter-spacing: 0.16em; font-weight: 700;
-  text-transform: uppercase; color: var(--text-tertiary);
-  font-family: var(--font-mono);
-}
-.stat-val {
-  font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums;
-  color: var(--text-primary); line-height: 1.1;
-}
-.stat-val.green { color: var(--success); }
-.stat-val.red   { color: var(--danger); }
-.stat-val.teal  { color: var(--val-teal); }
-.stat-sub { font-size: 10px; color: var(--text-tertiary); font-family: var(--font-mono); }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px 8px 10px;
+      margin: 0 0 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      color: var(--text-secondary);
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.15s, color 0.15s;
+    }
 
-/* ===== LOG SESSION FORM ===== */
-.session-form { margin-bottom: 14px; }
-.form-eyebrow {
-  font-size: 10px; letter-spacing: 0.18em; font-weight: 700;
-  text-transform: uppercase; color: var(--text-tertiary);
-  font-family: var(--font-mono); margin-bottom: 12px;
-}
-.form-grid {
-  display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 8px; margin-bottom: 8px;
-}
-@media (max-width: 600px) { .form-grid { grid-template-columns: 1fr 1fr; } }
-.form-field { display: flex; flex-direction: column; gap: 5px; }
-.form-label {
-  font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--text-tertiary);
-  font-family: var(--font-mono);
-}
-.form-input, .form-select {
-  background: rgba(0,0,0,0.30); border: 1px solid rgba(255,255,255,0.08);
-  color: var(--text-primary); font-family: inherit; font-size: 13px;
-  padding: 9px 11px; border-radius: var(--radius-md); outline: none;
-  -moz-appearance: textfield; transition: border-color 0.18s;
-}
-.form-input::-webkit-outer-spin-button,
-.form-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-.form-input::placeholder { color: var(--text-tertiary); }
-.form-input:focus, .form-select:focus { border-color: rgba(255,70,85,0.50); }
-.form-select { cursor: pointer; appearance: none; -webkit-appearance: none; }
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text-primary);
+    }
 
-/* Result toggle */
-.result-toggle {
-  display: flex; gap: 4px;
-  background: rgba(0,0,0,0.30);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: var(--radius-md);
-  padding: 3px;
-}
-.result-btn {
-  flex: 1; padding: 7px; border: none; background: transparent;
-  font-family: inherit; font-size: 12px; font-weight: 700;
-  cursor: pointer; border-radius: 9px; transition: background 0.15s, color 0.15s;
-  color: var(--text-tertiary);
-}
-.result-btn.active-win  { background: rgba(107,227,164,0.20); color: #6BE3A4; }
-.result-btn.active-loss { background: rgba(255,107,107,0.20); color: #FF8A8A; }
-.result-btn.active-draw { background: rgba(242,192,99,0.20);  color: #F2C063; }
-.result-btn:not(.active-win):not(.active-loss):not(.active-draw):hover {
-  background: rgba(255,255,255,0.06); color: var(--text-secondary);
-}
+    .section-title {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
 
-.form-notes {
-  width: 100%; background: rgba(0,0,0,0.30);
-  border: 1px solid rgba(255,255,255,0.08);
-  color: var(--text-primary); font-family: inherit; font-size: 13px;
-  padding: 10px 12px; border-radius: var(--radius-md);
-  outline: none; resize: none; height: 52px; line-height: 1.4;
-  margin-bottom: 8px; transition: border-color 0.18s;
-}
-.form-notes::placeholder { color: var(--text-tertiary); }
-.form-notes:focus { border-color: rgba(255,70,85,0.40); }
+    .section-title::before {
+      content: '';
+      width: 18px;
+      height: 1px;
+      background: var(--text-tertiary);
+      opacity: 0.6;
+    }
 
-.log-session-btn {
-  width: 100%; padding: 13px;
-  background: linear-gradient(180deg, #FF4655, #D93545);
-  color: #fff; border: none; border-radius: var(--radius-md);
-  font-family: inherit; font-size: 14px; font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 20px rgba(255,70,85,0.30);
-  transition: transform 0.12s, box-shadow 0.18s;
-}
-.log-session-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(255,70,85,0.45); }
-.log-session-btn:active { transform: scale(0.98); }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.08), transparent);
+    }
 
-/* ===== SESSION HISTORY ===== */
-.session-row {
-  display: grid; grid-template-columns: 3px 1fr auto auto auto auto;
-  gap: 10px; align-items: center;
-  padding: 12px 14px;
-  background: rgba(255,255,255,0.025);
-  border-radius: var(--radius-md);
-  margin-bottom: 6px;
-  transition: background 0.15s;
-}
-.session-row:hover { background: rgba(255,255,255,0.04); }
-.session-result-bar { width: 3px; border-radius: 2px; height: 40px; }
-.session-result-bar.win  { background: var(--success); box-shadow: 0 0 8px rgba(107,227,164,0.5); }
-.session-result-bar.loss { background: var(--danger);  box-shadow: 0 0 8px rgba(255,107,107,0.4); }
-.session-result-bar.draw { background: var(--warning); box-shadow: 0 0 8px rgba(242,192,99,0.4); }
-.session-info { min-width: 0; }
-.session-agent {
-  font-size: 14px; font-weight: 700; color: var(--text-primary); line-height: 1.2;
-}
-.session-meta {
-  font-size: 11px; color: var(--text-tertiary);
-  font-family: var(--font-mono); margin-top: 2px; letter-spacing: 0.04em;
-}
-.session-kda {
-  font-family: var(--font-mono); font-size: 14px; font-weight: 700;
-  color: var(--text-primary); font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.session-hs {
-  font-family: var(--font-mono); font-size: 12px;
-  color: var(--val-teal); font-weight: 700;
-  white-space: nowrap;
-}
-.session-rank-pill {
-  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
-  padding: 3px 8px; border-radius: 999px;
-  background: rgba(255,70,85,0.10);
-  color: var(--val-red); letter-spacing: 0.04em;
-  white-space: nowrap; flex-shrink: 0;
-}
-.session-del {
-  background: transparent; border: none;
-  color: var(--text-tertiary); cursor: pointer;
-  font-size: 15px; padding: 2px 6px; border-radius: 6px;
-  opacity: 0.4; flex-shrink: 0;
-}
-.session-row:hover .session-del { opacity: 1; }
-.session-del:hover { color: var(--danger); background: rgba(255,107,107,0.10); }
+    .card {
+      background: var(--glass-bg);
+      border: 1px solid rgba(255, 255, 255, 0);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      margin-bottom: 12px;
+      backdrop-filter: blur(24px) saturate(1.2);
+      -webkit-backdrop-filter: blur(24px) saturate(1.2);
+      box-shadow: var(--glass-shadow);
+      position: relative;
+      overflow: hidden;
+    }
 
-.sessions-empty {
-  text-align: center; padding: 24px 0;
-  font-size: 12px; color: var(--text-tertiary); font-style: italic;
-}
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 14px;
+      right: 14px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.16), transparent);
+      pointer-events: none;
+    }
 
-/* ===== WIN/LOSS STREAK BANNER ===== */
-.streak-banner {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 16px; margin-bottom: 12px;
-  border-radius: var(--radius-md);
-  font-size: 13px; font-weight: 600;
-}
-.streak-banner.win-streak {
-  background: rgba(107,227,164,0.08);
-  border: 1px solid rgba(107,227,164,0.22);
-  color: var(--success);
-}
-.streak-banner.loss-streak {
-  background: rgba(255,107,107,0.08);
-  border: 1px solid rgba(255,107,107,0.22);
-  color: var(--danger);
-}
-.streak-banner.hidden { display: none; }
-.streak-num {
-  font-size: 28px; font-weight: 800;
-  font-variant-numeric: tabular-nums; line-height: 1;
-}
+    /* ===== HERO CARD ===== */
+    .hero-card {
+      background: linear-gradient(135deg, rgba(255, 70, 85, 0.10), rgba(46, 224, 204, 0.05)) !important;
+      border: 1px solid rgba(255, 70, 85, 0.22) !important;
+    }
 
-/* ===== AGENT & MAP STATS ===== */
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-@media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
-.mini-card {
-  background: rgba(255,255,255,0.025);
-  border-radius: var(--radius-md);
-  padding: 14px 16px;
-}
-.mini-card-label {
-  font-size: 9.5px; letter-spacing: 0.16em; font-weight: 700;
-  text-transform: uppercase; color: var(--text-tertiary);
-  font-family: var(--font-mono); margin-bottom: 12px;
-}
-.agent-row, .map-row {
-  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
-}
-.agent-row:last-child, .map-row:last-child { margin-bottom: 0; }
-.agent-name, .map-name {
-  font-size: 13px; font-weight: 600; flex: 1; min-width: 0;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  color: var(--text-primary);
-}
-.agent-wr, .map-wr {
-  font-size: 11px; font-weight: 700; font-family: var(--font-mono);
-  color: var(--text-secondary);
-}
-.agent-games, .map-games {
-  font-size: 10px; color: var(--text-tertiary); font-family: var(--font-mono);
-}
-.wr-bar-track { width: 60px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.06); overflow: hidden; }
-.wr-bar-fill { height: 100%; border-radius: 2px; background: var(--success); transition: width 0.4s ease; }
-.wr-bar-fill.red { background: var(--danger); }
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 70, 85, 0.18), transparent 70%);
+      filter: blur(30px);
+      pointer-events: none;
+    }
 
-/* ===== 14-DAY W/L CHART ===== */
-.wl-chart-row {
-  display: flex; align-items: flex-end; gap: 3px; height: 60px; margin-bottom: 6px;
-}
-.wl-bar {
-  flex: 1; border-radius: 2px 2px 0 0; min-height: 4px;
-  transition: height 0.3s ease;
-}
-.wl-bar.win-bar  { background: rgba(107,227,164,0.55); }
-.wl-bar.loss-bar { background: rgba(255,107,107,0.40); }
-.wl-bar.no-bar   { background: rgba(255,255,255,0.04); }
-.wl-day-labels { display: flex; gap: 3px; }
-.wl-day-lbl {
-  flex: 1; text-align: center;
-  font-size: 7px; color: var(--text-quaternary);
-  font-family: var(--font-mono);
-}
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+      position: relative;
+    }
 
-/* ===== RR TRACKER ===== */
-.rr-hero {
-  display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px;
-}
-.rr-num {
-  font-size: 48px; font-weight: 800; font-variant-numeric: tabular-nums;
-  letter-spacing: -0.03em; line-height: 1; color: var(--text-primary);
-}
-.rr-label { font-size: 14px; color: var(--text-tertiary); }
-.rr-delta {
-  font-size: 15px; font-weight: 700; font-family: var(--font-mono);
-  margin-left: 6px;
-}
-.rr-delta.up { color: var(--success); }
-.rr-delta.down { color: var(--danger); }
-.rr-input-row { display: flex; gap: 8px; align-items: stretch; }
-.rr-input {
-  flex: 1; background: rgba(0,0,0,0.30);
-  border: 1px solid rgba(255,255,255,0.08);
-  color: var(--text-primary); font-family: var(--font-mono);
-  font-size: 16px; font-weight: 600; padding: 10px 13px;
-  border-radius: var(--radius-md); outline: none;
-  transition: border-color 0.18s;
-  -moz-appearance: textfield;
-}
-.rr-input::-webkit-outer-spin-button,
-.rr-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-.rr-input:focus { border-color: rgba(255,70,85,0.40); }
-.rr-save-btn {
-  background: var(--val-red); color: #fff; border: none;
-  border-radius: var(--radius-md); padding: 10px 18px;
-  font-family: inherit; font-size: 13px; font-weight: 700;
-  cursor: pointer; box-shadow: 0 4px 14px rgba(255,70,85,0.28);
-  transition: transform 0.12s;
-}
-.rr-save-btn:hover { transform: translateY(-1px); }
-.rr-chart { margin-top: 14px; }
-.rr-goal-row {
-  display: flex; justify-content: space-between; align-items: center;
-  font-size: 11px; color: var(--text-tertiary); margin-top: 8px;
-}
-.rr-bar-track {
-  height: 6px; border-radius: 3px;
-  background: rgba(255,255,255,0.05); overflow: hidden;
-  margin-bottom: 4px;
-}
-.rr-bar-fill {
-  height: 100%; border-radius: 3px;
-  background: linear-gradient(90deg, var(--val-red), #FF8A8A);
-  box-shadow: 0 0 8px rgba(255,70,85,0.4);
-  transition: width 0.4s ease;
-}
-</style>
+    .hero-left {}
+
+    .hero-eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.20em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 6px;
+    }
+
+    .hero-rank {
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: var(--text-primary);
+    }
+
+    .hero-rank-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 6px 12px;
+      background: rgba(255, 70, 85, 0.12);
+      border: 1px solid rgba(255, 70, 85, 0.30);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--val-red);
+      font-family: var(--font-mono);
+      letter-spacing: 0.06em;
+    }
+
+    .hero-right {
+      text-align: right;
+    }
+
+    .hero-wr-label {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+    }
+
+    .hero-wr {
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hero-wr.positive {
+      color: var(--success);
+    }
+
+    .hero-wr.negative {
+      color: var(--danger);
+    }
+
+    .hero-wr.neutral {
+      color: var(--text-secondary);
+    }
+
+    .hero-wr-sub {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+      margin-top: 2px;
+    }
+
+    /* ===== STATS STRIP ===== */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .stats-strip {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 380px) {
+      .stats-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-box {
+      background: rgba(255, 255, 255, 0.025);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .stat-label {
+      font-size: 9.5px;
+      letter-spacing: 0.16em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+    }
+
+    .stat-val {
+      font-size: 18px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+      line-height: 1.1;
+    }
+
+    .stat-val.green {
+      color: var(--success);
+    }
+
+    .stat-val.red {
+      color: var(--danger);
+    }
+
+    .stat-val.teal {
+      color: var(--val-teal);
+    }
+
+    .stat-sub {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+    }
+
+    /* ===== LOG SESSION FORM ===== */
+    .session-form {
+      margin-bottom: 14px;
+    }
+
+    .form-eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+      margin-bottom: 12px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+    }
+
+    .form-input,
+    .form-select {
+      background: rgba(0, 0, 0, 0.30);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 13px;
+      padding: 9px 11px;
+      border-radius: var(--radius-md);
+      outline: none;
+      -moz-appearance: textfield;
+      transition: border-color 0.18s;
+    }
+
+    .form-input::-webkit-outer-spin-button,
+    .form-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+
+    .form-input::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      border-color: rgba(255, 70, 85, 0.50);
+    }
+
+    .form-select {
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    /* Result toggle */
+    .result-toggle {
+      display: flex;
+      gap: 4px;
+      background: rgba(0, 0, 0, 0.30);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md);
+      padding: 3px;
+    }
+
+    .result-btn {
+      flex: 1;
+      padding: 7px;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 9px;
+      transition: background 0.15s, color 0.15s;
+      color: var(--text-tertiary);
+    }
+
+    .result-btn.active-win {
+      background: rgba(107, 227, 164, 0.20);
+      color: #6BE3A4;
+    }
+
+    .result-btn.active-loss {
+      background: rgba(255, 107, 107, 0.20);
+      color: #FF8A8A;
+    }
+
+    .result-btn.active-draw {
+      background: rgba(242, 192, 99, 0.20);
+      color: #F2C063;
+    }
+
+    .result-btn:not(.active-win):not(.active-loss):not(.active-draw):hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-secondary);
+    }
+
+    .form-notes {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.30);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 13px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      outline: none;
+      resize: none;
+      height: 52px;
+      line-height: 1.4;
+      margin-bottom: 8px;
+      transition: border-color 0.18s;
+    }
+
+    .form-notes::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .form-notes:focus {
+      border-color: rgba(255, 70, 85, 0.40);
+    }
+
+    .log-session-btn {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(180deg, #FF4655, #D93545);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(255, 70, 85, 0.30);
+      transition: transform 0.12s, box-shadow 0.18s;
+    }
+
+    .log-session-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(255, 70, 85, 0.45);
+    }
+
+    .log-session-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* ===== SESSION HISTORY ===== */
+    .session-row {
+      display: grid;
+      grid-template-columns: 3px 1fr auto auto auto auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.025);
+      border-radius: var(--radius-md);
+      margin-bottom: 6px;
+      transition: background 0.15s;
+    }
+
+    .session-row:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .session-result-bar {
+      width: 3px;
+      border-radius: 2px;
+      height: 40px;
+    }
+
+    .session-result-bar.win {
+      background: var(--success);
+      box-shadow: 0 0 8px rgba(107, 227, 164, 0.5);
+    }
+
+    .session-result-bar.loss {
+      background: var(--danger);
+      box-shadow: 0 0 8px rgba(255, 107, 107, 0.4);
+    }
+
+    .session-result-bar.draw {
+      background: var(--warning);
+      box-shadow: 0 0 8px rgba(242, 192, 99, 0.4);
+    }
+
+    .session-info {
+      min-width: 0;
+    }
+
+    .session-agent {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .session-meta {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+      margin-top: 2px;
+      letter-spacing: 0.04em;
+    }
+
+    .session-kda {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .session-hs {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--val-teal);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .session-rank-pill {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(255, 70, 85, 0.10);
+      color: var(--val-red);
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .session-del {
+      background: transparent;
+      border: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      font-size: 15px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      opacity: 0.4;
+      flex-shrink: 0;
+    }
+
+    .session-row:hover .session-del {
+      opacity: 1;
+    }
+
+    .session-del:hover {
+      color: var(--danger);
+      background: rgba(255, 107, 107, 0.10);
+    }
+
+    .sessions-empty {
+      text-align: center;
+      padding: 24px 0;
+      font-size: 12px;
+      color: var(--text-tertiary);
+      font-style: italic;
+    }
+
+    /* ===== WIN/LOSS STREAK BANNER ===== */
+    .streak-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .streak-banner.win-streak {
+      background: rgba(107, 227, 164, 0.08);
+      border: 1px solid rgba(107, 227, 164, 0.22);
+      color: var(--success);
+    }
+
+    .streak-banner.loss-streak {
+      background: rgba(255, 107, 107, 0.08);
+      border: 1px solid rgba(255, 107, 107, 0.22);
+      color: var(--danger);
+    }
+
+    .streak-banner.hidden {
+      display: none;
+    }
+
+    .streak-num {
+      font-size: 28px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    /* ===== AGENT & MAP STATS ===== */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mini-card {
+      background: rgba(255, 255, 255, 0.025);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+
+    .mini-card-label {
+      font-size: 9.5px;
+      letter-spacing: 0.16em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+      margin-bottom: 12px;
+    }
+
+    .agent-row,
+    .map-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .agent-row:last-child,
+    .map-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .agent-name,
+    .map-name {
+      font-size: 13px;
+      font-weight: 600;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--text-primary);
+    }
+
+    .agent-wr,
+    .map-wr {
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+    }
+
+    .agent-games,
+    .map-games {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      font-family: var(--font-mono);
+    }
+
+    .wr-bar-track {
+      width: 60px;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+    }
+
+    .wr-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--success);
+      transition: width 0.4s ease;
+    }
+
+    .wr-bar-fill.red {
+      background: var(--danger);
+    }
+
+    /* ===== 14-DAY W/L CHART ===== */
+    .wl-chart-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 60px;
+      margin-bottom: 6px;
+    }
+
+    .wl-bar {
+      flex: 1;
+      border-radius: 2px 2px 0 0;
+      min-height: 4px;
+      transition: height 0.3s ease;
+    }
+
+    .wl-bar.win-bar {
+      background: rgba(107, 227, 164, 0.55);
+    }
+
+    .wl-bar.loss-bar {
+      background: rgba(255, 107, 107, 0.40);
+    }
+
+    .wl-bar.no-bar {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .wl-day-labels {
+      display: flex;
+      gap: 3px;
+    }
+
+    .wl-day-lbl {
+      flex: 1;
+      text-align: center;
+      font-size: 7px;
+      color: var(--text-quaternary);
+      font-family: var(--font-mono);
+    }
+
+    /* ===== RR TRACKER ===== */
+    .rr-hero {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .rr-num {
+      font-size: 48px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: var(--text-primary);
+    }
+
+    .rr-label {
+      font-size: 14px;
+      color: var(--text-tertiary);
+    }
+
+    .rr-delta {
+      font-size: 15px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      margin-left: 6px;
+    }
+
+    .rr-delta.up {
+      color: var(--success);
+    }
+
+    .rr-delta.down {
+      color: var(--danger);
+    }
+
+    .rr-input-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .rr-input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.30);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 600;
+      padding: 10px 13px;
+      border-radius: var(--radius-md);
+      outline: none;
+      transition: border-color 0.18s;
+      -moz-appearance: textfield;
+    }
+
+    .rr-input::-webkit-outer-spin-button,
+    .rr-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
+
+    .rr-input:focus {
+      border-color: rgba(255, 70, 85, 0.40);
+    }
+
+    .rr-save-btn {
+      background: var(--val-red);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 10px 18px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(255, 70, 85, 0.28);
+      transition: transform 0.12s;
+    }
+
+    .rr-save-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .rr-chart {
+      margin-top: 14px;
+    }
+
+    .rr-goal-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-top: 8px;
+    }
+
+    .rr-bar-track {
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+
+    .rr-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--val-red), #FF8A8A);
+      box-shadow: 0 0 8px rgba(255, 70, 85, 0.4);
+      transition: width 0.4s ease;
+    }
+  </style>
 </head>
+
 <body>
-<div class="shell">
+  <div class="shell">
 
-  <a href="index.html" class="back-btn">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-    Back
-  </a>
+    <a href="index.html" class="back-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      Back
+    </a>
 
-  <!-- HERO -->
-  <div class="card hero-card">
-    <div class="hero-top">
-      <div class="hero-left">
-        <div class="hero-eyebrow">Current rank</div>
-        <div class="hero-rank" id="heroRank">Ascendant 1</div>
-        <div class="hero-rank-badge">
-          <span>🏹</span> <span id="heroRR">0</span> RR
+    <!-- HERO -->
+    <div class="card hero-card">
+      <div class="hero-top">
+        <div class="hero-left">
+          <div class="hero-eyebrow">Current rank</div>
+          <div class="hero-rank" id="heroRank">Ascendant 1</div>
+          <div class="hero-rank-badge">
+            <span>🏹</span> <span id="heroRR">0</span> RR
+          </div>
+        </div>
+        <div class="hero-right">
+          <div class="hero-wr-label">Win Rate</div>
+          <div class="hero-wr neutral" id="heroWR">—%</div>
+          <div class="hero-wr-sub" id="heroRecord">0W – 0L</div>
         </div>
       </div>
-      <div class="hero-right">
-        <div class="hero-wr-label">Win Rate</div>
-        <div class="hero-wr neutral" id="heroWR">—%</div>
-        <div class="hero-wr-sub" id="heroRecord">0W – 0L</div>
-      </div>
     </div>
-  </div>
 
-  <!-- WIN/LOSS STREAK BANNER -->
-  <div class="streak-banner hidden" id="streakBanner">
-    <span class="streak-num" id="streakNum">0</span>
-    <span id="streakText">game win streak 🔥</span>
-  </div>
+    <!-- WIN/LOSS STREAK BANNER -->
+    <div class="streak-banner hidden" id="streakBanner">
+      <span class="streak-num" id="streakNum">0</span>
+      <span id="streakText">game win streak 🔥</span>
+    </div>
 
-  <!-- STATS STRIP -->
-  <div class="stats-strip">
-    <div class="stat-box">
-      <div class="stat-label">Avg KDA</div>
-      <div class="stat-val teal" id="avgKda">—</div>
-      <div class="stat-sub">K/D/A</div>
+    <!-- STATS STRIP -->
+    <div class="stats-strip">
+      <div class="stat-box">
+        <div class="stat-label">Avg KDA</div>
+        <div class="stat-val teal" id="avgKda">—</div>
+        <div class="stat-sub">K/D/A</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Avg HS%</div>
+        <div class="stat-val" id="avgHs">—%</div>
+        <div class="stat-sub">headshot rate</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Best map</div>
+        <div class="stat-val" id="bestMap">—</div>
+        <div class="stat-sub" id="bestMapWR">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Most played</div>
+        <div class="stat-val" id="topAgent">—</div>
+        <div class="stat-sub" id="topAgentGames">— games</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Sessions</div>
+        <div class="stat-val" id="totalSessions">0</div>
+        <div class="stat-sub">logged</div>
+      </div>
     </div>
-    <div class="stat-box">
-      <div class="stat-label">Avg HS%</div>
-      <div class="stat-val" id="avgHs">—%</div>
-      <div class="stat-sub">headshot rate</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-label">Best map</div>
-      <div class="stat-val" id="bestMap">—</div>
-      <div class="stat-sub" id="bestMapWR">—</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-label">Most played</div>
-      <div class="stat-val" id="topAgent">—</div>
-      <div class="stat-sub" id="topAgentGames">— games</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-label">Sessions</div>
-      <div class="stat-val" id="totalSessions">0</div>
-      <div class="stat-sub">logged</div>
-    </div>
-  </div>
 
-  <!-- RR TRACKER -->
-  <div class="section-title">RR Tracker</div>
-  <div class="card">
-    <div class="rr-hero">
-      <span class="rr-num" id="rrNum">0</span>
-      <span class="rr-label">RR</span>
-      <span class="rr-delta" id="rrDelta"></span>
+    <!-- RR TRACKER -->
+    <div class="section-title">RR Tracker</div>
+    <div class="card">
+      <div class="rr-hero">
+        <span class="rr-num" id="rrNum">0</span>
+        <span class="rr-label">RR</span>
+        <span class="rr-delta" id="rrDelta"></span>
+      </div>
+      <div class="rr-bar-track">
+        <div class="rr-bar-fill" id="rrBarFill" style="width:0%"></div>
+      </div>
+      <div class="rr-goal-row">
+        <span>0</span><span id="rrGoalLabel">Goal: Immortal (100 RR avg)</span><span>100</span>
+      </div>
+      <div class="rr-input-row" style="margin-top:14px">
+        <input type="number" class="rr-input" id="rrInput" placeholder="Enter current RR" min="0" max="100">
+        <button class="rr-save-btn" id="rrSaveBtn">Save RR</button>
+      </div>
     </div>
-    <div class="rr-bar-track"><div class="rr-bar-fill" id="rrBarFill" style="width:0%"></div></div>
-    <div class="rr-goal-row">
-      <span>0</span><span id="rrGoalLabel">Goal: Immortal (100 RR avg)</span><span>100</span>
-    </div>
-    <div class="rr-input-row" style="margin-top:14px">
-      <input type="number" class="rr-input" id="rrInput" placeholder="Enter current RR" min="0" max="100">
-      <button class="rr-save-btn" id="rrSaveBtn">Save RR</button>
-    </div>
-  </div>
 
-  <!-- LOG A SESSION -->
-  <div class="section-title">Log a Session</div>
-  <div class="card session-form">
-    <div class="form-eyebrow">New match entry</div>
-    <div class="form-grid">
-      <div class="form-field">
-        <label class="form-label">Agent</label>
-        <select class="form-select" id="fAgent">
-          <option value="Reyna">Reyna</option>
-          <option value="Jett">Jett</option>
-          <option value="Neon">Neon</option>
-          <option value="Phoenix">Phoenix</option>
-          <option value="Yoru">Yoru</option>
-          <option value="Omen">Omen</option>
-          <option value="Brimstone">Brimstone</option>
-          <option value="Clove">Clove</option>
-          <option value="Astra">Astra</option>
-          <option value="Harbor">Harbor</option>
-          <option value="Viper">Viper</option>
-          <option value="Sage">Sage</option>
-          <option value="Skye">Skye</option>
-          <option value="Sova">Sova</option>
-          <option value="Fade">Fade</option>
-          <option value="Gekko">Gekko</option>
-          <option value="Breach">Breach</option>
-          <option value="KAY/O">KAY/O</option>
-          <option value="Cypher">Cypher</option>
-          <option value="Killjoy">Killjoy</option>
-          <option value="Chamber">Chamber</option>
-          <option value="Deadlock">Deadlock</option>
-          <option value="Vyse">Vyse</option>
-          <option value="Tejo">Tejo</option>
-          <option value="Waylay">Waylay</option>
-        </select>
-      </div>
-      <div class="form-field">
-        <label class="form-label">Map</label>
-        <select class="form-select" id="fMap">
-          <option value="Ascent">Ascent</option>
-          <option value="Bind">Bind</option>
-          <option value="Breeze">Breeze</option>
-          <option value="Fracture">Fracture</option>
-          <option value="Haven">Haven</option>
-          <option value="Icebox">Icebox</option>
-          <option value="Lotus">Lotus</option>
-          <option value="Pearl">Pearl</option>
-          <option value="Split">Split</option>
-          <option value="Sunset">Sunset</option>
-          <option value="Abyss">Abyss</option>
-        </select>
-      </div>
-      <div class="form-field">
-        <label class="form-label">KDA</label>
-        <input class="form-input" type="text" id="fKda" placeholder="e.g. 20/12/8" />
-      </div>
-      <div class="form-field">
-        <label class="form-label">HS%</label>
-        <input class="form-input" type="number" id="fHs" placeholder="%" min="0" max="100" />
-      </div>
-    </div>
-    <div class="form-grid" style="margin-bottom:8px">
-      <div class="form-field">
-        <label class="form-label">Result</label>
-        <div class="result-toggle" id="resultToggle">
-          <button class="result-btn" data-r="win">Win</button>
-          <button class="result-btn" data-r="loss">Loss</button>
-          <button class="result-btn" data-r="draw">Draw</button>
+    <!-- LOG A SESSION -->
+    <div class="section-title">Log a Session</div>
+    <div class="card session-form">
+      <div class="form-eyebrow">New match entry</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="form-label">Agent</label>
+          <select class="form-select" id="fAgent">
+            <option value="Reyna">Reyna</option>
+            <option value="Jett">Jett</option>
+            <option value="Neon">Neon</option>
+            <option value="Phoenix">Phoenix</option>
+            <option value="Yoru">Yoru</option>
+            <option value="Omen">Omen</option>
+            <option value="Brimstone">Brimstone</option>
+            <option value="Clove">Clove</option>
+            <option value="Astra">Astra</option>
+            <option value="Harbor">Harbor</option>
+            <option value="Viper">Viper</option>
+            <option value="Sage">Sage</option>
+            <option value="Skye">Skye</option>
+            <option value="Sova">Sova</option>
+            <option value="Fade">Fade</option>
+            <option value="Gekko">Gekko</option>
+            <option value="Breach">Breach</option>
+            <option value="KAY/O">KAY/O</option>
+            <option value="Cypher">Cypher</option>
+            <option value="Killjoy">Killjoy</option>
+            <option value="Chamber">Chamber</option>
+            <option value="Deadlock">Deadlock</option>
+            <option value="Vyse">Vyse</option>
+            <option value="Tejo">Tejo</option>
+            <option value="Waylay">Waylay</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Map</label>
+          <select class="form-select" id="fMap">
+            <option value="Ascent">Ascent</option>
+            <option value="Bind">Bind</option>
+            <option value="Breeze">Breeze</option>
+            <option value="Fracture">Fracture</option>
+            <option value="Haven">Haven</option>
+            <option value="Icebox">Icebox</option>
+            <option value="Lotus">Lotus</option>
+            <option value="Pearl">Pearl</option>
+            <option value="Split">Split</option>
+            <option value="Sunset">Sunset</option>
+            <option value="Abyss">Abyss</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">KDA</label>
+          <input class="form-input" type="text" id="fKda" placeholder="e.g. 20/12/8" />
+        </div>
+        <div class="form-field">
+          <label class="form-label">HS%</label>
+          <input class="form-input" type="number" id="fHs" placeholder="%" min="0" max="100" />
         </div>
       </div>
-      <div class="form-field">
-        <label class="form-label">RR change</label>
-        <input class="form-input" type="number" id="fRR" placeholder="e.g. +20 or -15" />
+      <div class="form-grid" style="margin-bottom:8px">
+        <div class="form-field">
+          <label class="form-label">Result</label>
+          <div class="result-toggle" id="resultToggle">
+            <button class="result-btn" data-r="win">Win</button>
+            <button class="result-btn" data-r="loss">Loss</button>
+            <button class="result-btn" data-r="draw">Draw</button>
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">RR change</label>
+          <input class="form-input" type="number" id="fRR" placeholder="e.g. +20 or -15" />
+        </div>
+        <div class="form-field">
+          <label class="form-label">Score</label>
+          <input class="form-input" type="text" id="fScore" placeholder="e.g. 13-7" />
+        </div>
+        <div class="form-field">
+          <label class="form-label">Rank</label>
+          <input class="form-input" type="text" id="fRank" placeholder="e.g. Asc 1" />
+        </div>
       </div>
-      <div class="form-field">
-        <label class="form-label">Score</label>
-        <input class="form-input" type="text" id="fScore" placeholder="e.g. 13-7" />
+      <textarea class="form-notes" id="fNotes" placeholder="Notes — what went well? what to fix? (optional)"></textarea>
+      <button class="log-session-btn" id="logSessionBtn">Log Session</button>
+    </div>
+
+    <!-- SESSION HISTORY -->
+    <div class="section-title">Match History</div>
+    <div class="card">
+      <div id="sessionList">
+        <div class="sessions-empty">No sessions logged yet — play a game and log it above.</div>
       </div>
-      <div class="form-field">
-        <label class="form-label">Rank</label>
-        <input class="form-input" type="text" id="fRank" placeholder="e.g. Asc 1" />
+    </div>
+
+    <!-- AGENT & MAP BREAKDOWN -->
+    <div class="two-col">
+      <div class="mini-card">
+        <div class="mini-card-label">Agent Win Rates</div>
+        <div id="agentStats"></div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-card-label">Map Win Rates</div>
+        <div id="mapStats"></div>
       </div>
     </div>
-    <textarea class="form-notes" id="fNotes" placeholder="Notes — what went well? what to fix? (optional)"></textarea>
-    <button class="log-session-btn" id="logSessionBtn">Log Session</button>
-  </div>
 
-  <!-- SESSION HISTORY -->
-  <div class="section-title">Match History</div>
-  <div class="card">
-    <div id="sessionList">
-      <div class="sessions-empty">No sessions logged yet — play a game and log it above.</div>
+    <!-- 14 DAY CHART -->
+    <div class="section-title">14-Day W/L</div>
+    <div class="card">
+      <div class="wl-chart-row" id="wlChartRow"></div>
+      <div class="wl-day-labels" id="wlDayLabels"></div>
     </div>
+
   </div>
 
-  <!-- AGENT & MAP BREAKDOWN -->
-  <div class="two-col">
-    <div class="mini-card">
-      <div class="mini-card-label">Agent Win Rates</div>
-      <div id="agentStats"></div>
-    </div>
-    <div class="mini-card">
-      <div class="mini-card-label">Map Win Rates</div>
-      <div id="mapStats"></div>
-    </div>
-  </div>
+  <script>
+    (function () {
+      'use strict';
 
-  <!-- 14 DAY CHART -->
-  <div class="section-title">14-Day W/L</div>
-  <div class="card">
-    <div class="wl-chart-row" id="wlChartRow"></div>
-    <div class="wl-day-labels" id="wlDayLabels"></div>
-  </div>
+      const LS_KEY = 'val_cc_v1';
+      function load() { try { const r = localStorage.getItem(LS_KEY); return r ? JSON.parse(r) : {}; } catch { return {}; } }
+      function save(s) { try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch { } }
+      let S = load();
+      function gs(key, def) { return S[key] != null ? S[key] : def; }
+      function ss(key, val) { S[key] = val; save(S); }
 
-</div>
+      function dateKey() {
+        const d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+      function fmtDate(k) {
+        const [y, m, d] = k.split('-').map(Number);
+        const dt = new Date(y, m - 1, d);
+        const dows = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        return dows[dt.getDay()] + ' ' + dt.getDate() + '/' + (m);
+      }
 
-<script>
-(function () {
-  'use strict';
+      // ============================================================
+      // STATE HELPERS
+      // ============================================================
+      function getSessions() { const s = gs('sessions', []); return Array.isArray(s) ? s : []; }
+      function getRRHistory() { const r = gs('rr_history', []); return Array.isArray(r) ? r : []; }
 
-  const LS_KEY = 'val_cc_v1';
-  function load() { try { const r = localStorage.getItem(LS_KEY); return r ? JSON.parse(r) : {}; } catch { return {}; } }
-  function save(s) { try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch {} }
-  let S = load();
-  function gs(key, def) { return S[key] != null ? S[key] : def; }
-  function ss(key, val) { S[key] = val; save(S); }
+      function getStats() {
+        const sessions = getSessions();
+        const wins = sessions.filter(s => s.result === 'win').length;
+        const losses = sessions.filter(s => s.result === 'loss').length;
+        const total = sessions.length;
+        const wr = total ? Math.round((wins / total) * 100) : null;
 
-  function dateKey() {
-    const d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-  }
-  function fmtDate(k) {
-    const [y,m,d] = k.split('-').map(Number);
-    const dt = new Date(y,m-1,d);
-    const dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    return dows[dt.getDay()] + ' ' + dt.getDate() + '/' + (m);
-  }
+        // avg KDA
+        const withKda = sessions.filter(s => s.k != null);
+        const avgK = withKda.length ? (withKda.reduce((s, x) => s + x.k, 0) / withKda.length).toFixed(1) : '—';
+        const avgD = withKda.length ? (withKda.reduce((s, x) => s + x.d, 0) / withKda.length).toFixed(1) : '—';
+        const avgA = withKda.length ? (withKda.reduce((s, x) => s + x.a, 0) / withKda.length).toFixed(1) : '—';
 
-  // ============================================================
-  // STATE HELPERS
-  // ============================================================
-  function getSessions() { const s = gs('sessions', []); return Array.isArray(s) ? s : []; }
-  function getRRHistory() { const r = gs('rr_history', []); return Array.isArray(r) ? r : []; }
+        // avg HS%
+        const withHs = sessions.filter(s => s.hs != null);
+        const avgHs = withHs.length ? Math.round(withHs.reduce((s, x) => s + x.hs, 0) / withHs.length) : null;
 
-  function getStats() {
-    const sessions = getSessions();
-    const wins = sessions.filter(s => s.result === 'win').length;
-    const losses = sessions.filter(s => s.result === 'loss').length;
-    const total = sessions.length;
-    const wr = total ? Math.round((wins / total) * 100) : null;
+        // agent breakdown
+        const agentMap = {};
+        sessions.forEach(s => {
+          if (!agentMap[s.agent]) agentMap[s.agent] = { w: 0, l: 0, d: 0 };
+          if (s.result === 'win') agentMap[s.agent].w++;
+          else if (s.result === 'loss') agentMap[s.agent].l++;
+          else agentMap[s.agent].d++;
+        });
 
-    // avg KDA
-    const withKda = sessions.filter(s => s.k != null);
-    const avgK = withKda.length ? (withKda.reduce((s, x) => s + x.k, 0) / withKda.length).toFixed(1) : '—';
-    const avgD = withKda.length ? (withKda.reduce((s, x) => s + x.d, 0) / withKda.length).toFixed(1) : '—';
-    const avgA = withKda.length ? (withKda.reduce((s, x) => s + x.a, 0) / withKda.length).toFixed(1) : '—';
+        // map breakdown
+        const mapMap = {};
+        sessions.forEach(s => {
+          if (!mapMap[s.map]) mapMap[s.map] = { w: 0, l: 0, d: 0 };
+          if (s.result === 'win') mapMap[s.map].w++;
+          else if (s.result === 'loss') mapMap[s.map].l++;
+          else mapMap[s.map].d++;
+        });
 
-    // avg HS%
-    const withHs = sessions.filter(s => s.hs != null);
-    const avgHs = withHs.length ? Math.round(withHs.reduce((s, x) => s + x.hs, 0) / withHs.length) : null;
+        // top agent
+        const topAgent = Object.entries(agentMap).sort((a, b) => (b[1].w + b[1].l + b[1].d) - (a[1].w + a[1].l + a[1].d))[0];
 
-    // agent breakdown
-    const agentMap = {};
-    sessions.forEach(s => {
-      if (!agentMap[s.agent]) agentMap[s.agent] = { w: 0, l: 0, d: 0 };
-      if (s.result === 'win') agentMap[s.agent].w++;
-      else if (s.result === 'loss') agentMap[s.agent].l++;
-      else agentMap[s.agent].d++;
-    });
+        // best map by winrate (min 2 games)
+        const bestMapEntry = Object.entries(mapMap)
+          .filter(([m, v]) => (v.w + v.l + v.d) >= 2)
+          .sort((a, b) => (b[1].w / (b[1].w + b[1].l + b[1].d)) - (a[1].w / (a[1].w + a[1].l + a[1].d)))[0];
 
-    // map breakdown
-    const mapMap = {};
-    sessions.forEach(s => {
-      if (!mapMap[s.map]) mapMap[s.map] = { w: 0, l: 0, d: 0 };
-      if (s.result === 'win') mapMap[s.map].w++;
-      else if (s.result === 'loss') mapMap[s.map].l++;
-      else mapMap[s.map].d++;
-    });
+        // streak
+        const recent = sessions.slice(-10).reverse();
+        let streak = 0; let streakType = null;
+        for (const s of recent) {
+          if (!streakType) { streakType = s.result === 'win' ? 'win' : 'loss'; streak = 1; }
+          else if ((streakType === 'win' && s.result === 'win') || (streakType === 'loss' && s.result === 'loss')) streak++;
+          else break;
+        }
 
-    // top agent
-    const topAgent = Object.entries(agentMap).sort((a, b) => (b[1].w + b[1].l + b[1].d) - (a[1].w + a[1].l + a[1].d))[0];
+        return { wins, losses, total, wr, avgK, avgD, avgA, avgHs, agentMap, mapMap, topAgent, bestMapEntry, streak, streakType };
+      }
 
-    // best map by winrate (min 2 games)
-    const bestMapEntry = Object.entries(mapMap)
-      .filter(([m, v]) => (v.w + v.l + v.d) >= 2)
-      .sort((a, b) => (b[1].w / (b[1].w + b[1].l + b[1].d)) - (a[1].w / (a[1].w + a[1].l + a[1].d)))[0];
+      // ============================================================
+      // RENDER
+      // ============================================================
+      function render() {
+        const stats = getStats();
+        const sessions = getSessions();
+        const rrHistory = getRRHistory();
+        const currentRR = rrHistory.length ? rrHistory[rrHistory.length - 1].rr : gs('current_rr', 0);
 
-    // streak
-    const recent = sessions.slice(-10).reverse();
-    let streak = 0; let streakType = null;
-    for (const s of recent) {
-      if (!streakType) { streakType = s.result === 'win' ? 'win' : 'loss'; streak = 1; }
-      else if ((streakType === 'win' && s.result === 'win') || (streakType === 'loss' && s.result === 'loss')) streak++;
-      else break;
-    }
+        // Hero
+        document.getElementById('heroRank').textContent = gs('rank_name', 'Ascendant 1');
+        document.getElementById('heroRR').textContent = currentRR;
+        const wrEl = document.getElementById('heroWR');
+        if (stats.wr != null) {
+          wrEl.textContent = stats.wr + '%';
+          wrEl.className = 'hero-wr ' + (stats.wr >= 55 ? 'positive' : stats.wr <= 45 ? 'negative' : 'neutral');
+        } else { wrEl.textContent = '—%'; wrEl.className = 'hero-wr neutral'; }
+        document.getElementById('heroRecord').textContent = stats.wins + 'W – ' + stats.losses + 'L';
 
-    return { wins, losses, total, wr, avgK, avgD, avgA, avgHs, agentMap, mapMap, topAgent, bestMapEntry, streak, streakType };
-  }
+        // Streak banner
+        const banner = document.getElementById('streakBanner');
+        if (stats.streak >= 2) {
+          banner.classList.remove('hidden', 'win-streak', 'loss-streak');
+          banner.classList.add(stats.streakType === 'win' ? 'win-streak' : 'loss-streak');
+          document.getElementById('streakNum').textContent = stats.streak;
+          document.getElementById('streakText').textContent = stats.streakType === 'win'
+            ? 'game win streak 🔥 keep it up'
+            : 'game loss streak 💀 take a break?';
+        } else { banner.classList.add('hidden'); }
 
-  // ============================================================
-  // RENDER
-  // ============================================================
-  function render() {
-    const stats = getStats();
-    const sessions = getSessions();
-    const rrHistory = getRRHistory();
-    const currentRR = rrHistory.length ? rrHistory[rrHistory.length - 1].rr : gs('current_rr', 0);
+        // Stats strip
+        document.getElementById('avgKda').textContent = stats.avgK + '/' + stats.avgD + '/' + stats.avgA;
+        document.getElementById('avgHs').textContent = stats.avgHs != null ? stats.avgHs + '%' : '—%';
+        if (stats.bestMapEntry) {
+          const [bm, bv] = stats.bestMapEntry;
+          const bwr = Math.round((bv.w / (bv.w + bv.l + bv.d)) * 100);
+          document.getElementById('bestMap').textContent = bm;
+          document.getElementById('bestMapWR').textContent = bwr + '% WR';
+        } else { document.getElementById('bestMap').textContent = '—'; document.getElementById('bestMapWR').textContent = '—'; }
+        if (stats.topAgent) {
+          const [ag, av] = stats.topAgent;
+          document.getElementById('topAgent').textContent = ag;
+          document.getElementById('topAgentGames').textContent = (av.w + av.l + av.d) + ' games';
+        } else { document.getElementById('topAgent').textContent = '—'; document.getElementById('topAgentGames').textContent = '—'; }
+        document.getElementById('totalSessions').textContent = stats.total;
 
-    // Hero
-    document.getElementById('heroRank').textContent = gs('rank_name', 'Ascendant 1');
-    document.getElementById('heroRR').textContent = currentRR;
-    const wrEl = document.getElementById('heroWR');
-    if (stats.wr != null) {
-      wrEl.textContent = stats.wr + '%';
-      wrEl.className = 'hero-wr ' + (stats.wr >= 55 ? 'positive' : stats.wr <= 45 ? 'negative' : 'neutral');
-    } else { wrEl.textContent = '—%'; wrEl.className = 'hero-wr neutral'; }
-    document.getElementById('heroRecord').textContent = stats.wins + 'W – ' + stats.losses + 'L';
+        // RR
+        document.getElementById('rrNum').textContent = currentRR;
+        const rrBarFill = Math.min(100, currentRR);
+        document.getElementById('rrBarFill').style.width = rrBarFill + '%';
+        if (rrHistory.length >= 2) {
+          const delta = currentRR - rrHistory[rrHistory.length - 2].rr;
+          const d = document.getElementById('rrDelta');
+          d.textContent = (delta >= 0 ? '+' : '') + delta + ' RR';
+          d.className = 'rr-delta ' + (delta >= 0 ? 'up' : 'down');
+        }
 
-    // Streak banner
-    const banner = document.getElementById('streakBanner');
-    if (stats.streak >= 2) {
-      banner.classList.remove('hidden', 'win-streak', 'loss-streak');
-      banner.classList.add(stats.streakType === 'win' ? 'win-streak' : 'loss-streak');
-      document.getElementById('streakNum').textContent = stats.streak;
-      document.getElementById('streakText').textContent = stats.streakType === 'win'
-        ? 'game win streak 🔥 keep it up'
-        : 'game loss streak 💀 take a break?';
-    } else { banner.classList.add('hidden'); }
-
-    // Stats strip
-    document.getElementById('avgKda').textContent = stats.avgK + '/' + stats.avgD + '/' + stats.avgA;
-    document.getElementById('avgHs').textContent = stats.avgHs != null ? stats.avgHs + '%' : '—%';
-    if (stats.bestMapEntry) {
-      const [bm, bv] = stats.bestMapEntry;
-      const bwr = Math.round((bv.w / (bv.w + bv.l + bv.d)) * 100);
-      document.getElementById('bestMap').textContent = bm;
-      document.getElementById('bestMapWR').textContent = bwr + '% WR';
-    } else { document.getElementById('bestMap').textContent = '—'; document.getElementById('bestMapWR').textContent = '—'; }
-    if (stats.topAgent) {
-      const [ag, av] = stats.topAgent;
-      document.getElementById('topAgent').textContent = ag;
-      document.getElementById('topAgentGames').textContent = (av.w + av.l + av.d) + ' games';
-    } else { document.getElementById('topAgent').textContent = '—'; document.getElementById('topAgentGames').textContent = '—'; }
-    document.getElementById('totalSessions').textContent = stats.total;
-
-    // RR
-    document.getElementById('rrNum').textContent = currentRR;
-    const rrBarFill = Math.min(100, currentRR);
-    document.getElementById('rrBarFill').style.width = rrBarFill + '%';
-    if (rrHistory.length >= 2) {
-      const delta = currentRR - rrHistory[rrHistory.length - 2].rr;
-      const d = document.getElementById('rrDelta');
-      d.textContent = (delta >= 0 ? '+' : '') + delta + ' RR';
-      d.className = 'rr-delta ' + (delta >= 0 ? 'up' : 'down');
-    }
-
-    // Session history
-    const listEl = document.getElementById('sessionList');
-    if (!sessions.length) {
-      listEl.innerHTML = '<div class="sessions-empty">No sessions logged yet — play a game and log it above.</div>';
-    } else {
-      listEl.innerHTML = '';
-      sessions.slice().reverse().slice(0, 25).forEach((s, vi) => {
-        const realIdx = sessions.length - 1 - vi;
-        const row = document.createElement('div');
-        row.className = 'session-row';
-        const kda = (s.k != null) ? s.k + '/' + s.d + '/' + s.a : '—/—/—';
-        row.innerHTML = `
+        // Session history
+        const listEl = document.getElementById('sessionList');
+        if (!sessions.length) {
+          listEl.innerHTML = '<div class="sessions-empty">No sessions logged yet — play a game and log it above.</div>';
+        } else {
+          listEl.innerHTML = '';
+          sessions.slice().reverse().slice(0, 25).forEach((s, vi) => {
+            const realIdx = sessions.length - 1 - vi;
+            const row = document.createElement('div');
+            row.className = 'session-row';
+            const kda = (s.k != null) ? s.k + '/' + s.d + '/' + s.a : '—/—/—';
+            row.innerHTML = `
           <div class="session-result-bar ${s.result}"></div>
           <div class="session-info">
             <div class="session-agent">${escHtml(s.agent)} <span style="color:var(--text-tertiary);font-weight:500">on</span> ${escHtml(s.map)}</div>
@@ -800,201 +1266,212 @@ body::after {
           ${s.rank ? `<span class="session-rank-pill">${escHtml(s.rank)}</span>` : ''}
           ${s.rr != null ? `<span style="font-family:var(--font-mono);font-size:11px;color:${s.rr >= 0 ? 'var(--success)' : 'var(--danger)'};font-weight:700;flex-shrink:0">${s.rr >= 0 ? '+' : ''}${s.rr}</span>` : ''}
           <button class="session-del" data-idx="${realIdx}">×</button>`;
-        listEl.appendChild(row);
-      });
-      listEl.querySelectorAll('.session-del').forEach(b => {
-        b.addEventListener('click', () => {
-          const idx = parseInt(b.dataset.idx, 10);
-          const all = getSessions();
-          all.splice(idx, 1);
-          ss('sessions', all);
-          render();
-        });
-      });
-    }
+            listEl.appendChild(row);
+          });
+          listEl.querySelectorAll('.session-del').forEach(b => {
+            b.addEventListener('click', () => {
+              const idx = parseInt(b.dataset.idx, 10);
+              const all = getSessions();
+              all.splice(idx, 1);
+              ss('sessions', all);
+              render();
+            });
+          });
+        }
 
-    // Agent stats
-    const agentEl = document.getElementById('agentStats');
-    const agentEntries = Object.entries(stats.agentMap).sort((a, b) => (b[1].w + b[1].l + b[1].d) - (a[1].w + a[1].l + a[1].d)).slice(0, 5);
-    if (!agentEntries.length) {
-      agentEl.innerHTML = '<div style="font-size:12px;color:var(--text-tertiary);font-style:italic;text-align:center;padding:8px 0">No data yet</div>';
-    } else {
-      agentEl.innerHTML = agentEntries.map(([agent, v]) => {
-        const games = v.w + v.l + v.d;
-        const wr = Math.round((v.w / games) * 100);
-        const isGood = wr >= 50;
-        return `<div class="agent-row">
+        // Agent stats
+        const agentEl = document.getElementById('agentStats');
+        const agentEntries = Object.entries(stats.agentMap).sort((a, b) => (b[1].w + b[1].l + b[1].d) - (a[1].w + a[1].l + a[1].d)).slice(0, 5);
+        if (!agentEntries.length) {
+          agentEl.innerHTML = '<div style="font-size:12px;color:var(--text-tertiary);font-style:italic;text-align:center;padding:8px 0">No data yet</div>';
+        } else {
+          agentEl.innerHTML = agentEntries.map(([agent, v]) => {
+            const games = v.w + v.l + v.d;
+            const wr = Math.round((v.w / games) * 100);
+            const isGood = wr >= 50;
+            return `<div class="agent-row">
           <span class="agent-name">${escHtml(agent)}</span>
           <div class="wr-bar-track"><div class="wr-bar-fill${isGood ? '' : ' red'}" style="width:${wr}%"></div></div>
           <span class="agent-wr" style="color:${isGood ? 'var(--success)' : 'var(--danger)'}">${wr}%</span>
           <span class="agent-games">${games}g</span>
         </div>`;
-      }).join('');
-    }
+          }).join('');
+        }
 
-    // Map stats
-    const mapEl = document.getElementById('mapStats');
-    const mapEntries = Object.entries(stats.mapMap).sort((a, b) => {
-      const wa = a[1].w / (a[1].w + a[1].l + a[1].d);
-      const wb = b[1].w / (b[1].w + b[1].l + b[1].d);
-      return wb - wa;
-    }).slice(0, 5);
-    if (!mapEntries.length) {
-      mapEl.innerHTML = '<div style="font-size:12px;color:var(--text-tertiary);font-style:italic;text-align:center;padding:8px 0">No data yet</div>';
-    } else {
-      mapEl.innerHTML = mapEntries.map(([map, v]) => {
-        const games = v.w + v.l + v.d;
-        const wr = Math.round((v.w / games) * 100);
-        const isGood = wr >= 50;
-        return `<div class="map-row">
+        // Map stats
+        const mapEl = document.getElementById('mapStats');
+        const mapEntries = Object.entries(stats.mapMap).sort((a, b) => {
+          const wa = a[1].w / (a[1].w + a[1].l + a[1].d);
+          const wb = b[1].w / (b[1].w + b[1].l + b[1].d);
+          return wb - wa;
+        }).slice(0, 5);
+        if (!mapEntries.length) {
+          mapEl.innerHTML = '<div style="font-size:12px;color:var(--text-tertiary);font-style:italic;text-align:center;padding:8px 0">No data yet</div>';
+        } else {
+          mapEl.innerHTML = mapEntries.map(([map, v]) => {
+            const games = v.w + v.l + v.d;
+            const wr = Math.round((v.w / games) * 100);
+            const isGood = wr >= 50;
+            return `<div class="map-row">
           <span class="map-name">${escHtml(map)}</span>
           <div class="wr-bar-track"><div class="wr-bar-fill${isGood ? '' : ' red'}" style="width:${wr}%"></div></div>
           <span class="map-wr" style="color:${isGood ? 'var(--success)' : 'var(--danger)'}">${wr}%</span>
           <span class="map-games">${games}g</span>
         </div>`;
-      }).join('');
-    }
+          }).join('');
+        }
 
-    // 14-day WL chart
-    const today = new Date();
-    const byDay = {};
-    sessions.forEach(s => {
-      if (!byDay[s.date]) byDay[s.date] = { w: 0, l: 0 };
-      if (s.result === 'win') byDay[s.date].w++;
-      else if (s.result === 'loss') byDay[s.date].l++;
-    });
-    const chartRow = document.getElementById('wlChartRow');
-    const lblRow = document.getElementById('wlDayLabels');
-    chartRow.innerHTML = ''; lblRow.innerHTML = '';
-    const dows = ['Su','Mo','Tu','We','Th','Fr','Sa'];
-    for (let i = 13; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i);
-      const k = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-      const day = byDay[k];
-      const total = day ? (day.w + day.l) : 0;
-      const maxGames = Math.max(1, ...Object.values(byDay).map(v => v.w + v.l));
-      const pct = total ? Math.max(8, (total / maxGames) * 100) : 8;
-      const bar = document.createElement('div');
-      const cls = !day || total === 0 ? 'no-bar' : day.w >= day.l ? 'win-bar' : 'loss-bar';
-      bar.className = 'wl-bar ' + cls;
-      bar.style.height = pct + '%';
-      bar.title = k + ': ' + (day ? day.w + 'W ' + day.l + 'L' : 'no games');
-      chartRow.appendChild(bar);
-      const lbl = document.createElement('div');
-      lbl.className = 'wl-day-lbl';
-      lbl.textContent = dows[d.getDay()];
-      lblRow.appendChild(lbl);
-    }
-  }
+        // 14-day WL chart
+        const today = new Date();
+        const byDay = {};
+        sessions.forEach(s => {
+          if (!byDay[s.date]) byDay[s.date] = { w: 0, l: 0 };
+          if (s.result === 'win') byDay[s.date].w++;
+          else if (s.result === 'loss') byDay[s.date].l++;
+        });
+        const chartRow = document.getElementById('wlChartRow');
+        const lblRow = document.getElementById('wlDayLabels');
+        chartRow.innerHTML = ''; lblRow.innerHTML = '';
+        const dows = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+        for (let i = 13; i >= 0; i--) {
+          const d = new Date(today);
+          d.setDate(d.getDate() - i);
+          const k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+          const day = byDay[k];
+          const total = day ? (day.w + day.l) : 0;
+          const maxGames = Math.max(1, ...Object.values(byDay).map(v => v.w + v.l));
+          const pct = total ? Math.max(8, (total / maxGames) * 100) : 8;
+          const bar = document.createElement('div');
+          const cls = !day || total === 0 ? 'no-bar' : day.w >= day.l ? 'win-bar' : 'loss-bar';
+          bar.className = 'wl-bar ' + cls;
+          bar.style.height = pct + '%';
+          bar.title = k + ': ' + (day ? day.w + 'W ' + day.l + 'L' : 'no games');
+          chartRow.appendChild(bar);
+          const lbl = document.createElement('div');
+          lbl.className = 'wl-day-lbl';
+          lbl.textContent = dows[d.getDay()];
+          lblRow.appendChild(lbl);
+        }
+      }
 
-  // ============================================================
-  // RESULT TOGGLE
-  // ============================================================
-  let selectedResult = 'win';
-  document.getElementById('resultToggle').querySelectorAll('.result-btn').forEach(b => {
-    b.addEventListener('click', () => {
-      selectedResult = b.dataset.r;
-      document.getElementById('resultToggle').querySelectorAll('.result-btn').forEach(x => {
-        x.className = 'result-btn';
+      // ============================================================
+      // RESULT TOGGLE
+      // ============================================================
+      let selectedResult = 'win';
+      document.getElementById('resultToggle').querySelectorAll('.result-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          selectedResult = b.dataset.r;
+          document.getElementById('resultToggle').querySelectorAll('.result-btn').forEach(x => {
+            x.className = 'result-btn';
+          });
+          b.classList.add('active-' + selectedResult);
+        });
       });
-      b.classList.add('active-' + selectedResult);
+      // Set initial active
+      document.querySelector('[data-r="win"]').classList.add('active-win');
+
+      // ============================================================
+      // LOG SESSION
+      // ============================================================
+      function parseKda(s) {
+        if (!s || !s.trim()) return null;
+        const parts = s.trim().split(/[\/\-,\s]+/);
+        if (parts.length >= 3) {
+          const k = parseInt(parts[0]), d = parseInt(parts[1]), a = parseInt(parts[2]);
+          if (!isNaN(k) && !isNaN(d) && !isNaN(a)) return { k, d, a };
+        }
+        return null;
+      }
+
+      document.getElementById('logSessionBtn').addEventListener('click', () => {
+        const agent = document.getElementById('fAgent').value;
+        const map = document.getElementById('fMap').value;
+        const kdaStr = document.getElementById('fKda').value.trim();
+        const hs = parseInt(document.getElementById('fHs').value) || null;
+        const rrRaw = document.getElementById('fRR').value.trim();
+        const score = document.getElementById('fScore').value.trim();
+        const rank = document.getElementById('fRank').value.trim();
+        const notes = document.getElementById('fNotes').value.trim();
+
+        const kda = parseKda(kdaStr);
+        const rrChange = rrRaw ? parseInt(rrRaw) : null;
+
+        const session = {
+          agent, map,
+          result: selectedResult,
+          date: dateKey(),
+          ts: Date.now(),
+          score: score || null,
+          rank: rank || null,
+          notes: notes || null,
+          hs: hs != null && !isNaN(hs) ? hs : null,
+          rr: rrChange,
+        };
+        if (kda) { session.k = kda.k; session.d = kda.d; session.a = kda.a; }
+
+        const sessions = getSessions();
+        sessions.push(session);
+        ss('sessions', sessions);
+
+        // Auto-update RR
+        if (rrChange != null) {
+          const currentRR = gs('current_rr', 0);
+          const newRR = Math.max(0, Math.min(100, currentRR + rrChange));
+          ss('current_rr', newRR);
+          const rrhist = getRRHistory();
+          rrhist.push({ rr: newRR, ts: Date.now() });
+          ss('rr_history', rrhist);
+        }
+
+        // Clear form
+        document.getElementById('fKda').value = '';
+        document.getElementById('fHs').value = '';
+        document.getElementById('fRR').value = '';
+        document.getElementById('fScore').value = '';
+        document.getElementById('fRank').value = '';
+        document.getElementById('fNotes').value = '';
+
+        const btn = document.getElementById('logSessionBtn');
+        btn.textContent = '✓ Session logged!';
+        setTimeout(() => { btn.textContent = 'Log Session'; }, 1200);
+
+        render();
+      });
+
+      // ============================================================
+      // MANUAL RR SAVE
+      // ============================================================
+      document.getElementById('rrSaveBtn').addEventListener('click', () => {
+        const v = parseInt(document.getElementById('rrInput').value);
+        if (isNaN(v) || v < 0 || v > 100) return;
+        ss('current_rr', v);
+        const rrhist = getRRHistory();
+        rrhist.push({ rr: v, ts: Date.now() });
+        ss('rr_history', rrhist);
+        document.getElementById('rrInput').value = '';
+        render();
+      });
+      document.getElementById('rrInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('rrSaveBtn').click();
+      });
+
+      function escHtml(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      }
+
+      render();
+    })();
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof initCloudSync !== 'function') return;
+      initCloudSync({
+        appKey: 'valorant',
+        syncedKeys: ['val_cc_v1'],
+        onApplied: function () { window.dispatchEvent(new Event('storage')); }
+      });
     });
-  });
-  // Set initial active
-  document.querySelector('[data-r="win"]').classList.add('active-win');
-
-  // ============================================================
-  // LOG SESSION
-  // ============================================================
-  function parseKda(s) {
-    if (!s || !s.trim()) return null;
-    const parts = s.trim().split(/[\/\-,\s]+/);
-    if (parts.length >= 3) {
-      const k = parseInt(parts[0]), d = parseInt(parts[1]), a = parseInt(parts[2]);
-      if (!isNaN(k) && !isNaN(d) && !isNaN(a)) return { k, d, a };
-    }
-    return null;
-  }
-
-  document.getElementById('logSessionBtn').addEventListener('click', () => {
-    const agent = document.getElementById('fAgent').value;
-    const map   = document.getElementById('fMap').value;
-    const kdaStr = document.getElementById('fKda').value.trim();
-    const hs    = parseInt(document.getElementById('fHs').value) || null;
-    const rrRaw = document.getElementById('fRR').value.trim();
-    const score = document.getElementById('fScore').value.trim();
-    const rank  = document.getElementById('fRank').value.trim();
-    const notes = document.getElementById('fNotes').value.trim();
-
-    const kda = parseKda(kdaStr);
-    const rrChange = rrRaw ? parseInt(rrRaw) : null;
-
-    const session = {
-      agent, map,
-      result: selectedResult,
-      date: dateKey(),
-      ts: Date.now(),
-      score: score || null,
-      rank: rank || null,
-      notes: notes || null,
-      hs: hs != null && !isNaN(hs) ? hs : null,
-      rr: rrChange,
-    };
-    if (kda) { session.k = kda.k; session.d = kda.d; session.a = kda.a; }
-
-    const sessions = getSessions();
-    sessions.push(session);
-    ss('sessions', sessions);
-
-    // Auto-update RR
-    if (rrChange != null) {
-      const currentRR = gs('current_rr', 0);
-      const newRR = Math.max(0, Math.min(100, currentRR + rrChange));
-      ss('current_rr', newRR);
-      const rrhist = getRRHistory();
-      rrhist.push({ rr: newRR, ts: Date.now() });
-      ss('rr_history', rrhist);
-    }
-
-    // Clear form
-    document.getElementById('fKda').value = '';
-    document.getElementById('fHs').value = '';
-    document.getElementById('fRR').value = '';
-    document.getElementById('fScore').value = '';
-    document.getElementById('fRank').value = '';
-    document.getElementById('fNotes').value = '';
-
-    const btn = document.getElementById('logSessionBtn');
-    btn.textContent = '✓ Session logged!';
-    setTimeout(() => { btn.textContent = 'Log Session'; }, 1200);
-
-    render();
-  });
-
-  // ============================================================
-  // MANUAL RR SAVE
-  // ============================================================
-  document.getElementById('rrSaveBtn').addEventListener('click', () => {
-    const v = parseInt(document.getElementById('rrInput').value);
-    if (isNaN(v) || v < 0 || v > 100) return;
-    ss('current_rr', v);
-    const rrhist = getRRHistory();
-    rrhist.push({ rr: v, ts: Date.now() });
-    ss('rr_history', rrhist);
-    document.getElementById('rrInput').value = '';
-    render();
-  });
-  document.getElementById('rrInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('rrSaveBtn').click();
-  });
-
-  function escHtml(s) {
-    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  }
-
-  render();
-})();
-</script>
+  </script>
 </body>
+
 </html>
