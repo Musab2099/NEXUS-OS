@@ -220,9 +220,9 @@ body.topbar-modal-open {
     <span class="topbar-pill-count" id="topbarStackCount">—/—</span>
   </a>
   <div class="topbar-water-wrap">
-    <a href="health.html#water" class="topbar-water-pill" id="topbarWater">
+    <a href="grind-log.html" class="topbar-water-pill" id="topbarWater">
       <span class="topbar-pill-dot"></span>
-      <span class="topbar-pill-label">WATER</span>
+      <span class="topbar-pill-label">GRIND</span>
       <span class="topbar-pill-count" id="topbarWaterCount">—/—</span>
     </a>
     <button class="topbar-water-add" id="topbarWaterAdd" aria-label="Log one drink" type="button">+</button>
@@ -231,9 +231,9 @@ body.topbar-modal-open {
     <span class="topbar-pill-dot"></span>
     <span class="topbar-pill-label">GYM</span>
   </a>
-  <a href="finance.html" class="topbar-pill" id="topbarFinance">
+  <a href="valorant-cc.html" class="topbar-pill" id="topbarFinance">
     <span class="topbar-pill-dot"></span>
-    <span class="topbar-pill-label">FINANCE</span>
+    <span class="topbar-pill-label">VALORANT</span>
   </a>
 </header>
 `;
