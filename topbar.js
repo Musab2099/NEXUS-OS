@@ -304,4 +304,12 @@ body.topbar-modal-open {
   } else {
     boot();
   }
+  // --- Service Worker registration (once per page via topbar.js) ---
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .catch((err) => console.warn('SW registration failed:', err));
+    });
+  }
 })();
+
