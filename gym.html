@@ -3,14 +3,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#02020C">
-  <link rel="manifest" href="./manifest.json">
-  <link rel="icon" href="./favicon-32.png" sizes="32x32">
-  <link rel="apple-touch-icon" href="./apple-touch-icon-180.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="NEXUS">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0b">
   <title>Summer Grind Gym — NEXUS</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="sync.js" defer></script>
@@ -833,6 +827,391 @@
       color: var(--bad);
     }
 
+    /* ===== MAKE-UP WORKOUTS ===== */
+    .makeup-card {
+      border-color: rgba(251, 191, 36, 0.22);
+    }
+
+    .makeup-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 4px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .makeup-row:last-child {
+      border-bottom: none;
+    }
+
+    .makeup-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .makeup-name {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .makeup-btn {
+      padding: 7px 12px;
+      border-radius: 9px;
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      background: rgba(251, 191, 36, 0.10);
+      color: var(--warn);
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.15s;
+    }
+
+    .makeup-btn:hover {
+      background: rgba(251, 191, 36, 0.18);
+    }
+
+    .recovery-banner {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      margin-bottom: 14px;
+      border-radius: 10px;
+      background: rgba(251, 191, 36, 0.08);
+      border: 1px solid rgba(251, 191, 36, 0.25);
+      color: var(--warn);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .makeup-tag {
+      font-size: 9px;
+      color: var(--warn);
+      font-family: var(--mono);
+      font-weight: 700;
+      margin-left: 4px;
+    }
+
+    /* ===== PROGRESSION CHARTS ===== */
+    .prog-chart-label {
+      font-size: 9.5px;
+      letter-spacing: 0.16em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-3);
+      font-family: var(--mono);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .prog-chart-label span {
+      color: var(--text-1);
+      font-size: 12px;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .prog-bar-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 64px;
+    }
+
+    .prog-bar {
+      flex: 1;
+      border-radius: 3px 3px 0 0;
+      background: rgba(167, 139, 250, 0.30);
+      min-height: 3px;
+      transition: height 0.3s ease;
+    }
+
+    .prog-bar.today-bar {
+      background: #A78BFA;
+      box-shadow: 0 0 8px rgba(167, 139, 250, 0.5);
+    }
+
+    .prog-day-labels {
+      display: flex;
+      gap: 3px;
+      margin-top: 4px;
+    }
+
+    .prog-day-lbl {
+      flex: 1;
+      text-align: center;
+      font-size: 8px;
+      color: var(--text-4);
+      font-family: var(--mono);
+    }
+
+    .prog-day-lbl.today-lbl {
+      color: #A78BFA;
+      font-weight: 700;
+    }
+
+    /* ===== MUSCLE RANKING ===== */
+    .gem-icon {
+      display: block;
+      flex-shrink: 0;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+    }
+
+    .muscle-overall {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .muscle-overall-gem {
+      flex-shrink: 0;
+      display: flex;
+    }
+
+    .muscle-overall-label {
+      font-size: 9.5px;
+      letter-spacing: 0.16em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-3);
+      font-family: var(--mono);
+      margin-bottom: 4px;
+    }
+
+    .muscle-overall-score {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .muscle-overall-tier {
+      margin-left: auto;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .muscle-body-wrap {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .muscle-svg {
+      width: 92px;
+      height: 175px;
+      flex-shrink: 0;
+    }
+
+    .muscle-svg [data-muscle] {
+      fill: rgba(255, 255, 255, 0.10);
+      transition: fill 0.35s, opacity 0.35s;
+      cursor: pointer;
+    }
+
+    .muscle-svg [data-muscle].muscle-pulse {
+      animation: muscle-flash 0.7s ease;
+    }
+
+    @keyframes muscle-flash {
+      0% {
+        filter: brightness(1);
+      }
+
+      40% {
+        filter: brightness(1.7);
+      }
+
+      100% {
+        filter: brightness(1);
+      }
+    }
+
+    .muscle-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .muscle-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .muscle-gem {
+      display: flex;
+      flex-shrink: 0;
+    }
+
+    .muscle-name {
+      font-size: 11.5px;
+      font-weight: 600;
+      width: 56px;
+      flex-shrink: 0;
+    }
+
+    .muscle-bar-track {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+    }
+
+    .muscle-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+
+    .muscle-tier {
+      font-size: 10px;
+      font-weight: 700;
+      font-family: var(--mono);
+      width: 70px;
+      text-align: right;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .muscle-footnote {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      font-size: 10.5px;
+      color: var(--text-3);
+      font-style: italic;
+      line-height: 1.4;
+    }
+
+    /* Featured rank card (Liftoff-style lift card) */
+    .featured-rank-card {
+      --rank-color: #FF4D67;
+      background: #16131a !important;
+      background: linear-gradient(160deg, color-mix(in srgb, var(--rank-color) 18%, #16131a) 0%, #16131a 60%) !important;
+      border: 1px solid color-mix(in srgb, var(--rank-color) 45%, transparent) !important;
+    }
+
+    .featured-rank-eyebrow {
+      font-size: 9.5px;
+      letter-spacing: 0.18em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-3);
+      font-family: var(--mono);
+      margin-bottom: 12px;
+    }
+
+    .featured-rank-body {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .featured-rank-gem {
+      flex-shrink: 0;
+      display: flex;
+    }
+
+    .featured-rank-mid {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .featured-rank-tier {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: var(--rank-color);
+    }
+
+    .featured-rank-lift {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-top: 2px;
+    }
+
+    .featured-rank-stat {
+      flex-shrink: 0;
+      text-align: right;
+      padding-left: 14px;
+      border-left: 1px solid rgba(255, 255, 255, 0.10);
+    }
+
+    .featured-rank-stat-label {
+      display: block;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-3);
+      font-family: var(--mono);
+      margin-bottom: 3px;
+    }
+
+    .featured-rank-stat-val {
+      font-size: 24px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-1);
+    }
+
+    .featured-rank-stat-unit {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-left: 3px;
+      font-weight: 600;
+    }
+
+    /* Tier legend grid */
+    .tier-legend-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .tier-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 4px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .tier-cell-name {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    @media (max-width: 480px) {
+      .tier-legend-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
     @media (max-width: 480px) {
       .shell {
         padding-top: max(14px, env(safe-area-inset-top));
@@ -851,6 +1230,21 @@
 
       .weight-num {
         font-size: 42px;
+      }
+
+      .muscle-body-wrap {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .muscle-svg {
+        width: 100px;
+        height: 200px;
+        align-self: center;
+      }
+
+      .muscle-name {
+        width: 56px;
       }
     }
   </style>
@@ -880,6 +1274,15 @@
       <span class="today-pill-rest" id="todayRest"></span>
     </div>
 
+    <div class="card makeup-card" id="makeupCard" style="display:none">
+      <div class="ex-header" style="margin-bottom:10px">
+        <span style="font-size:16px">🔁</span>
+        <div class="ex-header-title" style="font-size:14px">Make-Up Workouts</div>
+        <div class="ex-header-sub">missed this week</div>
+      </div>
+      <div id="makeupList"></div>
+    </div>
+
     <div class="day-tabs">
       <button class="day-tab" style="--tab-color: var(--push)" data-day="0" onclick="setDay(0)">
         <span class="day-tab-emoji">🔴</span>
@@ -900,6 +1303,7 @@
     </div>
 
     <div id="workoutSection" class="card">
+      <div class="recovery-banner" id="recoveryBanner" style="display:none"></div>
       <div class="done-bar">
         <div class="done-summary" id="doneSummary">0 / 0 exercises checked</div>
         <button class="done-btn" id="doneBtnEl" onclick="toggleWorkoutDone()">Mark workout done</button>
@@ -911,376 +1315,6 @@
       </div>
       <div id="exerciseList"></div>
     </div>
-
-    <!-- MUSCLE RANKING -->
-    <div class="divider"><span>Muscle Ranking</span></div>
-    <div class="card muscle-rank-card" id="muscleRankCard">
-      <div class="muscle-rank-top">
-        <div class="muscle-map" aria-label="Muscle mapping">
-          <svg class="muscle-map-svg" viewBox="0 0 220 260" role="img" aria-hidden="true">
-            <defs>
-              <filter id="mrGlow" x="-40%" y="-40%" width="180%" height="180%">
-                <feGaussianBlur stdDeviation="3" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-              <linearGradient id="mrSkin" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="rgba(255,255,255,0.10)" />
-                <stop offset="100%" stop-color="rgba(255,255,255,0.02)" />
-              </linearGradient>
-            </defs>
-
-            <!-- base body silhouette -->
-            <path d="M103 18c9 0 17 7 17 16v18c0 6 3 12 8 15l15 9c5 3 8 9 8 15 0 14-9 21-18 26l-2 1 7 50c1 8-2 16-8 22l-8 8v28c0 7-5 12-12 12h-12c-7 0-12-5-12-12v-28l-8-8c-6-6-9-14-8-22l7-50-2-1c-9-5-18-12-18-26 0-6 3-12 8-15l15-9c5-3 8-9 8-15V34c0-9 8-16 17-16Z" fill="url(#mrSkin)" stroke="rgba(255,255,255,0.08)" />
-
-            <!-- chest -->
-            <path d="M88 78c6-4 12-6 15-6h14c3 0 9 2 15 6 4 2 6 7 5 12l-4 22c-1 6-7 10-13 10H100c-6 0-12-4-13-10l-4-22c-1-5 1-10 5-12Z" fill="rgba(239,68,68,0.85)" filter="url(#mrGlow)" />
-
-            <!-- abdominals / core -->
-            <path d="M82 118c0-6 5-11 11-11h34c6 0 11 5 11 11v34c0 8-6 14-14 14h-28c-8 0-14-6-14-14v-34Z" fill="rgba(34,211,238,0.85)" filter="url(#mrGlow)" />
-
-            <!-- shoulders/arms -->
-            <path d="M65 92c7-7 18-10 27-10l-7 42c-1 6-6 10-12 10h-7c-7 0-13-6-13-13 0-7 3-14 12-19Z" fill="rgba(139,92,246,0.85)" filter="url(#mrGlow)" />
-            <path d="M155 92c-7-7-18-10-27-10l7 42c1 6 6 10 12 10h7c7 0 13-6 13-13 0-7-3-14-12-19Z" fill="rgba(139,92,246,0.85)" filter="url(#mrGlow)" />
-
-            <!-- thighs -->
-            <path d="M70 164c6-4 14-6 22-6h36c8 0 16 2 22 6l-9 42c-1 6-7 11-13 11H92c-6 0-12-5-13-11l-9-42Z" fill="rgba(236,72,153,0.78)" filter="url(#mrGlow)" />
-
-            <!-- calves -->
-            <path d="M86 214c0-6 5-11 11-11h26c6 0 11 5 11 11v24c0 6-5 11-11 11h-26c-6 0-11-5-11-11v-24Z" fill="rgba(59,130,246,0.75)" filter="url(#mrGlow)" />
-
-            <!-- faint outlines -->
-            <path d="M103 18c9 0 17 7 17 16v18c0 6 3 12 8 15l15 9c5 3 8 9 8 15 0 14-9 21-18 26l-2 1 7 50c1 8-2 16-8 22l-8 8v28c0 7-5 12-12 12h-12c-7 0-12-5-12-12v-28l-8-8c-6-6-9-14-8-22l7-50-2-1c-9-5-18-12-18-26 0-6 3-12 8-15l15-9c5-3 8-9 8-15V34c0-9 8-16 17-16Z" fill="none" stroke="rgba(255,255,255,0.07)" />
-          </svg>
-        </div>
-
-        <div class="muscle-rank-card-inner" aria-label="Current rank">
-          <div class="muscle-rank-card-outer">
-            <div class="mr-rank-label">Rank</div>
-            <div class="mr-rank-name" id="mrRankName">TITAN III</div>
-            <div class="mr-rank-lp" id="mrRankLP">67 LP</div>
-
-            <div class="mr-crest-wrap" aria-hidden="true">
-              <svg class="mr-crest" viewBox="0 0 120 120">
-                <defs>
-                  <linearGradient id="crestRed" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stop-color="#ff6b6b" />
-                    <stop offset="100%" stop-color="#b91c1c" />
-                  </linearGradient>
-                  <filter id="crestGlow" x="-30%" y="-30%" width="160%" height="160%">
-                    <feGaussianBlur stdDeviation="3" result="blur" />
-                    <feMerge>
-                      <feMergeNode in="blur" />
-                      <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                  </filter>
-                </defs>
-
-                <!-- hex crest -->
-                <path d="M60 6 104 31v58L60 114 16 89V31L60 6Z" fill="url(#crestRed)" stroke="rgba(255,255,255,0.25)" stroke-width="2" filter="url(#crestGlow)" />
-
-                <!-- wings (simple) -->
-                <path d="M24 40c10-10 24-14 36-14-8 8-14 18-16 30-7-2-13-6-20-16Z" fill="rgba(185,28,28,0.92)" />
-                <path d="M96 40c-10-10-24-14-36-14 8 8 14 18 16 30 7-2 13-6 20-16Z" fill="rgba(185,28,28,0.92)" />
-
-                <!-- inner icon -->
-                <circle cx="60" cy="58" r="18" fill="rgba(0,0,0,0.25)" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
-                <path d="M52 62c5 4 11 4 16 0" stroke="rgba(255,255,255,0.8)" stroke-width="3" stroke-linecap="round" fill="none" />
-                <path d="M47 50c6-6 20-6 26 0" stroke="rgba(255,255,255,0.35)" stroke-width="3" stroke-linecap="round" fill="none" />
-              </svg>
-            </div>
-
-            <div class="mr-ex" id="mrExerciseLine">
-              Bench Press — <span class="mr-stat" id="mrWeight">245 LBS</span> · <span class="mr-stat" id="mrRpe">RPE 1</span>
-            </div>
-
-            <div class="mr-watermark" id="mrWatermark">TikTok @...</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="muscle-rank-bottom">
-        <div class="mr-hierarchy-title">Ranking Hierarchy</div>
-        <div class="mr-hierarchy" id="mrHierarchy">
-          <!-- injected by JS -->
-        </div>
-      </div>
-    </div>
-
-    <style>
-      /* Muscle ranking styles (scoped by page) */
-      .muscle-rank-card {
-        background: rgba(17,17,19,0.65);
-        border-color: rgba(239,68,68,0.20);
-      }
-
-      .muscle-rank-top {
-        display: grid;
-        grid-template-columns: 1.1fr 1fr;
-        gap: 14px;
-        align-items: center;
-      }
-
-      .muscle-map {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 6px;
-      }
-
-      .muscle-map-svg {
-        width: 100%;
-        max-width: 220px;
-        height: auto;
-        filter: drop-shadow(0 10px 30px rgba(0,0,0,0.35));
-      }
-
-      .muscle-rank-card-inner {
-        display: flex;
-        justify-content: center;
-      }
-
-      .muscle-rank-card-outer {
-        width: 100%;
-        height: 300px;
-        max-width: 280px;
-        background: linear-gradient(180deg, rgba(185,28,28,0.95), rgba(100,10,10,0.95));
-        border-radius: 18px;
-        border: 1px solid rgba(255,255,255,0.16);
-        box-shadow: 0 18px 60px rgba(185,28,28,0.20);
-        position: relative;
-        overflow: hidden;
-        padding: 14px 14px 16px;
-      }
-
-      .muscle-rank-card-outer::before {
-        content: '';
-        position: absolute;
-        inset: -30% -30% auto -30%;
-        height: 70%;
-        background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.18), transparent 60%);
-        pointer-events: none;
-      }
-
-      .mr-rank-label {
-        font-family: var(--mono);
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: 0.22em;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.75);
-        margin-bottom: 6px;
-      }
-
-      .mr-rank-name {
-        font-size: 26px;
-        font-weight: 900;
-        letter-spacing: -0.02em;
-        line-height: 1;
-        color: #fff;
-      }
-
-      .mr-rank-lp {
-        margin-top: 4px;
-        font-family: var(--mono);
-        font-size: 13px;
-        font-weight: 800;
-        color: rgba(255,255,255,0.85);
-        text-align: left;
-      }
-
-      .mr-crest-wrap {
-        margin: 14px auto 10px;
-        width: 124px;
-        height: 124px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transform: translateZ(0);
-      }
-
-      .mr-crest {
-        width: 120px;
-        height: 120px;
-      }
-
-      .mr-ex {
-        font-family: var(--mono);
-        font-size: 12px;
-        font-weight: 700;
-        color: rgba(255,255,255,0.88);
-        line-height: 1.35;
-        margin-top: -4px;
-      }
-
-      .mr-stat {
-        color: #fff;
-      }
-
-      .mr-watermark {
-        position: absolute;
-        bottom: 10px;
-        left: 12px;
-        right: 12px;
-        text-align: center;
-        font-family: var(--mono);
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-        color: rgba(255,255,255,0.78);
-        opacity: 0.95;
-      }
-
-      .muscle-rank-bottom {
-        margin-top: 14px;
-      }
-
-      .mr-hierarchy-title {
-        font-family: var(--mono);
-        font-size: 11px;
-        font-weight: 800;
-        letter-spacing: 0.20em;
-        text-transform: uppercase;
-        color: var(--text-3);
-        margin-bottom: 10px;
-      }
-
-      .mr-hierarchy {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 10px 8px;
-        align-items: center;
-      }
-
-      .mr-tier {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 4px;
-        border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.06);
-        background: rgba(255,255,255,0.02);
-        transition: transform .15s, border-color .2s, background .2s;
-        user-select: none;
-      }
-
-      .mr-tier:hover {
-        transform: translateY(-1px);
-        background: rgba(255,255,255,0.03);
-      }
-
-      .mr-tier.active {
-        border-color: rgba(239,68,68,0.42);
-        background: rgba(239,68,68,0.12);
-      }
-
-      .mr-tier-label {
-        font-family: var(--mono);
-        font-weight: 900;
-        font-size: 10px;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: var(--text-2);
-        text-align: center;
-        line-height: 1.1;
-      }
-
-      .mr-hex {
-        width: 34px;
-        height: 34px;
-        filter: drop-shadow(0 12px 18px rgba(0,0,0,0.35));
-      }
-
-      @media (max-width: 560px) {
-        .muscle-rank-top { grid-template-columns: 1fr; }
-        .muscle-rank-card-outer { height: 280px; max-width: none; }
-        .mr-hierarchy { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      }
-    </style>
-
-    <script>
-      (function(){
-        'use strict';
-
-        const RANK_STORAGE_KEY = 'muscle_rank_v1';
-
-        const TIERS = [
-          { key: 'wood', label: 'Wood' , color: 'rgba(146, 81, 31, 0.95)', stroke: 'rgba(255,255,255,0.18)' },
-          { key: 'bronze', label: 'Bronze', color: 'rgba(180, 120, 50, 0.98)', stroke: 'rgba(255,255,255,0.18)' },
-          { key: 'silver', label: 'Silver', color: 'rgba(209, 213, 219, 0.98)', stroke: 'rgba(0,0,0,0.18)' },
-          { key: 'gold', label: 'Gold', color: 'rgba(245, 158, 11, 0.98)', stroke: 'rgba(0,0,0,0.18)' },
-          { key: 'platinum', label: 'Platinum', color: 'rgba(34, 211, 238, 0.55)', stroke: 'rgba(255,255,255,0.22)' },
-          { key: 'diamond', label: 'Diamond', color: 'rgba(139, 92, 246, 0.85)', stroke: 'rgba(255,255,255,0.22)' },
-          { key: 'champion', label: 'Champion', color: 'rgba(236, 72, 153, 0.85)', stroke: 'rgba(255,255,255,0.22)' },
-          { key: 'titan', label: 'Titan', color: 'rgba(185, 28, 28, 0.95)', stroke: 'rgba(255,255,255,0.22)' },
-          { key: 'olympian', label: 'Olympian', color: 'rgba(56, 189, 248, 0.92)', stroke: 'rgba(255,255,255,0.22)' },
-        ];
-
-        const DEFAULT_RANK = {
-          tierKey: 'titan',
-          tierIndex: 7,
-          rankName: 'TITAN III',
-          lp: 67,
-          exercise: 'Bench Press',
-          weight: 245,
-          unit: 'LBS',
-          rpe: 1,
-        };
-
-        const storeGet = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
-        const storeSet = (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
-
-        function hexSVG(fill, stroke){
-          return `
-            <svg class="mr-hex" viewBox="0 0 60 60" aria-hidden="true">
-              <defs>
-                <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="rgba(255,255,255,0.35)" />
-                  <stop offset="40%" stop-color="${fill}" />
-                  <stop offset="100%" stop-color="rgba(0,0,0,0.08)" />
-                </linearGradient>
-              </defs>
-              <path d="M30 4 52 16v28L30 56 8 44V16L30 4Z" fill="url(#g)" stroke="${stroke}" stroke-width="2"/>
-            </svg>
-          `;
-        }
-
-        function renderTiers(activeKey){
-          const root = document.getElementById('mrHierarchy');
-          if (!root) return;
-          root.innerHTML = '';
-          TIERS.forEach(t => {
-            const el = document.createElement('div');
-            el.className = 'mr-tier' + (t.key === activeKey ? ' active' : '');
-            el.innerHTML = `${hexSVG(t.color, t.stroke)}<div class="mr-tier-label">${t.label}</div>`;
-            root.appendChild(el);
-          });
-        }
-
-        function renderRank(rank){
-          document.getElementById('mrRankName').textContent = rank.rankName;
-          document.getElementById('mrRankLP').textContent = rank.lp + ' LP';
-          document.getElementById('mrWeight').textContent = rank.weight + ' ' + rank.unit;
-          document.getElementById('mrRpe').textContent = 'RPE ' + rank.rpe;
-          renderTiers(rank.tierKey);
-        }
-
-        function init(){
-          const stored = storeGet(RANK_STORAGE_KEY);
-          const rank = stored && stored.tierKey ? stored : DEFAULT_RANK;
-          // ensure defaults for any missing fields
-          const merged = Object.assign({}, DEFAULT_RANK, rank);
-          storeSet(RANK_STORAGE_KEY, merged);
-          renderRank(merged);
-        }
-
-        init();
-      })();
-    </script>
-
 
     <div class="divider"><span>Today's Log</span></div>
     <div class="card">
@@ -1413,6 +1447,95 @@
       </div>
     </div>
 
+    <div class="divider"><span>Progression 📈</span></div>
+    <div class="card">
+      <div class="prog-chart-label">Workout Volume — 14 days <span id="volAvgLabel">—</span></div>
+      <div class="prog-bar-row" id="volBarRow"></div>
+      <div class="prog-day-labels" id="volDayLabels"></div>
+    </div>
+    <div class="card">
+      <div class="prog-chart-label">Planche Hold Progression <span id="plancheTrendLabel">—</span></div>
+      <div id="plancheLineChart"></div>
+    </div>
+
+    <div class="divider"><span>Muscle Ranking 💪</span></div>
+
+    <div class="card featured-rank-card" id="featuredRankCard">
+      <div class="featured-rank-eyebrow">Featured Skill Rank</div>
+      <div class="featured-rank-body">
+        <span class="featured-rank-gem" id="featuredRankGem"></span>
+        <div class="featured-rank-mid">
+          <div class="featured-rank-tier" id="featuredRankTier">WOOD III</div>
+          <div class="featured-rank-lift" id="featuredRankLift">Planche Lean</div>
+        </div>
+        <div class="featured-rank-stat">
+          <span class="featured-rank-stat-label">BEST HOLD</span>
+          <span class="featured-rank-stat-val"><span id="featuredRankVal">0</span><span
+              class="featured-rank-stat-unit">sec</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="muscle-overall">
+        <span class="muscle-overall-gem" id="overallGem"></span>
+        <div>
+          <div class="muscle-overall-label">Overall Strength Score</div>
+          <div class="muscle-overall-score" id="overallScore">0</div>
+        </div>
+        <div class="muscle-overall-tier" id="overallTier">Wood III</div>
+      </div>
+      <div class="muscle-body-wrap">
+        <svg viewBox="0 0 200 380" class="muscle-svg">
+          <circle cx="100" cy="26" r="19" fill="rgba(255,255,255,0.07)" />
+          <path d="M89,42 L89,54 Q100,58 111,54 L111,42 Z" fill="rgba(255,255,255,0.07)" />
+
+          <path data-muscle="shoulders"
+            d="M64,58 Q46,58 40,78 Q36,96 46,108 Q60,116 74,106 Q80,92 76,76 Q74,62 64,58 Z" />
+          <path data-muscle="shoulders"
+            d="M136,58 Q154,58 160,78 Q164,96 154,108 Q140,116 126,106 Q120,92 124,76 Q126,62 136,58 Z" />
+
+          <path data-muscle="arms"
+            d="M44,90 Q33,96 31,118 L29,182 Q28,198 36,208 L47,208 Q51,198 51,182 L53,120 Q54,102 46,92 Z" />
+          <path data-muscle="arms"
+            d="M156,90 Q167,96 169,118 L171,182 Q172,198 164,208 L153,208 Q149,198 149,182 L147,120 Q146,102 154,92 Z" />
+
+          <path data-muscle="chest" d="M70,72 Q70,60 88,58 Q100,57 100,72 L100,112 Q100,124 86,124 Q70,124 68,108 Z" />
+          <path data-muscle="chest"
+            d="M130,72 Q130,60 112,58 Q100,57 100,72 L100,112 Q100,124 114,124 Q130,124 132,108 Z" />
+
+          <g data-muscle="core">
+            <rect x="80" y="128" width="17" height="17" rx="4" />
+            <rect x="103" y="128" width="17" height="17" rx="4" />
+            <rect x="80" y="148" width="17" height="17" rx="4" />
+            <rect x="103" y="148" width="17" height="17" rx="4" />
+            <rect x="80" y="168" width="17" height="17" rx="4" />
+            <rect x="103" y="168" width="17" height="17" rx="4" />
+          </g>
+
+          <path d="M74,190 Q100,198 126,190 L130,214 Q100,224 70,214 Z" fill="rgba(255,255,255,0.07)" />
+
+          <path data-muscle="legs"
+            d="M70,216 Q59,222 57,244 L55,326 Q55,340 62,346 L80,346 Q84,340 84,326 L86,246 Q88,226 80,216 Z" />
+          <path data-muscle="legs"
+            d="M130,216 Q141,222 143,244 L145,326 Q145,340 138,346 L120,346 Q116,340 116,326 L114,246 Q112,226 120,216 Z" />
+          <line x1="71" y1="228" x2="69" y2="338" stroke="rgba(0,0,0,0.35)" stroke-width="2" />
+          <line x1="129" y1="228" x2="131" y2="338" stroke="rgba(0,0,0,0.35)" stroke-width="2" />
+
+          <ellipse cx="68" cy="360" rx="15" ry="9" fill="rgba(255,255,255,0.07)" />
+          <ellipse cx="132" cy="360" rx="15" ry="9" fill="rgba(255,255,255,0.07)" />
+        </svg>
+        <div class="muscle-list" id="muscleList"></div>
+      </div>
+      <div class="muscle-footnote">Tap a muscle to highlight it · Back &amp; Glutes aren't visible from the front but
+        rank just like the others above</div>
+    </div>
+
+    <div class="card">
+      <div class="prog-chart-label" style="margin-bottom:14px">Rank Tiers <span>Wood → Olympian</span></div>
+      <div class="tier-legend-grid" id="tierLegendGrid"></div>
+    </div>
+
     <div class="divider"><span>Recent Sessions</span></div>
     <div class="card" id="histCard">
       <div style="text-align:center;font-size:12px;color:var(--text-3);padding:16px 0;font-style:italic">
@@ -1441,14 +1564,14 @@
           color: 'var(--push)',
           emoji: '🔴',
           exercises: [
-            { name: '🎯 Planche Lean', sets: '5', reps: '15–25 sec', rest: '45s', note: 'Do this FIRST — always on fresh muscles', badge: 'planche' },
-            { name: 'Wrist Conditioning Rotations', sets: '1', reps: '30 sec each dir', rest: '—', note: 'Non-negotiable — protects joints' },
-            { name: 'Push-ups', sets: '4', reps: 'Max reps', rest: '60s', note: 'Go to failure every set' },
-            { name: 'Pike Push-ups', sets: '3', reps: '10–12', rest: '60s', note: 'Lean forward = hits shoulders harder' },
-            { name: 'DB Shoulder Press (10 lbs)', sets: '4', reps: '12–15', rest: '60s', note: '3 sec descent, feel the burn' },
-            { name: 'DB Lateral Raise', sets: '3', reps: '15–20', rest: '45s', note: 'Light + controlled — squeeze at top' },
-            { name: 'Diamond Push-ups', sets: '3', reps: '10–12', rest: '45s', note: 'Elbows in tight — direct tricep hit' },
-            { name: 'Tricep Dips (chair/edge)', sets: '3', reps: '12–15', rest: '45s', note: 'Full depth — go deep' },
+            { name: '🎯 Planche Lean', sets: '5', reps: '15–25 sec', rest: '45s', note: 'Do this FIRST — always on fresh muscles', badge: 'planche', muscle: 'chest' },
+            { name: 'Wrist Conditioning Rotations', sets: '1', reps: '30 sec each dir', rest: '—', note: 'Non-negotiable — protects joints', muscle: 'arms' },
+            { name: 'Push-ups', sets: '4', reps: 'Max reps', rest: '60s', note: 'Go to failure every set', muscle: 'chest' },
+            { name: 'Pike Push-ups', sets: '3', reps: '10–12', rest: '60s', note: 'Lean forward = hits shoulders harder', muscle: 'shoulders' },
+            { name: 'DB Shoulder Press (10 lbs)', sets: '4', reps: '12–15', rest: '60s', note: '3 sec descent, feel the burn', muscle: 'shoulders' },
+            { name: 'DB Lateral Raise', sets: '3', reps: '15–20', rest: '45s', note: 'Light + controlled — squeeze at top', muscle: 'shoulders' },
+            { name: 'Diamond Push-ups', sets: '3', reps: '10–12', rest: '45s', note: 'Elbows in tight — direct tricep hit', muscle: 'arms' },
+            { name: 'Tricep Dips (chair/edge)', sets: '3', reps: '12–15', rest: '45s', note: 'Full depth — go deep', muscle: 'arms' },
           ]
         },
         {
@@ -1456,13 +1579,13 @@
           color: 'var(--pull)',
           emoji: '🔵',
           exercises: [
-            { name: 'Pull-up Negatives', sets: '5', reps: '4–6 reps', rest: '90s', note: 'Jump up, lower in 5 sec — 3 → 10 pull-ups FAST' },
-            { name: 'Dead Hang', sets: '3', reps: '30–45 sec', rest: '60s', note: 'Grip + shoulder stability for planche' },
-            { name: 'Scapular Pull-ups', sets: '3', reps: '10–12', rest: '60s', note: 'Hang → retract shoulder blades. Foundation of pull-up strength' },
-            { name: 'DB Bent-Over Row', sets: '4', reps: '12–15', rest: '60s', note: 'Back flat, squeeze at top for 1 sec' },
-            { name: 'DB Bicep Curl', sets: '3', reps: '15–20', rest: '45s', note: 'Slow — 3s up 3s down' },
-            { name: 'DB Hammer Curl', sets: '3', reps: '15', rest: '45s', note: 'Hits brachialis = bigger-looking arms' },
-            { name: 'Hollow Body Hold', sets: '3', reps: '25–35 sec', rest: '45s', note: 'Core position IS the planche — practice daily', badge: 'planche' },
+            { name: 'Pull-up Negatives', sets: '5', reps: '4–6 reps', rest: '90s', note: 'Jump up, lower in 5 sec — 3 → 10 pull-ups FAST', muscle: 'back' },
+            { name: 'Dead Hang', sets: '3', reps: '30–45 sec', rest: '60s', note: 'Grip + shoulder stability for planche', muscle: 'back' },
+            { name: 'Scapular Pull-ups', sets: '3', reps: '10–12', rest: '60s', note: 'Hang → retract shoulder blades. Foundation of pull-up strength', muscle: 'back' },
+            { name: 'DB Bent-Over Row', sets: '4', reps: '12–15', rest: '60s', note: 'Back flat, squeeze at top for 1 sec', muscle: 'back' },
+            { name: 'DB Bicep Curl', sets: '3', reps: '15–20', rest: '45s', note: 'Slow — 3s up 3s down', muscle: 'arms' },
+            { name: 'DB Hammer Curl', sets: '3', reps: '15', rest: '45s', note: 'Hits brachialis = bigger-looking arms', muscle: 'arms' },
+            { name: 'Hollow Body Hold', sets: '3', reps: '25–35 sec', rest: '45s', note: 'Core position IS the planche — practice daily', badge: 'planche', muscle: 'core' },
           ]
         },
         {
@@ -1470,13 +1593,13 @@
           color: 'var(--legs)',
           emoji: '⚫',
           exercises: [
-            { name: 'Bulgarian Split Squat (DBs)', sets: '3', reps: '10–12 each', rest: '75s', note: 'Hardest leg exercise — main fat burner' },
-            { name: 'Jump Squats (bodyweight)', sets: '4', reps: '15–20', rest: '45s', note: 'Explosive — major heart rate spike' },
-            { name: 'DB Romanian Deadlift', sets: '3', reps: '12–15', rest: '60s', note: 'Slow descent — feel the hamstring stretch' },
-            { name: 'Glute Bridges (DB on hips)', sets: '3', reps: '20', rest: '45s', note: 'Squeeze at top for 1 full second' },
-            { name: 'Single-Leg Calf Raises', sets: '3', reps: '20 each', rest: '30s', note: 'Full stretch at bottom' },
-            { name: 'HIIT: Burpees', sets: '5 rounds', reps: '30s on / 20s rest', rest: '—', note: '5 min total — this is your cardio', badge: 'hiit' },
-            { name: 'HIIT: Mountain Climbers', sets: '5 rounds', reps: '30s on / 20s rest', rest: '—', note: 'Do after burpees or alternate days', badge: 'hiit' },
+            { name: 'Bulgarian Split Squat (DBs)', sets: '3', reps: '10–12 each', rest: '75s', note: 'Hardest leg exercise — main fat burner', muscle: 'legs' },
+            { name: 'Jump Squats (bodyweight)', sets: '4', reps: '15–20', rest: '45s', note: 'Explosive — major heart rate spike', muscle: 'legs' },
+            { name: 'DB Romanian Deadlift', sets: '3', reps: '12–15', rest: '60s', note: 'Slow descent — feel the hamstring stretch', muscle: 'glutes' },
+            { name: 'Glute Bridges (DB on hips)', sets: '3', reps: '20', rest: '45s', note: 'Squeeze at top for 1 full second', muscle: 'glutes' },
+            { name: 'Single-Leg Calf Raises', sets: '3', reps: '20 each', rest: '30s', note: 'Full stretch at bottom', muscle: 'legs' },
+            { name: 'HIIT: Burpees', sets: '5 rounds', reps: '30s on / 20s rest', rest: '—', note: '5 min total — this is your cardio', badge: 'hiit', muscle: 'legs' },
+            { name: 'HIIT: Mountain Climbers', sets: '5 rounds', reps: '30s on / 20s rest', rest: '—', note: 'Do after burpees or alternate days', badge: 'hiit', muscle: 'core' },
           ]
         },
         {
@@ -1484,13 +1607,13 @@
           color: 'var(--core)',
           emoji: '🟡',
           exercises: [
-            { name: '🎯 Planche Lean — PUSH HARDER', sets: '6', reps: '20–30 sec', rest: '60s', note: 'Add 2–3 sec per week — progressive overload', badge: 'planche' },
-            { name: '🎯 Tuck Planche Attempt', sets: '4', reps: '3–10 sec', rest: '75s', note: 'Attempt when lean hits 20s consistently', badge: 'planche' },
-            { name: 'Hollow Body Hold', sets: '4', reps: '35–45 sec', rest: '45s', note: 'Core compression = planche foundation' },
-            { name: 'L-Sit (floor / between DBs)', sets: '4', reps: '5–15 sec', rest: '60s', note: 'Builds compression for tuck planche' },
-            { name: 'Hanging Knee Raises', sets: '3', reps: '15–20', rest: '45s', note: 'Pull-up bar — control it, zero swinging' },
-            { name: 'Russian Twists (hold DB)', sets: '3', reps: '20 each side', rest: '45s', note: 'Rotational strength for balance' },
-            { name: 'Ab Wheel / DB Rollout', sets: '3', reps: '10–12', rest: '60s', note: 'Place DB on floor and roll out' },
+            { name: '🎯 Planche Lean — PUSH HARDER', sets: '6', reps: '20–30 sec', rest: '60s', note: 'Add 2–3 sec per week — progressive overload', badge: 'planche', muscle: 'chest' },
+            { name: '🎯 Tuck Planche Attempt', sets: '4', reps: '3–10 sec', rest: '75s', note: 'Attempt when lean hits 20s consistently', badge: 'planche', muscle: 'chest' },
+            { name: 'Hollow Body Hold', sets: '4', reps: '35–45 sec', rest: '45s', note: 'Core compression = planche foundation', muscle: 'core' },
+            { name: 'L-Sit (floor / between DBs)', sets: '4', reps: '5–15 sec', rest: '60s', note: 'Builds compression for tuck planche', muscle: 'core' },
+            { name: 'Hanging Knee Raises', sets: '3', reps: '15–20', rest: '45s', note: 'Pull-up bar — control it, zero swinging', muscle: 'core' },
+            { name: 'Russian Twists (hold DB)', sets: '3', reps: '20 each side', rest: '45s', note: 'Rotational strength for balance', muscle: 'core' },
+            { name: 'Ab Wheel / DB Rollout', sets: '3', reps: '10–12', rest: '60s', note: 'Place DB on floor and roll out', muscle: 'core' },
           ]
         }
       ];
@@ -1503,11 +1626,112 @@
       ];
       const NUM_WEEKS = 8;
 
+      const MUSCLE_GROUPS = [
+        { key: 'shoulders', label: 'Shoulders' },
+        { key: 'chest', label: 'Chest' },
+        { key: 'arms', label: 'Arms' },
+        { key: 'back', label: 'Back' },
+        { key: 'core', label: 'Core' },
+        { key: 'legs', label: 'Legs' },
+        { key: 'glutes', label: 'Glutes' },
+      ];
+      const TIERS = [
+        { name: 'Wood', min: 0, color: '#9C7A52' },
+        { name: 'Bronze', min: 10, color: '#CD7F45' },
+        { name: 'Silver', min: 25, color: '#B9C2CC' },
+        { name: 'Gold', min: 45, color: '#F0BD3D' },
+        { name: 'Platinum', min: 70, color: '#49D6BD' },
+        { name: 'Diamond', min: 100, color: '#6FC8F2' },
+        { name: 'Champion', min: 140, color: '#B768E8' },
+        { name: 'Titan', min: 190, color: '#FF4D67' },
+        { name: 'Olympian', min: 250, color: '#FFA63D' },
+      ];
+      const PLANCHE_TIERS = [
+        { name: 'Wood', min: 0, color: '#9C7A52' },
+        { name: 'Bronze', min: 8, color: '#CD7F45' },
+        { name: 'Silver', min: 18, color: '#B9C2CC' },
+        { name: 'Gold', min: 30, color: '#F0BD3D' },
+        { name: 'Platinum', min: 45, color: '#49D6BD' },
+        { name: 'Diamond', min: 60, color: '#6FC8F2' },
+        { name: 'Champion', min: 75, color: '#B768E8' },
+        { name: 'Titan', min: 88, color: '#FF4D67' },
+        { name: 'Olympian', min: 97, color: '#FFA63D' },
+      ];
+      function getTier(score, table) {
+        const T = table || TIERS;
+        let idx = 0;
+        for (let i = T.length - 1; i >= 0; i--) { if (score >= T[i].min) { idx = i; break; } }
+        const cur = T[idx], next = T[idx + 1];
+        const span = next ? (next.min - cur.min) : Math.max(1, cur.min * 0.5);
+        const within = next ? Math.min(1, Math.max(0, (score - cur.min) / span)) : 1;
+        const subNames = ['III', 'II', 'I'];
+        const sub = next ? subNames[Math.min(2, Math.floor(within * 3))] : '';
+        return { name: cur.name, color: cur.color, idx, sub, pct: within * 100, next };
+      }
+      function gemIcon(color, size) {
+        size = size || 22;
+        return `<svg width="${size}" height="${size}" viewBox="0 0 24 22" class="gem-icon">
+        <path d="M12 1 L21.5 7.5 L18 21 L6 21 L2.5 7.5 Z" fill="${color}"/>
+        <path d="M2.5 7.5 L12 1 L21.5 7.5 L12 12 Z" fill="#fff" opacity="0.32"/>
+      </svg>`;
+      }
+      function parseSetsNum(s) {
+        const m = String(s || '').match(/\d+/);
+        return m ? parseInt(m[0], 10) : 1;
+      }
+      function computeMuscleScores() {
+        const scores = {};
+        MUSCLE_GROUPS.forEach(m => scores[m.key] = 0);
+        for (const k in S) {
+          if (!k.startsWith('ex_')) continue;
+          const parts = k.split('_');
+          const dayIdx = parseInt(parts[1], 10);
+          if (isNaN(dayIdx) || !DAYS[dayIdx]) continue;
+          const checked = S[k];
+          if (!Array.isArray(checked)) continue;
+          checked.forEach(exIdx => {
+            const ex = DAYS[dayIdx].exercises[exIdx];
+            if (!ex || !ex.muscle) return;
+            scores[ex.muscle] = (scores[ex.muscle] || 0) + parseSetsNum(ex.sets);
+          });
+        }
+        return scores;
+      }
+      function getPlancheCompositeScore() {
+        let score = 0;
+        PLANCHE_PHASES.forEach((ph, pi) => {
+          let best = 0;
+          for (let w = 0; w < NUM_WEEKS; w++) {
+            const mon = parseFloat(gs(`planche_p${pi}_w${w}_mon`, '')) || 0;
+            const thu = parseFloat(gs(`planche_p${pi}_w${w}_thu`, '')) || 0;
+            best = Math.max(best, mon, thu);
+          }
+          score += Math.min(25, (best / ph.goal) * 25);
+        });
+        return score;
+      }
+      function getCurrentPlancheStat() {
+        let currentPi = 0, currentBest = 0;
+        PLANCHE_PHASES.forEach((ph, pi) => {
+          let best = 0;
+          for (let w = 0; w < NUM_WEEKS; w++) {
+            const mon = parseFloat(gs(`planche_p${pi}_w${w}_mon`, '')) || 0;
+            const thu = parseFloat(gs(`planche_p${pi}_w${w}_thu`, '')) || 0;
+            best = Math.max(best, mon, thu);
+          }
+          if (best > 0) { currentPi = pi; currentBest = best; }
+        });
+        const labels = ['Planche Lean', 'Tuck Planche', 'Advanced Tuck', 'Full Planche'];
+        return { label: labels[currentPi], val: currentBest };
+      }
+
       let currentDay = 0;
 
-      function todayKey() {
-        const d = new Date();
+      function dateKeyFor(d) {
         return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+      function todayKey() {
+        return dateKeyFor(new Date());
       }
       function fmtDate(k) {
         const [y, m, d] = k.split('-').map(Number);
@@ -1551,6 +1775,46 @@
         renderWorkout();
       };
 
+      function getMissedDaysThisWeek() {
+        const now = new Date();
+        const dow = now.getDay(); // 0 Sun .. 6 Sat
+        if (dow !== 0 && dow !== 5 && dow !== 6) return []; // only surface on Fri/Sat/Sun
+        const monday = new Date(now);
+        const diff = (dow === 0) ? -6 : (1 - dow);
+        monday.setDate(now.getDate() + diff);
+        const missed = [];
+        for (let i = 0; i < 4; i++) {
+          const d = new Date(monday); d.setDate(monday.getDate() + i);
+          if (d > now) continue;
+          const key = dateKeyFor(d);
+          if (!gs('done_' + i + '_' + key, false)) {
+            missed.push({ idx: i, date: key, name: DAYS[i].name, emoji: DAYS[i].emoji, color: DAYS[i].color });
+          }
+        }
+        return missed;
+      }
+
+      function renderMakeup() {
+        const card = document.getElementById('makeupCard');
+        const list = document.getElementById('makeupList');
+        if (!card || !list) return;
+        const missed = getMissedDaysThisWeek();
+        if (!missed.length) { card.style.display = 'none'; return; }
+        card.style.display = 'block';
+        list.innerHTML = missed.map(m => `
+      <div class="makeup-row">
+        <span class="makeup-dot" style="background:${m.color};box-shadow:0 0 6px ${m.color}"></span>
+        <span class="makeup-name">${m.emoji} ${m.name}</span>
+        <button class="makeup-btn" onclick="startMakeup(${m.idx})">Make up now →</button>
+      </div>`).join('');
+      }
+
+      window.startMakeup = function (idx) {
+        setDay(idx);
+        const sec = document.getElementById('workoutSection');
+        if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+
       function renderWorkout() {
         const d = DAYS[currentDay];
         const tk = todayKey();
@@ -1562,6 +1826,17 @@
         document.getElementById('exHeaderDot').style.background = d.color;
         document.getElementById('exHeaderDot').style.boxShadow = `0 0 10px ${d.color}`;
         document.getElementById('exHeaderTitle').textContent = d.emoji + '  ' + d.name;
+
+        const banner = document.getElementById('recoveryBanner');
+        if (banner) {
+          const isWorkoutDay = [1, 2, 3, 4].includes(new Date().getDay());
+          if (!isWorkoutDay) {
+            banner.style.display = 'flex';
+            banner.textContent = '🔁 Recovery session — logging ' + d.name + ' as today\'s make-up workout';
+          } else {
+            banner.style.display = 'none';
+          }
+        }
 
         const doneSumEl = document.getElementById('doneSummary');
         doneSumEl.innerHTML = `<strong>${checked.length}</strong> / ${d.exercises.length} exercises checked`;
@@ -1600,6 +1875,8 @@
         ss(exKey, checked);
         renderWorkout();
         renderHistory();
+        renderMuscleMap();
+        renderVolumeChart();
       }
 
       window.toggleWorkoutDone = function () {
@@ -1615,6 +1892,7 @@
         ss(histKey, hist);
         renderWorkout();
         renderHistory();
+        renderMakeup();
         dispatchEvent(new Event('goals-changed'));
         syncGymDone();
       };
@@ -1825,6 +2103,8 @@
       window.savePlanche = function (el) {
         ss(el.dataset.pk, el.value);
         renderPlanche();
+        renderPlancheLineChart();
+        renderFeaturedRank();
       };
 
       window.togglePhase = function (i) {
@@ -1845,6 +2125,9 @@
           const dateStr = k.slice(5);
           const h = S[k];
           const dayD = h.day != null ? DAYS[h.day] : null;
+          const [yy, mm, dd] = dateStr.split('-').map(Number);
+          const histDow = new Date(yy, mm - 1, dd).getDay();
+          const isMakeup = h.day != null && ![1, 2, 3, 4].includes(histDow);
           const stats = [
             h.weight ? h.weight + ' lbs' : null,
             h.cal ? h.cal + ' kcal' : null,
@@ -1852,13 +2135,168 @@
           ].filter(Boolean).join(' · ');
           return `<div class="hist-row">
         <div class="hist-date">${fmtDate(dateStr)}</div>
-        <div class="hist-workout">${dayD ? dayD.emoji + ' ' + dayD.name : h.dayName || '—'}</div>
+        <div class="hist-workout">${dayD ? dayD.emoji + ' ' + dayD.name : h.dayName || '—'}${isMakeup ? ' <span class="makeup-tag">🔁 makeup</span>' : ''}</div>
         <div style="display:flex;align-items:center;gap:8px">
           <div class="hist-stats">${stats}</div>
           ${h.done != null ? `<span class="hist-done-pill ${h.done ? 'done' : 'skip'}">${h.done ? 'done' : 'skip'}</span>` : ''}
         </div>
       </div>`;
         }).join('');
+      }
+
+      // ============================================================
+      // MUSCLE RANKING (Liftoff-style body map + gem tier list)
+      // ============================================================
+      function renderMuscleMap() {
+        const scores = computeMuscleScores();
+        const wrap = document.getElementById('muscleList');
+        if (!wrap) return;
+        wrap.innerHTML = '';
+        let total = 0;
+        MUSCLE_GROUPS.forEach(m => {
+          const score = scores[m.key] || 0;
+          total += score;
+          const tier = getTier(score);
+          document.querySelectorAll('[data-muscle="' + m.key + '"]').forEach(el => {
+            el.style.fill = tier.color;
+            el.style.opacity = Math.min(1, 0.4 + tier.idx * 0.075).toFixed(2);
+          });
+          const row = document.createElement('div');
+          row.className = 'muscle-row';
+          row.innerHTML = `
+        <span class="muscle-gem">${gemIcon(tier.color, 20)}</span>
+        <span class="muscle-name">${m.label}</span>
+        <div class="muscle-bar-track"><div class="muscle-bar-fill" style="width:${tier.pct}%;background:${tier.color}"></div></div>
+        <span class="muscle-tier" style="color:${tier.color}">${tier.name}${tier.sub ? ' ' + tier.sub : ''}</span>
+      `;
+          row.addEventListener('click', () => {
+            document.querySelectorAll('[data-muscle="' + m.key + '"]').forEach(el => {
+              el.classList.add('muscle-pulse');
+              setTimeout(() => el.classList.remove('muscle-pulse'), 700);
+            });
+          });
+          wrap.appendChild(row);
+        });
+        const overallTier = getTier(Math.round(total / MUSCLE_GROUPS.length));
+        const scoreEl = document.getElementById('overallScore');
+        const tierEl = document.getElementById('overallTier');
+        const gemEl = document.getElementById('overallGem');
+        if (scoreEl) scoreEl.textContent = total;
+        if (tierEl) { tierEl.textContent = overallTier.name + (overallTier.sub ? ' ' + overallTier.sub : ''); tierEl.style.color = overallTier.color; }
+        if (gemEl) gemEl.innerHTML = gemIcon(overallTier.color, 28);
+      }
+
+      function renderFeaturedRank() {
+        const card = document.getElementById('featuredRankCard');
+        if (!card) return;
+        const composite = getPlancheCompositeScore();
+        const tier = getTier(composite, PLANCHE_TIERS);
+        const stat = getCurrentPlancheStat();
+        card.style.setProperty('--rank-color', tier.color);
+        document.getElementById('featuredRankGem').innerHTML = gemIcon(tier.color, 54);
+        document.getElementById('featuredRankTier').textContent = tier.name.toUpperCase() + (tier.sub ? ' ' + tier.sub : '');
+        document.getElementById('featuredRankLift').textContent = stat.label;
+        document.getElementById('featuredRankVal').textContent = stat.val || '0';
+      }
+
+      function renderTierLegend() {
+        const grid = document.getElementById('tierLegendGrid');
+        if (!grid || grid.children.length) return; // static, render once
+        grid.innerHTML = TIERS.map(t => `
+      <div class="tier-cell">
+        ${gemIcon(t.color, 30)}
+        <span class="tier-cell-name" style="color:${t.color}">${t.name}</span>
+      </div>`).join('');
+      }
+
+      // ============================================================
+      // PROGRESSION CHARTS
+      // ============================================================
+      function getVolumeByDay(n) {
+        const result = [];
+        const today = new Date();
+        const dows = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+        for (let i = n - 1; i >= 0; i--) {
+          const d = new Date(today); d.setDate(d.getDate() - i);
+          const k = dateKeyFor(d);
+          let vol = 0;
+          for (let idx = 0; idx < 4; idx++) {
+            const checked = gs('ex_' + idx + '_' + k, []);
+            if (Array.isArray(checked)) vol += checked.length;
+          }
+          result.push({ key: k, vol, label: dows[d.getDay()], isToday: i === 0 });
+        }
+        return result;
+      }
+
+      function renderVolumeChart() {
+        const barRow = document.getElementById('volBarRow');
+        const lblRow = document.getElementById('volDayLabels');
+        const avgLbl = document.getElementById('volAvgLabel');
+        if (!barRow || !lblRow) return;
+        const days = getVolumeByDay(14);
+        const maxVol = Math.max(1, ...days.map(d => d.vol));
+        const avg = (days.reduce((s, d) => s + d.vol, 0) / 14).toFixed(1);
+        if (avgLbl) avgLbl.textContent = 'avg ' + avg + ' ex/day';
+        barRow.innerHTML = ''; lblRow.innerHTML = '';
+        days.forEach(d => {
+          const pct = d.vol ? Math.max(6, (d.vol / maxVol) * 100) : 3;
+          const bar = document.createElement('div');
+          bar.className = 'prog-bar' + (d.isToday ? ' today-bar' : '');
+          bar.style.height = pct + '%';
+          bar.title = d.key + ': ' + d.vol + ' exercises';
+          barRow.appendChild(bar);
+          const lbl = document.createElement('div');
+          lbl.className = 'prog-day-lbl' + (d.isToday ? ' today-lbl' : '');
+          lbl.textContent = d.label;
+          lblRow.appendChild(lbl);
+        });
+      }
+
+      function getPlancheTrendPoints() {
+        const pts = [];
+        PLANCHE_PHASES.forEach((ph, pi) => {
+          for (let w = 0; w < NUM_WEEKS; w++) {
+            const mon = parseFloat(gs(`planche_p${pi}_w${w}_mon`, '')) || 0;
+            const thu = parseFloat(gs(`planche_p${pi}_w${w}_thu`, '')) || 0;
+            const best = Math.max(mon, thu);
+            if (best > 0) pts.push({ label: 'P' + (pi + 1) + 'W' + (w + 1), val: best });
+          }
+        });
+        return pts;
+      }
+
+      function renderPlancheLineChart() {
+        const el = document.getElementById('plancheLineChart');
+        const labelEl = document.getElementById('plancheTrendLabel');
+        if (!el) return;
+        const pts = getPlancheTrendPoints();
+        if (pts.length < 2) {
+          el.innerHTML = '<div style="font-size:12px;color:var(--text-3);font-style:italic;text-align:center;padding:18px 0">Log at least 2 weeks of hold times to see your trend</div>';
+          if (labelEl) labelEl.textContent = pts.length ? pts[pts.length - 1].val + 's best' : '—';
+          return;
+        }
+        if (labelEl) labelEl.textContent = pts[pts.length - 1].val + 's best';
+        const W = 100, H = 70, pad = 4;
+        const vals = pts.map(p => p.val);
+        const minV = Math.min(...vals) - 1, maxV = Math.max(...vals) + 1;
+        const xFor = i => pad + (i / (pts.length - 1)) * (W - pad * 2);
+        const yFor = v => H - pad - ((v - minV) / (maxV - minV)) * (H - pad * 2);
+        const linePts = pts.map((p, i) => [xFor(i), yFor(p.val)]);
+        const line = linePts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+        const area = line + ` L${linePts[linePts.length - 1][0].toFixed(1)},${H} L${linePts[0][0].toFixed(1)},${H} Z`;
+        el.innerHTML = `
+      <svg viewBox="0 0 100 ${H}" preserveAspectRatio="none" style="width:100%;height:70px;display:block">
+        <defs><linearGradient id="pGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#FBBF24" stop-opacity="0.30"/>
+          <stop offset="100%" stop-color="#FBBF24" stop-opacity="0"/>
+        </linearGradient></defs>
+        <path d="${area}" fill="url(#pGrad)"/>
+        <path d="${line}" fill="none" stroke="#FBBF24" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+        <circle cx="${linePts[linePts.length - 1][0].toFixed(1)}" cy="${linePts[linePts.length - 1][1].toFixed(1)}" r="2.5" fill="#FBBF24"/>
+      </svg>
+      <div style="font-size:9px;color:var(--text-4);font-family:var(--mono);margin-top:2px">${pts[0].label} → ${pts[pts.length - 1].label}</div>
+    `;
       }
 
       function init() {
@@ -1869,6 +2307,12 @@
         loadWeight();
         renderPlanche();
         renderHistory();
+        renderMakeup();
+        renderMuscleMap();
+        renderFeaturedRank();
+        renderTierLegend();
+        renderVolumeChart();
+        renderPlancheLineChart();
         document.getElementById('phase0').classList.add('open');
         syncGymDone();
       }
