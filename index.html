@@ -976,13 +976,13 @@
     <div class="modal-bg" id="timeModalBg">
       <div class="modal">
         <div class="modal-title">Set your day window</div>
-        <div class="modal-sub">Used to calculate the energy ring above.</div>
+        <div class="modal-sub">Used to calculate the energy ring above. Use 24-hour format — midnight = 00:00.</div>
         <div class="modal-row">
           <label for="wakeTimeInput">Wake up</label>
           <input type="time" id="wakeTimeInput">
         </div>
         <div class="modal-row">
-          <label for="sleepTimeInput">Sleep</label>
+          <label for="sleepTimeInput">Sleep (next day ok)</label>
           <input type="time" id="sleepTimeInput">
         </div>
         <div class="modal-actions">
@@ -1096,13 +1096,24 @@
           }
         },
         {
-          href: 'health.html', emoji: '💊', name: 'Stack',
+          href: 'health.html', emoji: '🌿', name: 'Wellness',
           color: '#10B981',
           stat: () => {
-            let items = []; try { items = JSON.parse(localStorage.getItem('stack:items')) || []; } catch { }
-            let taken = {}; try { taken = JSON.parse(localStorage.getItem('stack:taken:' + getActiveDate())) || {}; } catch { }
-            const d = items.filter(i => i && taken[i.id]).length;
-            return { val: d + '/' + items.length, sub: 'supplements' };
+            const today = getActiveDate();
+            let done = false;
+            try { done = !!JSON.parse(localStorage.getItem('wellness:done:' + today)); } catch {}
+            // fallback: also check old supplement keys so it doesn't break if health.html isn't updated yet
+            if (!done) {
+              try {
+                const items = JSON.parse(localStorage.getItem('stack:items')) || [];
+                const taken = JSON.parse(localStorage.getItem('stack:taken:' + today)) || {};
+                const takenCount = items.filter(i => i && taken[i.id]).length;
+                if (items.length > 0) {
+                  return { val: takenCount + '/' + items.length, sub: 'supplements' };
+                }
+              } catch {}
+            }
+            return { val: done ? '✓ Done' : '—', sub: 'wellness today' };
           }
         },
         {
@@ -1168,7 +1179,7 @@
       // ──────────────────────────────────────────────
       // WAKE / SLEEP TIME SETTINGS
       // ──────────────────────────────────────────────
-      const DEFAULT_WAKE = '08:00';
+      const DEFAULT_WAKE = '07:00';
       const DEFAULT_SLEEP = '00:00';
 
       function getDaySettings() {
@@ -1182,8 +1193,9 @@
         storeSet('day_window_v1', { wake, sleep });
       }
       function timeStrToHours(t) {
-        const [h, m] = t.split(':').map(Number);
-        return h + (m || 0) / 60;
+        if (!t) return 0;
+        const parts = t.split(':').map(Number);
+        return (parts[0] || 0) + (parts[1] || 0) / 60;
       }
       function fmtHourLabel(hoursDecimal) {
         let h = Math.floor(hoursDecimal) % 24;
@@ -1196,7 +1208,9 @@
       function openTimeModal() {
         const s = getDaySettings();
         document.getElementById('wakeTimeInput').value = s.wake;
-        document.getElementById('sleepTimeInput').value = s.sleep === '00:00' ? '24:00' : s.sleep;
+        // FIX: was incorrectly setting '24:00' which browsers reject as invalid for time inputs.
+        // Midnight is stored as '00:00' and displayed as '00:00' — the ring handles next-day math internally.
+        document.getElementById('sleepTimeInput').value = s.sleep;
         document.getElementById('timeModalBg').classList.add('show');
       }
       function closeTimeModal() {
@@ -1207,7 +1221,7 @@
       document.getElementById('timeModalBg').addEventListener('click', (e) => { if (e.target.id === 'timeModalBg') closeTimeModal(); });
       document.getElementById('timeModalSave').addEventListener('click', () => {
         const wake = document.getElementById('wakeTimeInput').value || DEFAULT_WAKE;
-        let sleep = document.getElementById('sleepTimeInput').value || DEFAULT_SLEEP;
+        const sleep = document.getElementById('sleepTimeInput').value || DEFAULT_SLEEP;
         setDaySettings(wake, sleep);
         closeTimeModal();
         updateDayRing();
@@ -1244,55 +1258,63 @@
         const settings = getDaySettings();
         let WAKE_HOUR = timeStrToHours(settings.wake);
         let SLEEP_HOUR = timeStrToHours(settings.sleep);
+        // If sleep <= wake, sleep is next day (e.g. wake 8am, sleep midnight = 24h)
         if (SLEEP_HOUR <= WAKE_HOUR) SLEEP_HOUR += 24;
-
-        document.getElementById('ringHoursLabel').textContent =
-          fmtHourLabel(WAKE_HOUR) + ' – ' + fmtHourLabel(SLEEP_HOUR) + ' window';
-
-        const now = new Date();
-        let hours = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
-        if (hours < WAKE_HOUR) hours += 24;
 
         const pEl = document.getElementById('dayRingPercent');
         const phEl = document.getElementById('dayRingPhase');
         const ckEl = document.getElementById('dayRingClock');
         const stEl = document.getElementById('dayRingStatus');
         const rmEl = document.getElementById('dayRingRemaining');
-        ckEl.textContent = fmtClock(now);
+        const hlEl = document.getElementById('ringHoursLabel');
 
-        if (hours < WAKE_HOUR + 0.001 && hours > WAKE_HOUR - 0.001) {
-          // edge case, treat as just woke up
-        }
-        if (now.getHours() + now.getMinutes() / 60 < WAKE_HOUR && WAKE_HOUR <= 24) {
-          // still before wake hour today (only relevant if wake hour itself is < 24 and we're earlier same day)
-        }
-
+        const now = new Date();
         const trueNowHours = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
-        if (trueNowHours < WAKE_HOUR % 24 && WAKE_HOUR % 24 !== 0) {
-          fillEl.setAttribute('stroke-dashoffset', C); fillEl.style.stroke = '#2D3748';
-          pEl.textContent = '—'; phEl.textContent = 'SLEEPING';
-          stEl.textContent = '😴 Still sleeping'; rmEl.textContent = fmtRemaining(((WAKE_HOUR % 24) - trueNowHours) * 60) + ' until wake-up';
+
+        ckEl.textContent = fmtClock(now);
+        hlEl.textContent = fmtHourLabel(WAKE_HOUR) + ' – ' + fmtHourLabel(SLEEP_HOUR) + ' window';
+
+        // Before wake time → sleeping
+        if (trueNowHours < WAKE_HOUR && WAKE_HOUR !== 0) {
+          fillEl.setAttribute('stroke-dashoffset', C);
+          fillEl.style.stroke = '#2D3748';
+          pEl.textContent = '—';
+          phEl.textContent = 'SLEEPING';
+          stEl.textContent = '😴 Still sleeping';
+          rmEl.textContent = fmtRemaining((WAKE_HOUR - trueNowHours) * 60) + ' until ' + fmtHourLabel(WAKE_HOUR);
           return;
         }
 
+        // Compute adjusted hours for ring progress (handles post-midnight stays-up scenario)
+        let hours = trueNowHours;
+        if (hours < WAKE_HOUR) hours += 24; // shouldn't hit here after the check above, but safety net
+
+        // Past sleep time → bedtime
         if (hours >= SLEEP_HOUR) {
-          fillEl.setAttribute('stroke-dashoffset', 0); fillEl.style.stroke = '#6B21A8';
-          pEl.textContent = '100%'; phEl.textContent = 'PAST BEDTIME';
-          stEl.textContent = '⚠️ Past bedtime'; rmEl.textContent = 'Sleep!';
+          fillEl.setAttribute('stroke-dashoffset', 0);
+          fillEl.style.stroke = '#6B21A8';
+          pEl.textContent = '100%';
+          phEl.textContent = 'PAST BEDTIME';
+          stEl.textContent = '⚠️ Past bedtime';
+          rmEl.textContent = 'Sleep!';
           return;
         }
+
+        // Normal ring progress
         const span = SLEEP_HOUR - WAKE_HOUR;
         const pct = (hours - WAKE_HOUR) / span * 100;
         fillEl.setAttribute('stroke-dashoffset', C * (1 - pct / 100));
         fillEl.style.stroke = rgb(paletteAt(pct));
         pEl.textContent = Math.floor(pct) + '%';
+
         let phase, status;
         if (pct < 25) { phase = 'MORNING'; status = '☀️ Morning — fresh start'; }
         else if (pct < 50) { phase = 'MIDDAY'; status = '⚡ Midday — keep moving'; }
         else if (pct < 75) { phase = 'AFTERNOON'; status = '🔥 Afternoon — push it'; }
         else if (pct < 90) { phase = 'EVENING'; status = '⏳ Evening — wrap up'; }
         else { phase = 'BEDTIME'; status = '🌙 Bedtime soon'; }
-        phEl.textContent = phase; stEl.textContent = status;
+        phEl.textContent = phase;
+        stEl.textContent = status;
         rmEl.textContent = fmtRemaining((SLEEP_HOUR - hours) * 60) + ' awake time left';
       }
 
