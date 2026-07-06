@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0A0813">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="./apple-touch-icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NEXUS">
+  <title>Calisthenics Skills — NEXUS</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="sync.js" defer></script>
+  <script src="topbar.js" defer></script>
+  <style>
+    :root {
+      --bg: #0A0813;
+      --bg-card: #12101F;
+      --text-1: #FFFFFF;
+      --text-2: #D4CFE5;
+      --text-3: #8A7FA8;
+      --text-4: #5A4E78;
+      --border: rgba(138,43,226,0.18);
+      --border-strong: rgba(138,43,226,0.40);
+      --amethyst: #8A2BE2;
+      --magenta: #FF1493;
+      --indigo: #B026FF;
+      --violet-muted: #6B4FA0;
+      --push: #FF1493;
+      --pull: #B026FF;
+      --legs: #8A2BE2;
+      --core: #6B4FA0;
+      --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+      --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(60% 50% at 15% 8%, rgba(138,43,226,0.22) 0%, transparent 60%),
+        radial-gradient(50% 40% at 85% 85%, rgba(255,20,147,0.14) 0%, transparent 60%),
+        radial-gradient(35% 30% at 65% 18%, rgba(176,38,255,0.10) 0%, transparent 55%);
+      filter: blur(44px);
+      pointer-events: none; z-index: 0;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.013) 1px, transparent 1px);
+      background-size: 3px 3px;
+      pointer-events: none; z-index: 1;
+    }
+    .shell {
+      position: relative; z-index: 2;
+      max-width: 720px; margin: 0 auto;
+      padding-top: max(18px, env(safe-area-inset-top));
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+      padding-left: max(16px, env(safe-area-inset-left));
+      padding-right: max(16px, env(safe-area-inset-right));
+    }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px 8px 10px; margin: 0 0 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: 999px;
+      color: var(--text-2); font-family: var(--font);
+      font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+      text-decoration: none; -webkit-tap-highlight-color: transparent;
+      transition: background .15s, color .15s, box-shadow .18s, border-color .18s;
+    }
+    .back-btn:hover {
+      background: rgba(176,38,255,0.18); color: var(--text-1);
+      border-color: rgba(176,38,255,0.50);
+      box-shadow: 0 0 14px rgba(176,38,255,0.30);
+    }
+    .hero { display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
+    .hero-eyebrow {
+      font-family: var(--mono); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.20em; text-transform: uppercase; color: var(--text-3);
+    }
+    .hero-title {
+      font-size: 26px; font-weight: 800; letter-spacing: -0.025em;
+      background: linear-gradient(135deg, #fff 30%, rgba(255,255,255,0.55) 100%);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent; color: transparent;
+    }
+    .hero-sub { font-size: 13px; color: var(--text-3); }
+
+    /* OVERVIEW GRID */
+    .overview-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 8px;
+      margin-bottom: 20px;
+    }
+    @media (max-width:480px) { .overview-grid { grid-template-columns: repeat(2,1fr); } }
+    .ov-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-top: 2.5px solid var(--skill-color, var(--border));
+      border-radius: 12px; padding: 12px 13px;
+      cursor: pointer; transition: background .15s, box-shadow .18s, transform .12s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ov-card:hover {
+      background: rgba(138,43,226,0.10);
+      box-shadow: 0 0 16px rgba(176,38,255,0.20);
+      transform: translateY(-2px);
+    }
+    .ov-card.active {
+      border-color: var(--skill-color, var(--amethyst));
+      background: rgba(138,43,226,0.12);
+      box-shadow: 0 0 18px rgba(176,38,255,0.25);
+    }
+    .ov-emoji { font-size: 18px; margin-bottom: 4px; }
+    .ov-name {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--text-3); margin-bottom: 5px;
+    }
+    .ov-level { font-size: 13px; font-weight: 700; color: var(--text-1); line-height: 1.2; margin-bottom: 5px; }
+    .ov-bar-track {
+      height: 4px; border-radius: 2px;
+      background: rgba(138,43,226,0.12); overflow: hidden;
+    }
+    .ov-bar-fill {
+      height: 100%; border-radius: 2px;
+      background: linear-gradient(90deg, #8A2BE2, #FF1493);
+      transition: width .4s ease;
+    }
+
+    /* SKILL TABS */
+    .skill-tabs {
+      display: flex; gap: 6px; flex-wrap: nowrap;
+      overflow-x: auto; scrollbar-width: none;
+      margin-bottom: 18px; padding-bottom: 2px;
+    }
+    .skill-tabs::-webkit-scrollbar { display: none; }
+    .skill-tab {
+      flex-shrink: 0; padding: 8px 14px;
+      border-radius: 999px; border: 1.5px solid var(--border);
+      background: transparent; font-family: inherit;
+      font-size: 12px; font-weight: 700; color: var(--text-3);
+      cursor: pointer; transition: all .15s;
+      -webkit-tap-highlight-color: transparent;
+      white-space: nowrap;
+    }
+    .skill-tab:hover { background: rgba(176,38,255,0.12); color: var(--text-2); }
+    .skill-tab.active {
+      background: linear-gradient(135deg, rgba(138,43,226,0.25), rgba(255,20,147,0.20));
+      border-color: var(--tab-color, var(--border-strong));
+      color: var(--text-1);
+      box-shadow: 0 0 12px rgba(176,38,255,0.25);
+    }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 18px 18px 16px; margin-bottom: 12px;
+    }
+    .divider {
+      display: flex; align-items: center; gap: 14px; margin: 22px 0 14px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: rgba(138,43,226,0.22);
+    }
+    .divider span {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 0.20em; font-weight: 700;
+      color: var(--text-3); text-transform: uppercase;
+    }
+
+    /* PROGRESSION LADDER */
+    .ladder-wrap {
+      overflow-x: auto; scrollbar-width: none;
+      margin-bottom: 20px; padding-bottom: 4px;
+    }
+    .ladder-wrap::-webkit-scrollbar { display: none; }
+    .ladder {
+      display: flex; align-items: flex-start;
+      gap: 0; min-width: max-content;
+    }
+    .ladder-step {
+      display: flex; flex-direction: column; align-items: center;
+      position: relative; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ladder-connector {
+      position: absolute; top: 16px; left: 50%; right: -50%;
+      height: 2px; background: var(--border);
+      z-index: 0; transition: background .3s;
+    }
+    .ladder-step.done .ladder-connector { background: rgba(176,38,255,0.55); }
+    .ladder-step:last-child .ladder-connector { display: none; }
+    .ladder-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; position: relative; z-index: 1;
+      border: 2px solid var(--border);
+      background: var(--bg-card);
+      transition: all .2s;
+    }
+    .ladder-step.done .ladder-dot {
+      background: linear-gradient(135deg, #8A2BE2, #FF1493);
+      border-color: transparent;
+      box-shadow: 0 0 12px rgba(176,38,255,0.50);
+    }
+    .ladder-step.current .ladder-dot {
+      background: rgba(138,43,226,0.22);
+      border-color: rgba(176,38,255,0.70);
+      box-shadow: 0 0 16px rgba(176,38,255,0.40);
+    }
+    .ladder-step.locked .ladder-dot { opacity: 0.35; }
+    .ladder-label {
+      font-size: 10px; font-weight: 600; color: var(--text-3);
+      text-align: center; margin-top: 7px;
+      max-width: 72px; line-height: 1.3;
+      padding: 0 4px;
+    }
+    .ladder-step.current .ladder-label { color: var(--text-1); font-weight: 800; }
+    .ladder-step.done .ladder-label { color: var(--text-2); }
+    .ladder-step-wrap { width: 80px; display: flex; flex-direction: column; align-items: center; }
+
+    /* CURRENT LEVEL CARD */
+    .level-card {
+      border-radius: 14px;
+      border: 1.5px solid rgba(176,38,255,0.35);
+      background: linear-gradient(135deg, rgba(138,43,226,0.10), rgba(255,20,147,0.05));
+      padding: 16px 18px; margin-bottom: 14px;
+    }
+    .level-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+    }
+    .level-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--skill-color, var(--amethyst));
+      box-shadow: 0 0 10px var(--skill-color, var(--amethyst));
+      flex-shrink: 0;
+    }
+    .level-name { font-size: 16px; font-weight: 800; flex: 1; }
+    .level-target {
+      font-family: var(--mono); font-size: 11px; color: var(--text-3);
+      background: rgba(138,43,226,0.10);
+      padding: 4px 10px; border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+    .level-cues { list-style: none; margin: 0; padding: 0; margin-bottom: 12px; }
+    .level-cue {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 13px; color: var(--text-2); line-height: 1.45;
+      padding: 5px 0; border-bottom: 1px solid rgba(138,43,226,0.10);
+    }
+    .level-cue:last-child { border-bottom: none; }
+    .level-cue-arrow { color: var(--amethyst); flex-shrink: 0; font-size: 12px; margin-top: 1px; }
+    .progress-when {
+      font-size: 11.5px; color: var(--text-3);
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 12px;
+      font-style: italic;
+    }
+    .progress-when strong { color: var(--text-2); font-style: normal; }
+
+    /* LEVEL NAV BUTTONS */
+    .level-nav {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+    }
+    .level-nav-btn {
+      padding: 8px 14px; border-radius: 9px;
+      border: 1px solid var(--border);
+      background: rgba(138,43,226,0.06);
+      color: var(--text-2); font-family: inherit;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .level-nav-btn:hover {
+      background: rgba(176,38,255,0.15);
+      border-color: rgba(176,38,255,0.45);
+      box-shadow: 0 0 10px rgba(176,38,255,0.25);
+    }
+    .level-nav-label {
+      flex: 1; text-align: center;
+      font-size: 12px; color: var(--text-3);
+      font-family: var(--mono);
+    }
+    .set-level-btn {
+      padding: 8px 14px; border-radius: 9px;
+      border: none;
+      background: linear-gradient(135deg, #8A2BE2, #FF1493);
+      color: #fff; font-family: inherit;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(176,38,255,0.40);
+      transition: all .15s;
+    }
+    .set-level-btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+    .set-level-btn.is-current {
+      background: linear-gradient(135deg, rgba(138,43,226,0.30), rgba(255,20,147,0.30));
+      box-shadow: 0 0 14px rgba(176,38,255,0.35);
+      border: 1px solid rgba(176,38,255,0.55);
+    }
+
+    /* SESSION LOGGER */
+    .logger-row {
+      display: flex; gap: 8px; align-items: flex-end;
+    }
+    .logger-field { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+    .logger-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.10em;
+      text-transform: uppercase; color: var(--text-3); font-family: var(--mono);
+    }
+    .logger-input {
+      background: rgba(0,0,0,0.28); border: 1px solid var(--border);
+      color: var(--text-1); font-family: var(--mono);
+      font-size: 16px; font-weight: 600;
+      padding: 10px 12px; border-radius: 10px; outline: none;
+      -moz-appearance: textfield;
+    }
+    .logger-input::-webkit-outer-spin-button,
+    .logger-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .logger-input:focus {
+      border-color: rgba(176,38,255,0.50);
+      box-shadow: 0 0 10px rgba(176,38,255,0.30);
+    }
+    .logger-notes {
+      flex: 2; min-width: 0;
+      resize: none; height: 44px;
+      font-size: 12px; font-family: inherit; line-height: 1.4;
+    }
+    .logger-save-btn {
+      padding: 10px 18px; border-radius: 10px; border: none;
+      background: linear-gradient(135deg, #8A2BE2, #FF1493);
+      color: #fff; font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer; white-space: nowrap;
+      box-shadow: 0 4px 14px rgba(176,38,255,0.45);
+      transition: transform .12s, box-shadow .15s, filter .15s;
+      -webkit-tap-highlight-color: transparent;
+      align-self: flex-end;
+    }
+    .logger-save-btn:hover {
+      transform: translateY(-1px); filter: brightness(1.12);
+      box-shadow: 0 6px 22px rgba(176,38,255,0.60);
+    }
+    @media (max-width:480px) {
+      .logger-row { flex-wrap: wrap; }
+      .logger-notes { flex: 1 1 100%; }
+    }
+
+    /* SESSION HISTORY */
+    .session-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      background: rgba(138,43,226,0.04);
+      border: 1px solid var(--border); border-radius: 10px;
+      margin-bottom: 6px;
+    }
+    .session-date {
+      font-family: var(--mono); font-size: 10px; color: var(--text-3);
+      width: 66px; flex-shrink: 0;
+    }
+    .session-val {
+      font-family: var(--mono); font-size: 18px; font-weight: 700;
+      color: var(--text-1); font-variant-numeric: tabular-nums; flex-shrink: 0;
+    }
+    .session-unit { font-size: 11px; color: var(--text-3); flex-shrink: 0; }
+    .session-note { flex: 1; font-size: 12px; color: var(--text-3); font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .session-best {
+      font-size: 9px; font-weight: 800; letter-spacing: 0.08em;
+      padding: 2px 8px; border-radius: 999px;
+      background: linear-gradient(135deg, rgba(138,43,226,0.25), rgba(255,20,147,0.25));
+      border: 1px solid rgba(176,38,255,0.50); color: #fff;
+      flex-shrink: 0; font-family: var(--mono);
+    }
+    .session-del {
+      background: transparent; border: none; color: var(--text-3);
+      cursor: pointer; font-size: 15px; padding: 2px 4px;
+      opacity: 0.3; flex-shrink: 0; transition: opacity .15s, color .15s;
+    }
+    .session-item:hover .session-del { opacity: 1; }
+    .session-del:hover { color: #C77DFF; }
+
+    /* SPARKLINE */
+    .sparkline-wrap { margin: 6px 0 14px; }
+
+    /* EMPTY */
+    .empty-msg {
+      text-align: center; font-size: 12px; color: var(--text-3);
+      font-style: italic; padding: 16px 0;
+    }
+
+    @media (max-width:480px) {
+      .shell { padding-top: max(14px, env(safe-area-inset-top)); padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+      .hero-title { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <a href="index.html" class="back-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    Back
+  </a>
+  <div class="hero">
+    <div class="hero-eyebrow">Skill Progressions</div>
+    <div class="hero-title">Calisthenics Skills 🤸</div>
+    <div class="hero-sub">Planche · Handstand · Front Lever · Muscle-Up · L-Sit · Back Lever</div>
+  </div>
+
+  <!-- OVERVIEW GRID -->
+  <div class="overview-grid" id="overviewGrid"></div>
+
+  <!-- SKILL TABS -->
+  <div class="skill-tabs" id="skillTabs"></div>
+
+  <!-- ACTIVE SKILL PANEL -->
+  <div id="skillPanel"></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+const LS_KEY = 'cali_skills_v1';
+function loadData(){ try{ return JSON.parse(localStorage.getItem(LS_KEY))||{}; }catch{ return {}; } }
+function saveData(d){ try{ localStorage.setItem(LS_KEY, JSON.stringify(d)); }catch{} }
+function todayKey(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fmtDate(k){ const [y,m,d]=k.split('-').map(Number); const dt=new Date(y,m-1,d); const dow=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dt.getDay()]; const mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][dt.getMonth()]; return dow+' '+mon+' '+d; }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+const SKILLS = [
+  {
+    key:'planche', name:'Planche', emoji:'🎯', color:'#B026FF', unit:'sec',
+    levels:[
+      { name:'Planche Lean', target:'5×25 sec', unlockAt:25,
+        cues:['Lean shoulders PAST wrists in push-up position (10-15° forward)','Straight arms, legs together, posterior pelvic tilt','Think "push the floor away" — active scapular protraction','Body stays rigid from head to toes — no sagging hips','Add 2–3 sec per week: progressive overload is the key'],
+        progressWhen:'Can hold 25s clean for all 5 sets with shoulders consistently past wrists' },
+      { name:'Tuck Planche', target:'5×10 sec', unlockAt:10,
+        cues:['From planche lean: pull both knees tight to chest','Round your back — spine flexion aids compression','Hips parallel to ground or slightly above — stay level','Arms absolutely straight — zero elbow bend allowed','Weight should feel stacked directly over your wrists'],
+        progressWhen:'10s hold, hips level, arms straight, across all 5 sets' },
+      { name:'Advanced Tuck', target:'5×8 sec', unlockAt:8,
+        cues:['Open the hip angle from tuck — back nearly parallel to floor','Less rounding than tuck planche — more difficult','Knees still pulled toward chest but at wider angle','Core compression is everything — squeeze it all','Work the hold time up 1s per week consistently'],
+        progressWhen:'8s with back parallel to floor and stable entry/exit' },
+      { name:'Straddle Planche', target:'5×5 sec', unlockAt:5,
+        cues:['From advanced tuck: extend legs wide to the sides','Wider stance = easier leverage (use this to your advantage)','Both legs at same height — no uneven sagging','Feet pointed, body fully parallel to ground','Work legs closer together each week toward full planche'],
+        progressWhen:'5s holds with controlled entry, both legs truly parallel' },
+      { name:'Full Planche', target:'5×3 sec', unlockAt:3,
+        cues:['Legs fully together, completely parallel to floor','Extreme shoulder protraction and depression — push hard','Every muscle locked: quads, glutes, core, scapulae','12–18 months of dedicated training to achieve this','ACHIEVEMENT UNLOCKED 🏆 — elite gymnastic strength'],
+        progressWhen:'3s clean hold — you have a full planche!' }
+    ]
+  },
+  {
+    key:'handstand', name:'Handstand', emoji:'🤸', color:'#FF1493', unit:'sec',
+    levels:[
+      { name:'Chest-to-Wall', target:'5×30 sec', unlockAt:30,
+        cues:['Face AWAY from wall, kick up carefully into banana position','Hands shoulder-width, fingers spread wide and active','Balance by pressing through fingertips vs heel of hand','Work toward a straight body line against the wall','This teaches balance instinct before going freestanding'],
+        progressWhen:'30s comfortable with straight body and active fingertip balance' },
+      { name:'Back-to-Wall', target:'5×30 sec', unlockAt:30,
+        cues:['Face TOWARD wall, place hands close to wall base','Walk feet up, then hands closer — just heels touching','This teaches correct straight-line alignment upside down','Push floor away — tall posture even while inverted','Engage everything: quads, glutes, core, shoulders, wrists'],
+        progressWhen:'30s with only heels lightly touching, body perfectly straight' },
+      { name:'Kick-up Practice', target:'10 attempts', unlockAt:10, unit:'attempts',
+        cues:['Away from wall: step and kick up with control, not momentum','SLOW the kick — momentum means falling over every time','Use fingertip pressure to steer — tiny adjustments only','Stack: heel→hip→shoulder→wrist in one vertical line','Log total kick-up attempts each session, not just holds'],
+        progressWhen:'Can hold 5+ seconds freestanding at least 3 times in a session' },
+      { name:'Freestanding HS', target:'3×10 sec', unlockAt:10,
+        cues:['Active fingertip pressing is your steering wheel — use it','Small corrections: do not pike or cartwheel aggressively','Eyes fixed on the floor between your hands — focus point','Think tall — every segment perfectly stacked vertically','When falling, pirouette or cartwheel out safely'],
+        progressWhen:'10s holds consistently, can nail 3+ in a single session' },
+      { name:'Wall HS Push-up', target:'3×5 reps', unlockAt:5, unit:'reps',
+        cues:['Chest-to-wall for balance — heels lightly on wall','Full range: lower forehead to floor (or nose on deficit)','Elbows track slightly forward — not flared wide','Press back up explosively and lock out completely','5 strict reps builds pressing strength for freestanding HSPU'],
+        progressWhen:'5 clean full-range reps with a 2s pause at bottom' },
+      { name:'Freestanding HSPU', target:'3×3 reps', unlockAt:3, unit:'reps',
+        cues:['Same mechanics as wall HSPU but no wall — balance and press simultaneously','Start with tiny range of motion, gradually increase depth','Stay tight from pointed toes to open shoulders throughout','This is elite-level — most calisthenics athletes never get here','ACHIEVEMENT UNLOCKED 🏆 — world-class pressing strength'],
+        progressWhen:'3 clean reps touching head to floor — legend status!' }
+    ]
+  },
+  {
+    key:'frontlever', name:'Front Lever', emoji:'🏗️', color:'#8A2BE2', unit:'sec',
+    levels:[
+      { name:'Dead Hang', target:'3×60 sec', unlockAt:60,
+        cues:['Passive hang from pull-up bar, full arm extension, relax','Builds grip strength and shoulder mobility baseline','Let the shoulder capsule stretch — controlled decompression','Work to 60s without re-gripping or letting go','Essential foundation — don\'t skip this phase'],
+        progressWhen:'60s relaxed hangs across 3 sets without grip fatigue' },
+      { name:'Scapular Pull-ups', target:'3×12 reps', unlockAt:12, unit:'reps',
+        cues:['Dead hang, then retract shoulder blades ONLY — no arm bend','Tiny range: body rises just 2–3 inches via shoulder retraction','Directly trains the shoulder position needed for front lever','Think: "pinch shoulder blades into your back pockets"','Do these slowly and deliberately — not as fast as possible'],
+        progressWhen:'12 clean reps with deliberate full retraction each rep' },
+      { name:'Tuck Front Lever', target:'4×10 sec', unlockAt:10,
+        cues:['From dead hang: pull up, lean back, pull knees to chest','Body parallel to ground — this is the key requirement','Arms straight or very slightly bent at elbow','Retract and depress scapulae aggressively and hold them','Hips must stay at shoulder height — don\'t let them sag'],
+        progressWhen:'10s with body truly parallel and arms completely straight' },
+      { name:'Advanced Tuck FL', target:'4×8 sec', unlockAt:8,
+        cues:['From tuck: extend knees away, open hip angle to ~90°','Back must stay parallel — much harder without tight tuck','Maintain scapular depression and retraction throughout','Core absolutely braced — hips cannot sag at any point','This is a big jump from tuck — take your time here'],
+        progressWhen:'8s clean with back parallel and no hip sag' },
+      { name:'Straddle FL', target:'4×5 sec', unlockAt:5,
+        cues:['From advanced tuck: extend both legs wide to the sides','Both legs straight, toes pointed, at same height','Body fully parallel to floor — it will feel incredibly hard','Push the bar toward your feet — active pulling throughout','Work legs closer together each week toward full front lever'],
+        progressWhen:'5s with both legs fully extended at equal height' },
+      { name:'Full Front Lever', target:'3×5 sec', unlockAt:5,
+        cues:['Legs together, body completely straight and parallel','Maximum scapular depression — push the bar toward feet','Elite gymnastic strength — 6–12 months of consistent work','Every second is real progress — the path IS the achievement','ACHIEVEMENT UNLOCKED 🏆 — elite pulling strength'],
+        progressWhen:'5s completely parallel — that is elite level!' }
+    ]
+  },
+  {
+    key:'muscleup', name:'Muscle-Up', emoji:'💪', color:'#FF1493', unit:'reps',
+    levels:[
+      { name:'High Pull-ups', target:'3×10 reps', unlockAt:10,
+        cues:['Standard pull-up but pull higher — chest toward bar level','Use false grip (wrist over bar) while doing these','Feel elbows pulling DOWN and BACK, not just upward','Full dead hang at bottom every rep — no partial range','Foundation phase: do not skip or rush past this'],
+        progressWhen:'10 reps easily with chest regularly meeting the bar' },
+      { name:'Explosive Pull-ups', target:'3×8 reps', unlockAt:8,
+        cues:['Same as high pull-up but add a violent POP at the top','Pull so hard the bar meets your mid-chest or lower sternum','False grip throughout — get comfortable with it now','This trains the explosive power needed for the transition','You should feel like you\'re trying to launch over the bar'],
+        progressWhen:'8 reps with bar hitting mid-chest or lower consistently' },
+      { name:'Negative Muscle-Ups', target:'3×5 reps', unlockAt:5,
+        cues:['Jump above bar into top position — arms extended above bar','Slowly lower through the transition — 3–5 second descent','At bar height you\'re in the "catch" — elbows bent, torso above','Continue lowering all the way to dead hang at bottom','This teaches the exact movement pattern — do them SLOWLY'],
+        progressWhen:'5 controlled negatives each with a 3s+ descent through transition' },
+      { name:'Kipping Muscle-Up', target:'3×3 reps', unlockAt:3,
+        cues:['Use a hip drive swing to generate momentum for the pull','Pull at PEAK of the swing — timing is everything here','Punch fists forward through the transition simultaneously','Get comfortable with the movement before going strict','Kipping is a legitimate skill — it\'s not cheating, it\'s different'],
+        progressWhen:'3 kipping muscle-ups with controlled transition and full lockout' },
+      { name:'Strict Muscle-Up', target:'3×3 reps', unlockAt:3,
+        cues:['Dead hang start — no swing, no kip, pure strength','Pull with maximum explosive force from full hang','At bar level: lean torso forward and punch fists down fast','The transition requires strength in an extremely awkward position','ACHIEVEMENT UNLOCKED 🏆 — elite pulling and transitioning power'],
+        progressWhen:'3 strict reps from dead hang — you made it!' }
+    ]
+  },
+  {
+    key:'lsit', name:'L-Sit', emoji:'🪑', color:'#6B4FA0', unit:'sec',
+    levels:[
+      { name:'Floor Support Hold', target:'3×30 sec', unlockAt:30,
+        cues:['Sit on floor, hands beside hips, press down hard with straight arms','Goal is just to lift hips — feet can stay on ground initially','Builds tricep lock-out and wrist compression strength','Do these as active rest between other exercises','Every attempt strengthens the pushing muscles needed'],
+        progressWhen:'30s comfortable pressing with hips consistently clearing floor' },
+      { name:'Tuck L-Sit', target:'3×10 sec', unlockAt:10,
+        cues:['Arms straight, push down, lift hips AND pull knees to chest','Both feet fully off the ground — that is the requirement','Keep elbows locked out completely — any bend kills it','Hold everything tight: do not let hips drop back down','Use your 10lb DBs as handles for better wrist angle'],
+        progressWhen:'10s tuck hold with both hips and feet completely clear of floor' },
+      { name:'L-Sit (Floor/DBs)', target:'3×10 sec', unlockAt:10,
+        cues:['From tuck: extend legs straight, parallel to floor','Hip flexors must carry the weight of both legs — extremely hard','Use DBs as handles for better compression depth','Alternate: hold 3s, rest leg, repeat until full extension possible','Do not round forward — keep your chest up and proud'],
+        progressWhen:'10s with both legs fully extended and parallel to floor' },
+      { name:'Elevated L-Sit', target:'3×20 sec', unlockAt:20,
+        cues:['Same L-Sit on elevated surface: stack of books, chairs, etc.','Elevation allows deeper hip flexor compression angle','Push hips back behind hands while keeping legs parallel','This is the hardest floor version — prime mover: hip flexors','Lock elbows, lock knees, point toes — full body engagement'],
+        progressWhen:'20s elevated L-Sit with controlled entry and exit' },
+      { name:'V-Sit', target:'3×5 sec', unlockAt:5,
+        cues:['From L-Sit: press hips back and raise legs ABOVE horizontal','Goal is legs at 45° or higher above the floor','Extreme hip flexor and core compression strength required','Work from horizontal upward — every degree counts','ACHIEVEMENT UNLOCKED 🏆 — elite compression strength'],
+        progressWhen:'5s V-Sit with legs visibly above horizontal plane — elite!' }
+    ]
+  },
+  {
+    key:'backlever', name:'Back Lever', emoji:'⬇️', color:'#C77DFF', unit:'sec',
+    levels:[
+      { name:'Skin the Cat', target:'3×5 reps', unlockAt:5, unit:'reps',
+        cues:['From dead hang: pull knees to chest and rotate backward through bar','CONTROL the descent — do not free-fall through','End in German hang (straight arms facing down) — hold 5s','Return the same way or drop safely to the floor','Builds shoulder flexibility essential for back lever'],
+        progressWhen:'5 smooth controlled rotations with 5s hold in German hang' },
+      { name:'Tuck Back Lever', target:'4×10 sec', unlockAt:10,
+        cues:['From German hang: pull knees to chest, body parallel facing down','Arms straight, hands gripping bar above you','Hips at bar level or slightly above — stay level','Core tight, back roughly straight — slight arch is okay','This is shoulder-intensive — go slow and respect the movement'],
+        progressWhen:'10s holds with body parallel and arms completely straight' },
+      { name:'Advanced Tuck BL', target:'4×8 sec', unlockAt:8,
+        cues:['From tuck: extend knees away, open hip angle to about 90°','More leverage = much harder on shoulders and back','Maintain straight arms throughout the entire hold','Push hips level — they cannot drop below the bar','Only advance here when tuck is absolutely solid'],
+        progressWhen:'8s with body parallel and zero shoulder discomfort' },
+      { name:'Straddle Back Lever', target:'4×5 sec', unlockAt:5,
+        cues:['Both legs extended wide to the sides, parallel to floor','Full body facing down, arms holding bar above head','Very high shoulder loading — stop immediately if any sharp pain','Protract and elevate shoulders slightly for joint safety','Actively push the bar away — do not just hang passively'],
+        progressWhen:'5s with both legs parallel and controlled entry/exit' },
+      { name:'Full Back Lever', target:'3×5 sec', unlockAt:5,
+        cues:['Legs fully together, body completely parallel, facing down','Extreme shoulder strength, stability, and mobility required','Elite-level calisthenics — respect the training timeline','Protract and elevate shoulders — never impinge the joint','ACHIEVEMENT UNLOCKED 🏆 — world-class shoulder strength'],
+        progressWhen:'5s full hold completely parallel — that is elite gymnastics!' }
+    ]
+  }
+];
+
+let currentSkillIdx = 0;
+let viewingLevelIdx = 0;
+
+function getData(){ return loadData(); }
+function getSkillData(key){
+  const d = getData();
+  if(!d[key]) d[key] = { level:0, sessions:[] };
+  return d[key];
+}
+function setSkillData(key, val){
+  const d = getData(); d[key] = val; saveData(d);
+}
+
+function sparkSVG(sessions, unit){
+  if(sessions.length < 2) return '';
+  const vals = sessions.map(s=>s.value);
+  const minV = Math.min(...vals), maxV = Math.max(...vals);
+  const range = maxV-minV || 1;
+  const W=200, H=36, px=6, py=5;
+  const pts = sessions.map((s,i)=>{
+    const x = px+(i/(sessions.length-1))*(W-px*2);
+    const y = H-py-((s.value-minV)/range)*(H-py*2);
+    return [x.toFixed(1), y.toFixed(1)];
+  });
+  const line = pts.map((p,i)=>`${i===0?'M':'L'}${p[0]},${p[1]}`).join(' ');
+  const area = line+` L${pts[pts.length-1][0]},${H} L${pts[0][0]},${H} Z`;
+  return `<svg viewBox="0 0 200 36" style="width:100%;height:36px" preserveAspectRatio="none">
+    <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FF1493" stop-opacity="0.30"/><stop offset="100%" stop-color="#FF1493" stop-opacity="0"/></linearGradient></defs>
+    <path d="${area}" fill="url(#sg)"/>
+    <path d="${line}" fill="none" stroke="#B026FF" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${pts[pts.length-1][0]}" cy="${pts[pts.length-1][1]}" r="3" fill="#FF1493"/>
+  </svg>`;
+}
+
+function renderOverview(){
+  const grid = document.getElementById('overviewGrid');
+  grid.innerHTML = SKILLS.map((sk, i)=>{
+    const sd = getSkillData(sk.key);
+    const lv = sd.level || 0;
+    const pct = Math.round((lv/sk.levels.length)*100);
+    const levelName = sk.levels[lv] ? sk.levels[lv].name : '🏆 Complete!';
+    return `<div class="ov-card${i===currentSkillIdx?' active':''}" style="--skill-color:${sk.color}" onclick="switchSkill(${i})">
+      <div class="ov-emoji">${sk.emoji}</div>
+      <div class="ov-name">${sk.name}</div>
+      <div class="ov-level">${levelName}</div>
+      <div class="ov-bar-track"><div class="ov-bar-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderTabs(){
+  const tabs = document.getElementById('skillTabs');
+  tabs.innerHTML = SKILLS.map((sk, i)=>`
+    <button class="skill-tab${i===currentSkillIdx?' active':''}" style="--tab-color:${sk.color}" onclick="switchSkill(${i})">
+      ${sk.emoji} ${sk.name}
+    </button>`).join('');
+}
+
+function renderPanel(){
+  const sk = SKILLS[currentSkillIdx];
+  const sd = getSkillData(sk.key);
+  const currentLevel = sd.level || 0;
+  viewingLevelIdx = Math.min(viewingLevelIdx, sk.levels.length-1);
+  const lv = sk.levels[viewingLevelIdx];
+  const sessions = (sd.sessions||[]).slice();
+  const unit = lv.unit || sk.unit;
+
+  // Ladder
+  const ladderHTML = `<div class="divider"><span>Progression Ladder</span></div>
+  <div class="ladder-wrap">
+    <div class="ladder">
+      ${sk.levels.map((l, i)=>{
+        let cls = 'locked';
+        if(i < currentLevel) cls = 'done';
+        else if(i === currentLevel) cls = 'current';
+        const icon = cls==='done'?'✓': cls==='current'?'→':'○';
+        return `<div class="ladder-step-wrap">
+          <div class="ladder-step ${cls}" onclick="viewLevel(${i})">
+            <div class="ladder-connector"></div>
+            <div class="ladder-dot">${icon}</div>
+            <div class="ladder-label">${esc(l.name)}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+
+  // Level nav
+  const isCurrentLevel = viewingLevelIdx === currentLevel;
+  const levelNavHTML = `<div class="level-nav">
+    <button class="level-nav-btn" onclick="viewLevel(${Math.max(0,viewingLevelIdx-1)})" ${viewingLevelIdx===0?'disabled style="opacity:0.3"':''}>← Prev</button>
+    <div class="level-nav-label">Level ${viewingLevelIdx+1} / ${sk.levels.length}</div>
+    <button class="level-nav-btn" onclick="viewLevel(${Math.min(sk.levels.length-1,viewingLevelIdx+1)})" ${viewingLevelIdx===sk.levels.length-1?'disabled style="opacity:0.3"':''}>Next →</button>
+    <button class="set-level-btn${isCurrentLevel?' is-current':''}" onclick="setCurrentLevel(${viewingLevelIdx})">
+      ${isCurrentLevel?'✓ Current Level':'Set as Current'}
+    </button>
+  </div>`;
+
+  // Level card
+  const levelCardHTML = `<div class="level-card" style="--skill-color:${sk.color}">
+    <div class="level-header">
+      <div class="level-dot" style="background:${sk.color};box-shadow:0 0 10px ${sk.color}"></div>
+      <div class="level-name">${esc(lv.name)}</div>
+      <span class="level-target">${esc(lv.target)}</span>
+    </div>
+    <ul class="level-cues">
+      ${lv.cues.map(c=>`<li class="level-cue"><span class="level-cue-arrow">▸</span><span>${esc(c)}</span></li>`).join('')}
+    </ul>
+    <div class="progress-when"><strong>Progress when:</strong> ${esc(lv.progressWhen)}</div>
+  </div>`;
+
+  // Logger
+  const loggerHTML = `<div class="divider"><span>Log Session</span></div>
+  <div class="card">
+    <div class="logger-row">
+      <div class="logger-field" style="max-width:120px">
+        <div class="logger-label">${unit === 'reps' ? 'Reps' : unit === 'attempts' ? 'Attempts' : 'Hold (sec)'}</div>
+        <input type="number" class="logger-input" id="logVal" placeholder="${unit==='reps'?'5':unit==='attempts'?'10':'15'}" min="0" step="${unit==='sec'?'0.5':'1'}">
+      </div>
+      <div class="logger-field">
+        <div class="logger-label">Notes</div>
+        <textarea class="logger-input logger-notes" id="logNote" placeholder="Form notes, how it felt…"></textarea>
+      </div>
+      <button class="logger-save-btn" onclick="logSession()">+ Log</button>
+    </div>
+  </div>`;
+
+  // Sessions
+  const recentSessions = sessions.slice().reverse().slice(0,10);
+  const bestVal = sessions.length ? Math.max(...sessions.map(s=>s.value)) : null;
+  const sparkHTML = sessions.length>=2 ? `<div class="sparkline-wrap">${sparkSVG(sessions.slice(-10), unit)}</div>` : '';
+  const sessionListHTML = recentSessions.length
+    ? recentSessions.map(s=>`
+      <div class="session-item">
+        <div class="session-date">${fmtDate(s.date)}</div>
+        <div class="session-val">${s.value}</div>
+        <div class="session-unit">${s.unit||unit}</div>
+        <div class="session-note">${esc(s.note||'')}</div>
+        ${s.value===bestVal?'<span class="session-best">🏆 Best</span>':''}
+        <button class="session-del" data-ts="${s.ts}" onclick="delSession('${sk.key}',${s.ts})">×</button>
+      </div>`).join('')
+    : '<div class="empty-msg">No sessions yet — log your first one above!</div>';
+
+  const sessionHTML = `<div class="divider"><span>Recent Sessions</span></div>
+  <div class="card">
+    ${sparkHTML}
+    ${sessionListHTML}
+  </div>`;
+
+  document.getElementById('skillPanel').innerHTML = ladderHTML + levelNavHTML + levelCardHTML + loggerHTML + sessionHTML;
+}
+
+window.switchSkill = function(idx){
+  currentSkillIdx = idx;
+  viewingLevelIdx = getSkillData(SKILLS[idx].key).level || 0;
+  renderOverview(); renderTabs(); renderPanel();
+};
+
+window.viewLevel = function(idx){
+  viewingLevelIdx = idx;
+  renderPanel();
+};
+
+window.setCurrentLevel = function(idx){
+  const sk = SKILLS[currentSkillIdx];
+  const sd = getSkillData(sk.key);
+  sd.level = idx;
+  setSkillData(sk.key, sd);
+  renderOverview(); renderPanel();
+};
+
+window.logSession = function(){
+  const val = parseFloat(document.getElementById('logVal').value);
+  if(isNaN(val)||val<=0) return;
+  const note = document.getElementById('logNote').value.trim();
+  const sk = SKILLS[currentSkillIdx];
+  const lv = sk.levels[viewingLevelIdx];
+  const unit = lv.unit || sk.unit;
+  const sd = getSkillData(sk.key);
+  if(!sd.sessions) sd.sessions=[];
+  sd.sessions.push({ date:todayKey(), value:val, unit, note, ts:Date.now() });
+  sd.sessions.sort((a,b)=>a.ts-b.ts);
+  setSkillData(sk.key, sd);
+  document.getElementById('logVal').value='';
+  document.getElementById('logNote').value='';
+  renderOverview(); renderPanel();
+};
+
+window.delSession = function(key, ts){
+  const sd = getSkillData(key);
+  sd.sessions = (sd.sessions||[]).filter(s=>s.ts!==ts);
+  setSkillData(key, sd);
+  renderOverview(); renderPanel();
+};
+
+function init(){
+  currentSkillIdx = 0;
+  viewingLevelIdx = getSkillData(SKILLS[0].key).level || 0;
+  renderOverview(); renderTabs(); renderPanel();
+}
+init();
+})();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  if(typeof initCloudSync !== 'function') return;
+  initCloudSync({ appKey:'calisthenics', syncedKeys:['cali_skills_v1'], onApplied:function(){ location.reload(); } });
+});
+</script>
+</body>
+</html>
