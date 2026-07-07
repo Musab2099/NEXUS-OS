@@ -1,6 +1,6 @@
 // NEXUS service worker
 // Bump CACHE_VERSION any time you change the cached file list or want to force-refresh clients.
-const CACHE_VERSION = 'nexus-v1';
+const CACHE_VERSION = 'nexus-v2';
 
 const CACHE_FILES = [
   './',
@@ -8,7 +8,7 @@ const CACHE_FILES = [
   './health.html',
   './gym.html',
   './grind-log.html',
-  './valorant-cc.html',
+  './progression-tab.html',
   './topbar.js',
   './sync.js',
   './manifest.json',

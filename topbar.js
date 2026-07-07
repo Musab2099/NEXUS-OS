@@ -229,17 +229,15 @@ body.topbar-modal-open {
       }
     },
     {
-      id: 'valorant', href: 'valorant-cc.html', label: 'VALO', color: '#EF4444',
+      id: 'calisthenics', href: 'progression-tab.html', label: 'SKILLS', color: '#EF4444',
       getStatus: function () {
         let S = {};
-        try { S = JSON.parse(localStorage.getItem('val_cc_v1')) || {}; } catch (e) { }
-        const sessions = Array.isArray(S.sessions) ? S.sessions : [];
+        try { S = JSON.parse(localStorage.getItem('cali_skills_v1')) || {}; } catch (e) { }
+        const skills = Array.isArray(S.skills) ? S.skills : [];
         const td = calendarDateKey();
-        const today = sessions.filter(function (s) { return s && s.date === td; });
-        const w = today.filter(function (s) { return s.result === 'win'; }).length;
-        const l = today.filter(function (s) { return s.result === 'loss'; }).length;
+        const today = skills.filter(function (s) { return s && s.date === td; });
         if (!today.length) return { text: '—', status: 'idle' };
-        return { text: w + 'W-' + l + 'L', status: w >= l ? 'good' : 'warn' };
+        return { text: today.length + ' done', status: 'good' };
       }
     }
   ];
