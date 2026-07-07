@@ -1115,30 +1115,20 @@
           }
         },
         {
-          // FIX 7: Removed supplements fallback block entirely.
-          // The old code checked stack:items / stack:taken keys and returned sub:'supplements'
-          // when items existed — that feature is gone. Now we check for a journal entry
-          // written by health.html (key: journal:entry:YYYY-MM-DD) and show that instead.
-          // If health.html hasn't written a journal entry yet, falls back to wellness:done flag.
           href: 'health.html', emoji: '📓', name: 'Journal',
           color: '#B026FF',
           stat: () => {
             const today = getActiveDate();
-
-            // Primary: check for a journal entry saved today (health.html writes this key)
             let entry = null;
             try { entry = JSON.parse(localStorage.getItem('journal:entry:' + today)); } catch { }
             if (entry && (entry.text || entry.mood)) {
               return { val: '✓ Logged', sub: 'journal today' };
             }
-
-            // Secondary: check generic wellness completion flag
             let wellnessDone = false;
             try { wellnessDone = !!JSON.parse(localStorage.getItem('wellness:done:' + today)); } catch { }
             if (wellnessDone) {
               return { val: '✓ Done', sub: 'wellness done' };
             }
-
             return { val: '—', sub: 'journal today' };
           }
         },
@@ -1147,14 +1137,23 @@
           color: '#FF1493',
           stat: () => {
             const dow = new Date().getDay();
-            const dayNames = { 1: 'Push', 2: 'Pull', 3: 'Legs', 4: 'Core' };
-            const dayName = dayNames[dow] || 'Rest';
+            let sched = [1, 2, 3, 4];
+            try {
+              const s = JSON.parse(localStorage.getItem('gym_schedule_v1'));
+              if (Array.isArray(s) && s.length === 4) sched = s;
+            } catch { }
+            const NAMES = ['Push', 'Pull', 'HS+Core', 'Legs'];
+            const schedIdx = sched.indexOf(dow);
+            const isTrainDay = schedIdx !== -1;
             let gymS = {}; try { gymS = JSON.parse(localStorage.getItem('ibrahim_gym_v1')) || {}; } catch { }
             const td = dateToKey(new Date());
-            const doneIdx = dow >= 1 && dow <= 4 ? dow - 1 : null;
-            const isDone = doneIdx != null && gymS['done_' + doneIdx + '_' + td];
-            const isMissed = doneIdx != null && gymS['missed_' + doneIdx + '_' + td];
-            return { val: isDone ? '✓ Done' : isMissed ? '✕ Missed' : dayName, sub: isDone ? 'workout complete' : isMissed ? 'marked missed' : 'today' };
+            const isDone = isTrainDay && gymS['done_' + schedIdx + '_' + td];
+            const isMissed = isTrainDay && gymS['missed_' + schedIdx + '_' + td];
+            const label = isTrainDay ? NAMES[schedIdx] : 'Rest';
+            return {
+              val: isDone ? '✓ Done' : isMissed ? '✕ Missed' : label,
+              sub: isDone ? 'workout complete' : isMissed ? 'marked missed' : isTrainDay ? 'today' : 'rest day'
+            };
           }
         },
         {
@@ -1170,15 +1169,16 @@
           }
         },
         {
-          href: 'valorant-cc.html', emoji: '🏹', name: 'VALORANT',
-          color: '#C77DFF',
+          href: 'progression-tab.html', emoji: '🤸', name: 'SKILLS',
+          color: '#B026FF',
           stat: () => {
-            let S = {}; try { S = JSON.parse(localStorage.getItem('val_cc_v1')) || {}; } catch { }
-            const sessions = Array.isArray(S.sessions) ? S.sessions : [];
-            const w = sessions.filter(s => s.result === 'win').length;
-            const l = sessions.filter(s => s.result === 'loss').length;
-            const rr = S.current_rr || 0;
-            return { val: S.rank_name || 'Asc 1', sub: w + 'W ' + l + 'L · ' + rr + ' RR' };
+            let S = {}; try { S = JSON.parse(localStorage.getItem('cali_skills_v1')) || {}; } catch { }
+            const SKILL_KEYS = ['planche', 'handstand', 'frontlever', 'muscleup', 'lsit', 'backlever'];
+            const MAX_LEVELS = [5, 6, 6, 5, 5, 5];
+            const started = SKILL_KEYS.filter(k => S[k] && ((S[k].level || 0) > 0 || (S[k].sessions && S[k].sessions.length > 0))).length;
+            const totalPct = SKILL_KEYS.reduce((sum, k, i) => sum + ((S[k] ? (S[k].level || 0) : 0) / MAX_LEVELS[i] * 100), 0);
+            const avgPct = Math.round(totalPct / SKILL_KEYS.length);
+            return { val: started + '/6', sub: 'skills active · ' + avgPct + '% avg' };
           }
         },
       ];
@@ -1254,7 +1254,6 @@
       // ──────────────────────────────────────────────
       // DAY RING
       // ──────────────────────────────────────────────
-      // Deep Cyber Amethyst palette — vibrant amethyst → magenta progression
       const PALETTE = [
         [0, [138, 43, 226]], [12.5, [156, 49, 226]], [25, [176, 38, 255]],
         [37.5, [196, 30, 240]], [50, [216, 22, 220]], [62.5, [232, 18, 200]],

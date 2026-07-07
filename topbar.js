@@ -41,13 +41,14 @@
   flex-shrink: 0;
 }
 .topbar-pill.warn .topbar-pill-dot { background: #F59E0B; box-shadow: 0 0 6px #F59E0B; }
-.topbar-pill.miss .topbar-pill-dot {
-  background: #EF4444; box-shadow: 0 0 6px #EF4444;
-  animation: topbar-miss-pulse 1.6s ease-in-out infinite;
-}
-@keyframes topbar-miss-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-  50%      { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0); }
+@media (prefers-reduced-motion: no-preference) {
+  .topbar-pill.miss .topbar-pill-dot {
+    animation: topbar-miss-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes topbar-miss-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+    50%      { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0); }
+  }
 }
 .topbar-pill-label {
   font-size: 10px; font-weight: 700;
@@ -66,7 +67,7 @@
 
 @media (max-width: 480px) {
   .topbar {
-    padding-top: max(47px, env(safe-area-inset-top));
+    padding-top: max(10px, env(safe-area-inset-top));
     padding-left: max(10px, env(safe-area-inset-left));
     padding-right: max(10px, env(safe-area-inset-right));
     gap: 8px;
@@ -87,12 +88,35 @@
   .topbar-pill-count { font-size: 12px; }
 }
 
-html, body { -webkit-text-size-adjust: 100%; }
 @media (max-width: 768px) {
+  .topbar {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    border-bottom: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    padding-top: 10px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+  body {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  }
   html { touch-action: pan-y; }
   ::-webkit-scrollbar { width: 0; height: 0; display: none; }
   html, body { scrollbar-width: none; -ms-overflow-style: none; }
 }
+
+/* Gym HUD */
+.topbar-gym-hud { display: flex; gap: 2px; align-items: center; }
+.topbar-gym-seg { width: 6px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.1); }
+.topbar-gym-seg.done { background: #F97316; box-shadow: 0 0 4px #F97316; }
+
+/* Wellness Flame HUD */
+.topbar-flame-svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; transition: all 0.3s; margin-bottom:-2px;}
+.eh-flame-dim { color: rgba(255,255,255,0.2); }
+.eh-flame-active { color: #F59E0B; }
+
+html, body { -webkit-text-size-adjust: 100%; }
 .modal-bg, .modal, .po-modal-bg, .po-modal, .wt-overlay, .wt-viewer {
   overscroll-behavior: contain;
 }
@@ -146,21 +170,51 @@ body.topbar-modal-open {
         try { taken = JSON.parse(localStorage.getItem('stack:taken:' + activeDateKey())) || {}; } catch (e) { }
         const total = Array.isArray(items) ? items.length : 0;
         const done = total ? items.filter(function (i) { return i && taken[i.id]; }).length : 0;
-        return { text: total ? done + '/' + total : '0/0', status: classifyFraction(done, total) };
+        
+        let streak = 0;
+        let map = {};
+        try { map = JSON.parse(localStorage.getItem('ibrahim_habits_v2_days')) || {}; } catch (e) {}
+        for(let i = 0; i < 30; i++) {
+          let d = new Date();
+          if (d.getHours() < 6) d.setDate(d.getDate() - 1);
+          d.setDate(d.getDate() - i);
+          let k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+          if (map[k] && map[k].allDone) streak++; else if (i > 0) break;
+        }
+        
+        let flameClass = streak >= 3 ? 'eh-flame-active' : 'eh-flame-dim';
+        let svg = '<svg class="topbar-flame-svg ' + flameClass + '" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.866 8.21 8.21 0 003 2.48z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z"></path></svg>';
+        
+        return { html: svg, status: classifyFraction(done, total) };
       }
     },
     {
       id: 'gym', href: 'gym.html', label: 'GYM', color: '#F97316',
       getStatus: function () {
-        const dow = new Date().getDay(); // 0=Sun
-        const dayMap = { 1: 0, 2: 1, 3: 2, 4: 3 };
-        const idx = dayMap[dow];
-        if (idx == null) return { text: 'Rest', status: 'idle' };
         let doneMap = {};
         try { doneMap = JSON.parse(localStorage.getItem('ibrahim_gym_done')) || {}; } catch (e) { }
         const td = calendarDateKey();
+        
+        const d = new Date();
+        const dow = d.getDay();
+        const startOfWeek = new Date(d);
+        startOfWeek.setDate(d.getDate() - dow);
+        let daysDoneThisWeek = 0;
+        for (let i = 0; i < 7; i++) {
+            let tempD = new Date(startOfWeek);
+            tempD.setDate(startOfWeek.getDate() + i);
+            let k = tempD.getFullYear() + '-' + String(tempD.getMonth() + 1).padStart(2, '0') + '-' + String(tempD.getDate()).padStart(2, '0');
+            if (doneMap[k]) daysDoneThisWeek++;
+        }
+        daysDoneThisWeek = Math.min(daysDoneThisWeek, 4);
+        let segs = '';
+        for(let i = 0; i < 4; i++){
+            segs += '<span class="topbar-gym-seg' + (i < daysDoneThisWeek ? ' done' : '') + '"></span>';
+        }
+        
         const count = doneMap[td] || 0;
-        return { text: count > 0 ? 'Done' : 'Pending', status: count > 0 ? 'good' : pastSixPm() ? 'miss' : 'warn' };
+        const status = count > 0 ? 'good' : pastSixPm() ? 'miss' : 'warn';
+        return { html: '<div class="topbar-gym-hud">' + segs + '</div>', status: status };
       }
     },
     {
@@ -249,7 +303,11 @@ body.topbar-modal-open {
       const countEl = document.getElementById('topbarCount_' + t.id);
       if (!pillEl || !countEl) return;
       const r = t.getStatus();
-      countEl.textContent = r.text;
+      if (r.html != null) {
+        countEl.innerHTML = r.html;
+      } else {
+        countEl.textContent = r.text;
+      }
       setPillStatus(pillEl, r.status);
     });
   }
