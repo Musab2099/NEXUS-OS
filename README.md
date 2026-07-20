@@ -1,5 +1,9 @@
 # NEXUS — Deep Cyber Amethyst
 
+> **⚠️ Private Project — All Rights Reserved**
+>
+> This is a personal project by Ibrahim. It is **not** open source and is **not** licensed for reuse, redistribution, modification, or forking. Please do not copy, clone, or repurpose this code without explicit permission.
+
 Ibrahim's personal operating system — five specialized apps, one cohesive interface, zero subscriptions, zero frameworks.
 
 Everything runs in the browser. Data lives in `localStorage` first (instant, offline-first), and optionally mirrors to a Supabase cloud database so phone and laptop stay in sync within about a second of each other. No build step, no `npm install`, no bundler. Drop the folder on any static host and it works.
@@ -197,10 +201,7 @@ nexus/
 
 ## Getting Started
 
-### 1. Deploy
-Push the folder to GitHub, then import on [Vercel](https://vercel.com) — zero config, it's static files.
-
-### 2. Cloud Sync (optional)
+### 1. Cloud Sync (optional, but recommended)
 1. Create a free project at [Supabase](https://supabase.com).
 2. Run this SQL in the Supabase SQL editor:
 ```sql
@@ -212,12 +213,34 @@ create table app_state (
 alter table app_state enable row level security;
 create policy "public access" on app_state for all using (true);
 ```
-3. Paste your Supabase project URL and anon key into `sync.js` and `topbar.js`.
+3. Copy `.env.example` to `.env` and fill in your Supabase project URL and anon key:
+   ```bash
+   cp .env.example .env
+   # then edit .env
+   ```
+   `.env` is gitignored — the real credentials never enter the repo.
 
-### 3. Install on iPhone
+### 2. Build
+The committed source uses placeholders (`__SUPABASE_URL__`, `__SUPABASE_KEY__`) in `sync.js`. The build script swaps them for the real values from `.env` and writes a deployable `dist/` folder:
+```bash
+npm run build          # = node scripts/build.js
+```
+You need Node 18+ installed. No npm dependencies — the build script is pure Node.
+
+### 3. Local preview
+```bash
+npm run dev            # build + serve dist/ on http://localhost:3000
+# or, without npm:
+node scripts/build.js && npx serve dist
+```
+
+### 4. Deploy
+Push to a Git remote, then import on [Vercel](https://vercel.com). The included `vercel.json` tells Vercel to run `node scripts/build.js` and serve from `dist/`. **In the Vercel dashboard, add the same two env vars under Settings → Environment Variables** (`SUPABASE_URL` and `SUPABASE_KEY`) — Vercel will expose them to the build step.
+
+### 5. Install on iPhone
 Open your deployed URL in Safari → Share → **Add to Home Screen**. Launches full-screen. Theme color `#0A0813` makes the status bar match.
 
-### 4. Set your training schedule
+### 6. Set your training schedule
 In `gym.html`, tap **⚙ Schedule** and select your 4 training days in order. Day A (Push+Planche) maps to your first selection, Day B to second, and so on.
 
 ---
@@ -234,6 +257,7 @@ In `gym.html`, tap **⚙ Schedule** and select your 4 training days in order. Da
 3. Add an entry to the `TILES` array in `topbar.js` and `index.html`.
 4. Call `initCloudSync({ appKey: 'yourapp', syncedKeys: [...] })` at page bottom.
 5. Use `linear-gradient(135deg, #8A2BE2, #FF1493)` for progress fills and primary actions. Use `rgba(138,43,226,0.X)` for card backgrounds and surface tints.
+6. If the new app needs additional secrets, add them to `.env.example`, the `PLACEHOLDER_FILES` list in `scripts/build.js`, and reference them as `__YOUR_TOKEN__` placeholders in the source.
 
 ---
 
@@ -295,4 +319,4 @@ Active daily use. Running the Deep Cyber Amethyst color system across all five p
 
 ## License
 
-Open-source. Fork it, gut it, rebuild it as your own.
+Private project. All rights reserved. No part of this codebase may be copied, modified, distributed, or used to build derivative works without the author's explicit written permission.

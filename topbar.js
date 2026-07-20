@@ -1,14 +1,32 @@
 // =============================================================
-// NEXUS persistent top bar.
+// NEXUS persistent nav bar.
 // Drop this on any page with:
 //     <script src="topbar.js" defer></script>
-// Reads live progress from each app's localStorage keys and
-// renders a row of status pills matching the NEXUS theme.
+// Detects the device (phone vs desktop) and renders the nav
+// at the TOP on desktop and at the BOTTOM on phones.
+// Reads live progress from each app's localStorage keys.
 // =============================================================
 (function () {
   'use strict';
 
+  // -------- DEVICE DETECTION --------
+  // Combines pointer type, touch capability, and viewport width.
+  // Phones (any-width touch primary devices) get the bottom tab bar.
+  // Desktop (mouse primary, no touch) gets the top bar.
+  function detectDevice() {
+    const w = Math.min(window.innerWidth, window.innerHeight);
+    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    const coarse = window.matchMedia('(pointer: coarse)').matches;
+    // iPhone 14 Pro: viewport CSS px ~393, smallest dim ~393.
+    // Most phones: smallest dim < 600.
+    // Desktop windows: smallest dim often > 600 even when narrow.
+    const isPhoneSized = w <= 600;
+    const isPhone = isTouch && (coarse || isPhoneSized);
+    return isPhone ? 'phone' : 'desktop';
+  }
+
   // -------- CSS --------
+  // Default = desktop (top bar). Mobile rules below override.
   const css = `
 .topbar {
   position: sticky; top: 0; z-index: 40;
@@ -65,45 +83,77 @@
   white-space: nowrap;
 }
 
-@media (max-width: 480px) {
-  .topbar {
-    padding-top: max(10px, env(safe-area-inset-top));
-    padding-left: max(10px, env(safe-area-inset-left));
-    padding-right: max(10px, env(safe-area-inset-right));
-    gap: 8px;
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .topbar::-webkit-scrollbar { display: none; }
-  .topbar-pill {
-    flex: 0 0 auto;
-    padding: 7px 12px;
-    gap: 5px;
-  }
-  .topbar-pill-label { display: none; }
-  .topbar-pill-count { font-size: 12px; }
-}
-
-@media (max-width: 768px) {
+/* ===========================================================
+   PHONE LAYOUT — bottom tab bar
+   Activated by EITHER:
+   (a) the .topbar--phone class added by JS detectDevice()
+       (works even at desktop width if a phone is detected), or
+   (b) viewport width <= 600px (pure CSS fallback).
+   We list both selectors before each rule so that the class
+   override can win against a wider viewport.
+   =========================================================== */
+.topbar--phone,
+.topbar--phone { position: fixed; top: auto; left: 0; right: 0; bottom: 0; }
+@media (max-width: 600px) {
   .topbar {
     position: fixed;
     top: auto;
+    left: 0;
+    right: 0;
     bottom: 0;
+  }
+}
+.topbar--phone,
+@media (max-width: 600px) {
+  .topbar {
     border-bottom: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
-    padding-top: 10px;
-    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    padding-top: 8px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    padding-left: max(6px, env(safe-area-inset-left));
+    padding-right: max(6px, env(safe-area-inset-right));
+    gap: 4px;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    background: rgba(2, 2, 12, 0.85);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
   }
-  body {
-    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  .topbar-pill {
+    flex: none;
+    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px 2px 4px;
+    border-radius: 10px;
+    height: auto;
+    text-align: center;
   }
-  html { touch-action: pan-y; }
-  ::-webkit-scrollbar { width: 0; height: 0; display: none; }
-  html, body { scrollbar-width: none; -ms-overflow-style: none; }
+  .topbar-pill-dot { width: 6px; height: 6px; }
+  .topbar-pill-label {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-align: center;
+  }
+  .topbar-pill-count {
+    margin-left: 0;
+    font-size: 10px;
+    line-height: 1;
+  }
+}
+
+/* Body padding only when nav is fixed at bottom on phones */
+body.topbar-phone-mode {
+  padding-bottom: calc(78px + env(safe-area-inset-bottom));
+}
+@media (max-width: 600px) {
+  body:not(.topbar-desktop-mode) {
+    padding-bottom: calc(78px + env(safe-area-inset-bottom));
+  }
 }
 
 /* Gym HUD */
@@ -312,7 +362,10 @@ body.topbar-modal-open {
 
   // -------- Mobile lockdown helpers --------
   function blockGesture(e) { e.preventDefault(); }
+  let _gestureLockInstalled = false;
   function lockGestures() {
+    if (_gestureLockInstalled) return;
+    _gestureLockInstalled = true;
     document.addEventListener('gesturestart', blockGesture, { passive: false });
     document.addEventListener('gesturechange', blockGesture, { passive: false });
     document.addEventListener('gestureend', blockGesture, { passive: false });
@@ -341,12 +394,48 @@ body.topbar-modal-open {
     sync();
   }
 
+  // -------- Apply device class --------
+  // Toggles .topbar--phone on the topbar and .topbar-phone-mode / .topbar-desktop-mode
+  // on <body> so the bottom-tab layout is forced on phones regardless of
+  // viewport width (e.g. iPad split view, weird zoom levels).
+  function applyDeviceClass() {
+    const device = detectDevice();
+    const bar = document.getElementById('topbar');
+    if (bar) {
+      if (device === 'phone') {
+        bar.classList.add('topbar--phone');
+      } else {
+        bar.classList.remove('topbar--phone');
+      }
+    }
+    document.body.classList.toggle('topbar-phone-mode', device === 'phone');
+    document.body.classList.toggle('topbar-desktop-mode', device === 'desktop');
+    document.documentElement.setAttribute('data-device', device);
+    // Lock pinch-zoom on phones, allow it on desktop.
+    if (device === 'phone') {
+      lockGestures();
+    }
+  }
+
   // -------- Boot --------
   function boot() {
     injectStyleAndHTML();
+    applyDeviceClass();
     render();
-    lockGestures();
     startModalLock();
+
+    // Re-evaluate on resize / orientation change / zoom change.
+    let resizeTimer = null;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(applyDeviceClass, 120);
+    });
+    window.addEventListener('orientationchange', function () {
+      setTimeout(applyDeviceClass, 200);
+    });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', applyDeviceClass);
+    }
 
     window.addEventListener('storage', render);
     window.addEventListener('focus', render);

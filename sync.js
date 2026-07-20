@@ -3,8 +3,11 @@
 // =============================================================
 (function () {
   'use strict';
-  const SUPABASE_URL = 'https://zschphlqajlojjfwfnhl.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_rEeeovCIgn6btXHfcKAzXw_7LAoL2F8';
+  // Supabase credentials are injected at build time from .env.
+  // In the committed source these are placeholders; scripts/build.js
+  // substitutes real values when producing dist/.
+  const SUPABASE_URL = '__SUPABASE_URL__';
+  const SUPABASE_KEY = '__SUPABASE_KEY__';
 
   window.initCloudSync = function (config) {
     const appKey = config && config.appKey;
@@ -13,7 +16,10 @@
     const onApplied = config && config.onApplied;
     if (!appKey || !window.supabase) return;
     if (!SUPABASE_URL || !SUPABASE_KEY) return;
-    if (SUPABASE_URL.indexOf('PASTE-') === 0 || SUPABASE_KEY.indexOf('PASTE-') === 0) return;
+    // Bail if values are still placeholders (i.e. someone ran the source
+    // files directly without running `npm run build`).
+    if (SUPABASE_URL.indexOf('__SUPABASE_') === 0) return;
+    if (SUPABASE_KEY.indexOf('__SUPABASE_') === 0) return;
 
     let supa = null, pushTimer = null, suppressSync = false, lastSyncedJson = null;
 
