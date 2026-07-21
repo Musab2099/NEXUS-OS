@@ -1,16 +1,9 @@
 #!/usr/bin/env node
 // =============================================================
 // NEXUS build script
-// Reads SUPABASE_URL and SUPABASE_KEY from .env and substitutes
-// the __SUPABASE_URL__ / __SUPABASE_KEY__ placeholders in
-// sync.js and topbar.js, then writes a deployable dist/ folder.
-//
-// Usage:
-//   node scripts/build.js          # build to ./dist
-//   npm run build                  # same thing, via package.json
-//
-// Placeholders must be literal strings __SUPABASE_URL__ and
-// __SUPABASE_KEY__ (no quotes) inside the .js source.
+// Reads SUPABASE_URL and SUPABASE_KEY and substitutes the
+// __SUPABASE_URL__ / __SUPABASE_KEY__ placeholders in sync.js,
+// then writes a deployable dist/ folder.
 // =============================================================
 'use strict';
 
@@ -21,7 +14,7 @@ const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
 const ENV_FILE = path.join(ROOT, '.env');
 
-const PLACEHOLDER_FILES = ['sync.js', 'topbar.js'];
+const PLACEHOLDER_FILES = ['sync.js'];
 const PASSTHROUGH_FILES = [
   'index.html',
   'health.html',
@@ -32,19 +25,16 @@ const PASSTHROUGH_FILES = [
   'event-horizon.css',
   'manifest.json',
   'sw.js',
+  'topbar.js',
   'favicon-32.png',
   'icon-192.png',
   'icon-512.png',
   'apple-touch-icon-180.png',
 ];
 
-function loadEnv(filePath) {
-  if (!fs.existsSync(filePath)) {
-    console.error('✗ .env not found at', filePath);
-    console.error('  Copy .env.example to .env and fill in your Supabase credentials.');
-    process.exit(1);
-  }
+function loadEnvFile(filePath) {
   const env = {};
+  if (!fs.existsSync(filePath)) return env;
   const text = fs.readFileSync(filePath, 'utf8');
   for (const rawLine of text.split('\n')) {
     const line = rawLine.trim();
@@ -61,6 +51,17 @@ function loadEnv(filePath) {
     env[key] = val;
   }
   return env;
+}
+
+function loadCredentials() {
+  // 1. process.env wins (Vercel / CI / shells that already export the values).
+  // 2. .env fills the gaps for local dev.
+  const fileEnv = loadEnvFile(ENV_FILE);
+  const fromProcess = {};
+  for (const k of ['SUPABASE_URL', 'SUPABASE_KEY']) {
+    if (process.env[k]) fromProcess[k] = process.env[k];
+  }
+  return { ...fileEnv, ...fromProcess };
 }
 
 function ensureClean(dir) {
@@ -93,11 +94,18 @@ function renderFile(rel, env) {
 }
 
 function main() {
-  const env = loadEnv(ENV_FILE);
+  const env = loadCredentials();
+  const fromEnvFile = fs.existsSync(ENV_FILE);
   const required = ['SUPABASE_URL', 'SUPABASE_KEY'];
   for (const k of required) {
     if (!env[k] || env[k].startsWith('your-') || env[k].startsWith('https://your-')) {
-      console.error('✗ .env is missing a real value for', k);
+      console.error('✗ missing real value for', k);
+      if (!fromEnvFile && !process.env[k]) {
+        console.error('  Set it as an environment variable, or copy .env.example to .env');
+        console.error('  and fill it in for local dev.');
+      } else {
+        console.error('  Check that', fromEnvFile ? '.env' : 'process.env', 'contains a real value.');
+      }
       process.exit(1);
     }
   }
