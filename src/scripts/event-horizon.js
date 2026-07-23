@@ -4,7 +4,8 @@
 // Handles: Circadian tinting, 3D tilt tracker, tactile buttons,
 //          sync flash signals.
 // Drop on any page with:
-//     <script src="event-horizon.js" defer></script>
+//     <script src="../scripts/event-horizon.js" defer></script>
+//     <link rel="stylesheet" href="../styles/event-horizon.css">
 // =============================================================
 (function () {
   'use strict';

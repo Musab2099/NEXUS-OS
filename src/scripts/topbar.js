@@ -1,7 +1,7 @@
 // =============================================================
 // NEXUS persistent nav bar.
 // Drop this on any page with:
-//     <script src="topbar.js" defer></script>
+//     <script src="../scripts/topbar.js" defer></script>
 // Detects the device (phone vs desktop) and renders the nav
 // at the TOP on desktop and at the BOTTOM on phones.
 // Reads live progress from each app's localStorage keys.
@@ -201,7 +201,7 @@ body.topbar-modal-open {
   // { text, status } where status is 'idle' | 'good' | 'warn' | 'miss'.
   const TILES = [
     {
-      id: 'goals', href: 'index.html', label: 'GOALS', color: '#6366F1',
+      id: 'goals', href: '../pages/index.html', label: 'GOALS', color: '#6366F1',
       getStatus: function () {
         const key = 'goals:' + activeDateKey();
         let goals = [];
@@ -212,7 +212,7 @@ body.topbar-modal-open {
       }
     },
     {
-      id: 'stack', href: 'health.html', label: 'STACK', color: '#10B981',
+      id: 'stack', href: '../pages/health.html', label: 'STACK', color: '#10B981',
       getStatus: function () {
         let items = [];
         try { items = JSON.parse(localStorage.getItem('stack:items')) || []; } catch (e) { }
@@ -239,7 +239,7 @@ body.topbar-modal-open {
       }
     },
     {
-      id: 'gym', href: 'gym.html', label: 'GYM', color: '#F97316',
+      id: 'gym', href: '../pages/gym.html', label: 'GYM', color: '#F97316',
       getStatus: function () {
         let doneMap = {};
         try { doneMap = JSON.parse(localStorage.getItem('ibrahim_gym_done')) || {}; } catch (e) { }
@@ -268,7 +268,7 @@ body.topbar-modal-open {
       }
     },
     {
-      id: 'grind', href: 'grind-log.html', label: 'GRIND', color: '#8B5CF6',
+      id: 'grind', href: '../pages/grind-log.html', label: 'GRIND', color: '#8B5CF6',
       getStatus: function () {
         let S = {};
         try { S = JSON.parse(localStorage.getItem('grind_log_v1')) || {}; } catch (e) { }
@@ -279,7 +279,7 @@ body.topbar-modal-open {
       }
     },
     {
-      id: 'calisthenics', href: 'progression-tab.html', label: 'SKILLS', color: '#EF4444',
+      id: 'calisthenics', href: '../pages/progression-tab.html', label: 'SKILLS', color: '#EF4444',
       getStatus: function () {
         let S = {};
         try { S = JSON.parse(localStorage.getItem('cali_skills_v1')) || {}; } catch (e) { }

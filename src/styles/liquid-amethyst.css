@@ -1,0 +1,733 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   NEXUS — Liquid Amethyst Theme
+   ─────────────────────────────────────────────────────────────────────
+   Add this as the LAST <link> in every page's <head>:
+   <link rel="stylesheet" href="./liquid-amethyst.css">
+
+   Covers: index.html · gym.html · grind-log.html
+           wellness.html · progression-tab.html
+═══════════════════════════════════════════════════════════════════════ */
+
+/* ─── 1. CSS VARIABLE OVERRIDES ───────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --bg:             #07051A;
+  --bg-deep:        #07051A;
+  --space:          #07051A;
+  --space-2:        #0C0920;
+  --space-3:        #110E28;
+  --bg-card:        rgba(14, 10, 42, 0.48);
+  --card:           rgba(14, 10, 42, 0.48);
+  --card-2:         rgba(124, 58, 237, 0.06);
+  --bg-secondary:   rgba(124, 58, 237, 0.06);
+  --glass-bg:       rgba(124, 58, 237, 0.06);
+  --input-bg:       rgba(0, 0, 0, 0.30);
+  --input-focus:    rgba(0, 0, 0, 0.40);
+  --glass-shadow:   0 8px 32px rgba(0,0,0,0.50), inset 0 1px 0 rgba(167,139,250,0.08);
+
+  /* Core accents → shifted to Deep Cyber Amethyst */
+  --amethyst:       #7C3AED;
+  --indigo:         #A78BFA;
+  --indigo-d:       #7C3AED;
+  --violet:         #A78BFA;
+  --violet-muted:   #5B4E8C;
+  --light-accent:   #C4B5FD;
+  --accent:         #A78BFA;
+  --success:        #D946EF;
+  --warning:        #C4B5FD;
+  --danger:         #8B7EC8;
+  --xp-color:       #A78BFA;
+  --xp-glow:        rgba(167, 139, 250, 0.40);
+  --cyan:           #22D3EE;
+
+  /* Gradient shorthand */
+  --grad-amethyst:   linear-gradient(135deg, #7C3AED 0%, #A855F7 45%, #D946EF 100%);
+  --grad-amethyst-h: linear-gradient(90deg,  #7C3AED 0%, #A855F7 45%, #D946EF 100%);
+
+  /* Text */
+  --text-1:         #EDE9FE;
+  --text-2:         rgba(212, 205, 255, 0.88);
+  --text-3:         rgba(139, 126, 200, 0.78);
+  --text-4:         rgba(90,  78,  142, 0.68);
+  --t1:             #EDE9FE;
+  --t2:             rgba(212, 205, 255, 0.88);
+  --t3:             rgba(139, 126, 200, 0.78);
+  --t4:             rgba(90,  78,  142, 0.68);
+  --text-primary:   #EDE9FE;
+  --text-secondary: rgba(212, 205, 255, 0.88);
+  --text-tertiary:  rgba(139, 126, 200, 0.78);
+  --text-quaternary:rgba(90,  78,  142, 0.68);
+
+  /* Borders */
+  --border:         rgba(167, 139, 250, 0.15);
+  --border-soft:    rgba(167, 139, 250, 0.09);
+  --border-strong:  rgba(167, 139, 250, 0.30);
+  --border-lit:     rgba(167, 139, 250, 0.45);
+  --glass-border:   rgba(167, 139, 250, 0.15);
+
+  /* Surfaces */
+  --surface:        rgba(124, 58, 237, 0.04);
+  --surface-2:      rgba(124, 58, 237, 0.08);
+
+  /* Push/Pull/Legs/Core day colours → shift hue */
+  --push:           #D946EF;
+  --pull:           #A78BFA;
+  --legs:           #7C3AED;
+  --core:           #5B4E8C;
+}
+
+/* ─── 2. BODY / BACKGROUND ────────────────────────────────────────── */
+html, body {
+  background: #07051A !important;
+}
+
+/* Replace existing aurora/radial-gradient pseudo-element */
+body::before {
+  background:
+    radial-gradient(ellipse 62% 52% at 84% -8%,  rgba(124, 58, 237, 0.40) 0%, transparent 54%),
+    radial-gradient(ellipse 50% 45% at -10% 102%, rgba(34, 211, 238, 0.22) 0%, transparent 50%),
+    radial-gradient(ellipse 38% 30% at 52%  54%,  rgba(217, 70, 239, 0.16) 0%, transparent 48%),
+    #07051A !important;
+  filter:    blur(100px) !important;
+  transform: none !important;
+  inset:     -20% !important;
+  animation: la-drift 38s ease-in-out infinite alternate !important;
+}
+
+/* ─── ORB SYSTEM ─────────────────────────────────────── */
+.orbs {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.orb { position: absolute; border-radius: 50%; }
+
+.orb-1 {
+  width: 560px; height: 560px;
+  background: var(--amethyst, #7C3AED);
+  filter: blur(140px);
+  opacity: .26;
+  top: -140px; right: -120px;
+  animation: la-drift1 28s ease-in-out infinite;
+}
+.orb-2 {
+  width: 420px; height: 420px;
+  background: var(--cyan, #22D3EE);
+  filter: blur(120px);
+  opacity: .17;
+  bottom: -100px; left: -80px;
+  animation: la-drift2 38s ease-in-out infinite;
+}
+.orb-3 {
+  width: 300px; height: 300px;
+  background: var(--magenta, #D946EF);
+  filter: blur(100px);
+  opacity: .13;
+  top: 42%; left: 38%;
+  animation: la-drift3 46s ease-in-out infinite;
+}
+
+@keyframes la-drift1 {
+  0%,100%{transform:translate(0,0)}
+  25%{transform:translate(-90px,110px)}
+  50%{transform:translate(-180px,50px)}
+  75%{transform:translate(-50px,130px)}
+}
+@keyframes la-drift2 {
+  0%,100%{transform:translate(0,0)}
+  33%{transform:translate(140px,-70px)}
+  66%{transform:translate(70px,-140px)}
+}
+@keyframes la-drift3 {
+  0%,100%{transform:translate(0,0) scale(1)}
+  25%{transform:translate(90px,-70px) scale(1.12)}
+  50%{transform:translate(-70px,90px) scale(.9)}
+  75%{transform:translate(50px,50px) scale(1.06)}
+}
+
+@keyframes la-drift {
+  0%   { transform: translate(0,    0)    scale(1);    }
+  25%  { transform: translate(-3%,  4%)   scale(1.04); }
+  50%  { transform: translate(-5%,  1%)   scale(1.07); }
+  75%  { transform: translate(-2%,  5%)   scale(1.03); }
+  100% { transform: translate(-4%,  2%)   scale(1.08); }
+}
+
+/* dot grid — keep but slightly dimmer */
+body::after {
+  opacity: 0.6 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none !important; }
+}
+
+/* ─── 3. GLASSMORPHISM CARDS ──────────────────────────────────────── */
+.card,
+.ltg-card,
+.ring-hero,
+.log-form-card,
+.hist-chart-wrap,
+.goal-contrib-card,
+.mood-chart-card,
+.level-card,
+.xp-hero {
+  background:            rgba(14, 10, 42, 0.48) !important;
+  backdrop-filter:       blur(26px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(160%) !important;
+  border-color:          rgba(167, 139, 250, 0.15) !important;
+  box-shadow:            0 8px 32px rgba(0,0,0,0.48), inset 0 1px 0 rgba(167,139,250,0.08) !important;
+}
+
+/* XP hero — stronger tint */
+.xp-hero {
+  background: linear-gradient(135deg, rgba(124,58,237,0.16), rgba(217,70,239,0.08)) !important;
+  border-color: rgba(167,139,250,0.28) !important;
+}
+
+/* Lighter surface elements inside cards */
+.ltg-row, .today-pill,
+.superset-group, .phase-header,
+.sleep-row, .dream-item, .j-entry,
+.session-item, .ov-card, .rec-hist-row,
+.meas-stat-card, .heatmap-stat, .stat-pill,
+.stat-box, .cat-card, .cat-break-row,
+.goal-contrib-card, .skill-cta,
+.ex-row, .task-row, .habit-row,
+.log-form-row, .log-target-pill {
+  backdrop-filter:       blur(16px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
+}
+
+.ov-card, .cat-card, .ltg-row {
+  background: rgba(14, 10, 42, 0.36) !important;
+  border-color: rgba(167,139,250,0.12) !important;
+}
+
+/* Modals */
+.modal, .sched-modal, .pr-modal {
+  background:              rgba(10, 7, 30, 0.92) !important;
+  border-color:            rgba(167,139,250,0.18) !important;
+  backdrop-filter:         blur(40px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(160%) !important;
+}
+
+/* Rest timer */
+.rest-timer {
+  background:              rgba(7, 5, 26, 0.97) !important;
+  border-color:            rgba(167,139,250,0.35) !important;
+  backdrop-filter:         blur(32px) !important;
+  -webkit-backdrop-filter: blur(32px) !important;
+  box-shadow:              0 0 0 1px rgba(167,139,250,0.10), 0 0 40px rgba(124,58,237,0.22), 0 24px 60px rgba(0,0,0,0.75) !important;
+}
+
+/* ring hero inner */
+.ring-hero {
+  box-shadow: 0 1px 0 rgba(167,139,250,0.06) inset, 0 20px 60px rgba(0,0,0,0.50) !important;
+}
+
+/* ─── 4. BACK BUTTON ──────────────────────────────────────────────── */
+.back-btn {
+  background:              rgba(14, 10, 42, 0.48) !important;
+  border-color:            rgba(167,139,250,0.15) !important;
+  color:                   rgba(212,205,255,0.88) !important;
+  backdrop-filter:         blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+}
+.back-btn:hover {
+  background:  rgba(124, 58, 237, 0.22) !important;
+  border-color: rgba(167,139,250,0.45) !important;
+  box-shadow:  0 0 14px rgba(124,58,237,0.35) !important;
+  color:       #EDE9FE !important;
+}
+
+/* ─── 5. PILL / TAB NAV ───────────────────────────────────────────── */
+/* Pill containers */
+.pill-nav, .nav-pill, .tab-nav {
+  background:              rgba(255,255,255,0.03) !important;
+  border-color:            rgba(167,139,250,0.14) !important;
+  backdrop-filter:         blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+/* Active pill/tab */
+.pill-item.active, .nav-item.active,
+.tab-btn.active, .skill-tab.active,
+.day-tab.active, .sched-day-btn.selected {
+  background:  linear-gradient(135deg, rgba(124,58,237,0.28), rgba(217,70,239,0.22)) !important;
+  border-color: rgba(167,139,250,0.50) !important;
+  color:        #EDE9FE !important;
+  box-shadow:  0 0 16px rgba(124,58,237,0.32) !important;
+}
+
+/* Inactive pill/tab hover */
+.pill-item:hover, .nav-item:hover,
+.tab-btn:hover, .skill-tab:hover,
+.day-tab:hover {
+  background:  rgba(124,58,237,0.12) !important;
+  color:        rgba(212,205,255,0.88) !important;
+}
+
+/* ─── 6. GRADIENT BUTTONS ─────────────────────────────────────────── */
+/* Primary action buttons — amethyst → magenta */
+.done-btn:not(.is-done), .log-save-btn,
+.weight-save-btn, .logger-save-btn,
+.btn-primary, .sched-save-btn,
+.log-add-btn, .pr-save-btn, .dreamLogBtn,
+.modal-btn.primary, .habitAddBtn,
+.set-level-btn:not(.is-current),
+.sched-save-btn, .slLogBtn,
+.recSaveBtn, .jSaveBtn,
+#logAddBtn, #slLogBtn, #recSaveBtn,
+#jSaveBtn, #dreamLogBtn,
+[onclick="saveLog()"], [onclick="saveWeight()"],
+[onclick="saveMeasurement()"], [onclick="saveLog()"],
+[onclick="logSession()"] {
+  background:  var(--grad-amethyst) !important;
+  border-color: transparent !important;
+  box-shadow:  0 4px 18px rgba(124,58,237,0.45), 0 0 14px rgba(217,70,239,0.22) !important;
+  color:        #ffffff !important;
+}
+.done-btn:not(.is-done):hover,
+.log-save-btn:hover, .weight-save-btn:hover,
+.logger-save-btn:hover, .btn-primary:hover,
+.log-add-btn:hover, .modal-btn.primary:hover {
+  box-shadow: 0 6px 24px rgba(124,58,237,0.60), 0 0 20px rgba(217,70,239,0.35) !important;
+}
+
+/* Secondary / ghost buttons */
+.btn-ghost, .missed-btn, .schedule-btn,
+.sched-cancel-btn, .modal-btn:not(.primary),
+.level-nav-btn, .ltg-update-btn {
+  border-color: rgba(167,139,250,0.28) !important;
+  background:   rgba(124,58,237,0.06) !important;
+  color:        rgba(167,139,250,0.78) !important;
+}
+.btn-ghost:hover, .missed-btn:hover,
+.schedule-btn:hover, .level-nav-btn:hover,
+.ltg-update-btn:hover, .sched-cancel-btn:hover {
+  background:  rgba(124,58,237,0.18) !important;
+  border-color: rgba(167,139,250,0.45) !important;
+  box-shadow:  0 0 12px rgba(124,58,237,0.28) !important;
+  color:        #EDE9FE !important;
+}
+
+/* Done / is-done states */
+.done-btn.is-done, .missed-btn.is-missed {
+  background:  linear-gradient(135deg, rgba(124,58,237,0.30), rgba(217,70,239,0.30)) !important;
+  border-color: rgba(167,139,250,0.50) !important;
+  box-shadow:  0 0 14px rgba(124,58,237,0.35) !important;
+}
+
+/* ─── 7. CHECKBOXES & TOGGLES ─────────────────────────────────────── */
+.ex-row.done .ex-check,
+.habit-check.on {
+  background:  linear-gradient(135deg, #7C3AED 0%, #D946EF 100%) !important;
+  border-color: transparent !important;
+  box-shadow:  0 0 10px rgba(124,58,237,0.55) !important;
+}
+
+/* ─── 8. PROGRESS / XP BARS ───────────────────────────────────────── */
+.xp-bar-fill, .prog-fill, .prog-bar-fill,
+.weight-bar-fill, .ltg-bar-fill,
+.ov-bar-fill, .cat-bar-fill,
+.cat-break-bar-fill, .goal-contrib-bar-fill,
+.consistency-bar-fill, .heatmap-bar-fill {
+  background: var(--grad-amethyst-h) !important;
+  box-shadow:  0 0 12px rgba(124,58,237,0.45) !important;
+}
+
+/* XP fill glow pulse */
+.xp-fill, .xp-bar-fill {
+  background:  linear-gradient(90deg, #7C3AED 0%, #A855F7 50%, #D946EF 100%) !important;
+  box-shadow:  0 0 14px rgba(124,58,237,0.50) !important;
+}
+.xp-fill::after {
+  background: rgba(255,255,255,0.26) !important;
+}
+
+/* ─── 9. HEATMAP CELLS ────────────────────────────────────────────── */
+.heatmap-cell.cell-done, .hm-c.l4 {
+  background: #7C3AED !important;
+  box-shadow: 0 0 6px rgba(124,58,237,0.65) !important;
+}
+.heatmap-cell.cell-done:nth-child(3n) { background: #8B47F5 !important; }
+.hm-c.l3 { background: rgba(124,58,237,0.65) !important; }
+.hm-c.l2 { background: rgba(124,58,237,0.40) !important; }
+.hm-c.l1 { background: rgba(124,58,237,0.18) !important; }
+
+/* ─── 10. SKILL LADDER ────────────────────────────────────────────── */
+.ladder-step.done .ladder-dot {
+  background:  linear-gradient(135deg, #7C3AED, #D946EF) !important;
+  border-color: transparent !important;
+  box-shadow:  0 0 12px rgba(124,58,237,0.55) !important;
+}
+.ladder-step.current .ladder-dot {
+  background:  rgba(124,58,237,0.22) !important;
+  border-color: rgba(167,139,250,0.70) !important;
+  box-shadow:  0 0 16px rgba(124,58,237,0.45) !important;
+}
+.ladder-step.done .ladder-connector {
+  background: rgba(167,139,250,0.50) !important;
+}
+
+/* ─── 11. GRADIENT TEXT HEADINGS ──────────────────────────────────── */
+.xp-total { /* Grind Log big XP number */
+  background: linear-gradient(135deg, #EDE9FE 0%, #A78BFA 100%) !important;
+  -webkit-background-clip: text !important; background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+.xp-rank-name {
+  background: linear-gradient(135deg, #A78BFA 0%, #D946EF 100%) !important;
+  -webkit-background-clip: text !important; background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: none !important;
+}
+.consistency-pct, .ring-pct, .weight-num,
+.greeting-name, .hero-title, .big-n, .big-num {
+  background: linear-gradient(135deg, #EDE9FE 30%, rgba(167,139,250,0.65) 100%) !important;
+  -webkit-background-clip: text !important; background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* OS logo */
+.os-logo {
+  background: linear-gradient(90deg, #7C3AED 0%, #D946EF 50%, #7C3AED 100%) !important;
+  background-size: 200% !important;
+  -webkit-background-clip: text !important; background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* ─── 12. INPUT FOCUS ─────────────────────────────────────────────── */
+input:focus, textarea:focus, select:focus,
+.log-input:focus, .logger-input:focus,
+.weight-input:focus, .pr-input:focus,
+.log-input:focus, .ltg-update-input:focus,
+.meas-field input:focus {
+  border-color: rgba(124,58,237,0.55) !important;
+  box-shadow:   0 0 12px rgba(124,58,237,0.28) !important;
+  outline:      none !important;
+}
+
+/* ─── 13. RING ARC SVG ────────────────────────────────────────────── */
+#ringArc { stroke: #A78BFA !important; }
+#rtArc   { stroke: #A78BFA !important; }
+.ring-fill { filter: drop-shadow(0 0 10px rgba(124,58,237,0.55)) !important; }
+
+/* ─── 14. PHASE SECTION HEADERS (gym.html) ───────────────────────── */
+.phase-skill {
+  border-left-color: #A78BFA !important;
+  background:        rgba(124,58,237,0.07) !important;
+}
+.phase-skill .phase-name { color: #C4B5FD !important; }
+
+.phase-strength {
+  border-left-color: #D946EF !important;
+  background:        rgba(217,70,239,0.05) !important;
+}
+.phase-strength .phase-name { color: #F0ABFC !important; }
+
+.phase-conditioning {
+  border-left-color: #D946EF !important;
+  background:        rgba(217,70,239,0.07) !important;
+}
+.phase-conditioning .phase-name { color: #F0ABFC !important; }
+
+.phase-warmup   { border-left-color: rgba(91,78,140,0.50) !important; }
+.phase-cooldown { border-left-color: rgba(91,78,140,0.35) !important; }
+
+/* ─── 15. EXERCISE ROWS (gym.html) ───────────────────────────────── */
+.ex-row.done {
+  background:  rgba(124,58,237,0.12) !important;
+  border-color: rgba(167,139,250,0.38) !important;
+  box-shadow:  0 0 12px rgba(124,58,237,0.18) !important;
+}
+.ex-row.skill-ex {
+  border-color: rgba(167,139,250,0.38) !important;
+  background:  rgba(124,58,237,0.09) !important;
+}
+.ex-row:hover { background: rgba(124,58,237,0.10) !important; }
+.ex-badge.skill {
+  background: linear-gradient(135deg, rgba(124,58,237,0.25), rgba(167,139,250,0.30)) !important;
+  color:       #C4B5FD !important;
+}
+.ex-badge.hiit {
+  background: rgba(217,70,239,0.18) !important;
+  color:       #F0ABFC !important;
+}
+.ex-tempo {
+  background:  rgba(124,58,237,0.12) !important;
+  border-color: rgba(124,58,237,0.22) !important;
+  color:        rgba(90,78,142,0.68) !important;
+}
+.ex-pr-btn {
+  background:  rgba(124,58,237,0.10) !important;
+  border-color: rgba(124,58,237,0.30) !important;
+  color:        #C4B5FD !important;
+}
+.ex-pr-btn.has-pr {
+  background: linear-gradient(135deg, rgba(124,58,237,0.25), rgba(167,139,250,0.25)) !important;
+  box-shadow: 0 0 10px rgba(124,58,237,0.30) !important;
+}
+.ex-pr-btn:hover {
+  background: linear-gradient(135deg, rgba(124,58,237,0.30), rgba(217,70,239,0.30)) !important;
+  border-color: rgba(167,139,250,0.55) !important;
+  opacity:     1 !important;
+}
+
+/* Superset group */
+.superset-group {
+  border-color: rgba(167,139,250,0.20) !important;
+  background:   rgba(124,58,237,0.03) !important;
+}
+.superset-label-bar {
+  background:  rgba(124,58,237,0.08) !important;
+  border-color: rgba(124,58,237,0.14) !important;
+}
+.ss-label { color: #A78BFA !important; }
+.ss-pos {
+  background: rgba(124,58,237,0.18) !important;
+  color:      #C4B5FD !important;
+}
+
+/* ─── 16. OVERVIEW CARDS (progression-tab.html) ───────────────────── */
+.ov-card:hover {
+  background: rgba(124,58,237,0.10) !important;
+  box-shadow: 0 0 16px rgba(124,58,237,0.22) !important;
+}
+.ov-card.active {
+  background: rgba(124,58,237,0.12) !important;
+  box-shadow: 0 0 18px rgba(124,58,237,0.28) !important;
+}
+
+/* ─── 17. APP DOCK TILES (index.html) ─────────────────────────────── */
+.app-tile {
+  background:              rgba(124,58,237,0.04) !important;
+  border-color:            rgba(167,139,250,0.12) !important;
+  backdrop-filter:         blur(18px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(140%) !important;
+}
+.app-tile:hover {
+  background: rgba(124,58,237,0.10) !important;
+  box-shadow: 0 8px 30px rgba(124,58,237,0.28), 0 0 0 1px rgba(167,139,250,0.22) !important;
+}
+.app-tile.tile-current {
+  background:  rgba(124,58,237,0.10) !important;
+  box-shadow:  0 0 0 1px rgba(167,139,250,0.35), inset 0 0 20px rgba(124,58,237,0.06) !important;
+  border-color: rgba(167,139,250,0.35) !important;
+}
+
+/* ─── 18. GOAL ROWS (index.html) ──────────────────────────────────── */
+.ltg-row { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.06) !important; }
+.ltg-row.is-complete {
+  border-color: rgba(167,139,250,0.50) !important;
+  background:   rgba(124,58,237,0.10) !important;
+  box-shadow:   0 0 18px rgba(124,58,237,0.18) !important;
+}
+.ltg-pct-badge { background: rgba(124,58,237,0.16) !important; color: #C4B5FD !important; }
+.ltg-row.is-complete .ltg-pct-badge {
+  background: linear-gradient(135deg, rgba(124,58,237,0.30), rgba(217,70,239,0.30)) !important;
+  color:      #EDE9FE !important;
+  box-shadow: 0 0 12px rgba(124,58,237,0.45) !important;
+}
+.ltg-add-btn:hover {
+  background: linear-gradient(135deg, rgba(124,58,237,0.30), rgba(217,70,239,0.30)) !important;
+  border-color: rgba(167,139,250,0.55) !important;
+  box-shadow: 0 0 14px rgba(124,58,237,0.45) !important;
+}
+
+/* ─── 19. GRIND LOG CATEGORIES ────────────────────────────────────── */
+.cat-card.selected {
+  border-color: var(--cat-color, rgba(167,139,250,0.50)) !important;
+  background:   rgba(124,58,237,0.10) !important;
+  box-shadow:   0 0 0 1px var(--cat-color, transparent), 0 0 14px rgba(124,58,237,0.20) !important;
+}
+.cat-card.selected .cat-xp-badge {
+  background: var(--cat-bg, rgba(124,58,237,0.20)) !important;
+}
+.log-form-row {
+  background:  rgba(0,0,0,0.28) !important;
+  border-color: rgba(167,139,250,0.18) !important;
+}
+.log-form-row:focus-within {
+  border-color: rgba(124,58,237,0.50) !important;
+  box-shadow:   0 0 14px rgba(124,58,237,0.20) !important;
+}
+.task-row:hover {
+  background:  rgba(124,58,237,0.08) !important;
+  border-color: rgba(167,139,250,0.25) !important;
+}
+.log-target-pill.hit {
+  background: linear-gradient(135deg, rgba(124,58,237,0.22), rgba(217,70,239,0.22)) !important;
+  border-color: rgba(167,139,250,0.50) !important;
+}
+.hist-bar.today-bar {
+  background: linear-gradient(180deg, #7C3AED 0%, #D946EF 100%) !important;
+  box-shadow: 0 0 10px rgba(124,58,237,0.50) !important;
+}
+
+/* ─── 20. WELLNESS HUB ────────────────────────────────────────────── */
+/* Habit check done state */
+.habit-check.on {
+  background: linear-gradient(135deg, #7C3AED 0%, #D946EF 100%) !important;
+  border-color: transparent !important;
+  box-shadow: 0 0 12px rgba(124,58,237,0.55) !important;
+}
+.habit-row.done {
+  background:  rgba(124,58,237,0.10) !important;
+  border-color: rgba(167,139,250,0.38) !important;
+  box-shadow:  0 0 12px rgba(124,58,237,0.18) !important;
+}
+/* Mood buttons */
+.mood-btn.on {
+  border-color: rgba(167,139,250,0.55) !important;
+  background:   linear-gradient(135deg, rgba(124,58,237,0.25), rgba(217,70,239,0.25)) !important;
+  box-shadow:   0 0 14px rgba(124,58,237,0.35) !important;
+}
+/* Sleep chart colours handled by Chart.js — controlled by CSS vars above */
+/* Recovery ring */
+#ringArc { transition: stroke-dashoffset .6s cubic-bezier(.22,1,.36,1), stroke .4s !important; }
+
+/* Dream badges */
+.d-badge.lucid, .type-btn.on.lucid {
+  background: linear-gradient(135deg, rgba(124,58,237,0.30), rgba(217,70,239,0.30)) !important;
+  border-color: rgba(167,139,250,0.55) !important;
+  color:       #EDE9FE !important;
+}
+.d-badge.vivid, .type-btn.on.vivid {
+  background: rgba(124,58,237,0.25) !important;
+  border-color: rgba(124,58,237,0.55) !important;
+  color:       #C4B5FD !important;
+}
+.d-badge.normal, .type-btn.on.normal {
+  background: rgba(91,78,140,0.20) !important;
+  border-color: rgba(91,78,140,0.50) !important;
+  color:       #C4B5FD !important;
+}
+/* Readiness badges */
+.r-badge.full {
+  background: linear-gradient(135deg, rgba(124,58,237,0.22), rgba(217,70,239,0.22)) !important;
+  border-color: rgba(167,139,250,0.55) !important;
+  box-shadow: 0 0 14px rgba(124,58,237,0.28) !important;
+}
+/* Recovery ring colour */
+.r-pill.on {
+  background: linear-gradient(135deg, rgba(124,58,237,0.55), rgba(217,70,239,0.55)) !important;
+  border-color: transparent !important;
+  box-shadow: 0 0 14px rgba(124,58,237,0.50) !important;
+}
+.r-pill:hover {
+  border-color: #A78BFA !important;
+  box-shadow: 0 0 10px rgba(124,58,237,0.30) !important;
+}
+/* Goal link */
+.goal-link-wrap:focus-within {
+  border-color: rgba(124,58,237,0.50) !important;
+  box-shadow:   0 0 14px rgba(124,58,237,0.20) !important;
+}
+.goal-link-active {
+  background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(217,70,239,0.10)) !important;
+  border-color: rgba(167,139,250,0.30) !important;
+  box-shadow: 0 0 12px rgba(124,58,237,0.18) !important;
+}
+.goal-link-active-dot { background: #A78BFA !important; box-shadow: 0 0 8px rgba(167,139,250,0.70) !important; }
+
+/* ─── 21. WEIGHT CHART LINE ───────────────────────────────────────── */
+/* weight-chart uses inline SVG — gradient IDs replaced by inline style */
+
+/* ─── 22. SKILLS CTA LINK (gym.html) ──────────────────────────────── */
+.skills-cta {
+  background: linear-gradient(135deg, rgba(124,58,237,0.10), rgba(217,70,239,0.06)) !important;
+  border-color: rgba(167,139,250,0.28) !important;
+}
+.skills-cta:hover {
+  background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(217,70,239,0.10)) !important;
+  border-color: rgba(167,139,250,0.55) !important;
+  box-shadow:  0 0 20px rgba(124,58,237,0.25) !important;
+}
+
+/* ─── 23. QUICK PILLS / PRESET BUTTONS ───────────────────────────── */
+.quick-pill, .rest-preset, .schedule-btn,
+.sched-day-btn {
+  background:  rgba(124,58,237,0.06) !important;
+  border-color: rgba(167,139,250,0.18) !important;
+}
+.quick-pill:hover, .rest-preset:hover,
+.schedule-btn:hover, .sched-day-btn:hover {
+  background:  rgba(124,58,237,0.18) !important;
+  border-color: rgba(167,139,250,0.40) !important;
+  box-shadow:  0 0 10px rgba(124,58,237,0.22) !important;
+}
+.rest-preset.active, .sched-day-btn.selected {
+  background:  linear-gradient(135deg, rgba(124,58,237,0.32), rgba(217,70,239,0.32)) !important;
+  border-color: rgba(167,139,250,0.55) !important;
+  color:        #EDE9FE !important;
+}
+
+/* ─── 24. DIVIDERS ────────────────────────────────────────────────── */
+.divider::before, .divider::after {
+  background: rgba(167,139,250,0.18) !important;
+}
+.divider span { color: rgba(139,126,200,0.78) !important; }
+
+/* ─── 25. PR / SESSION BEST TAG ──────────────────────────────────── */
+.pr-best-tag, .session-best, .hist-done-pill.done {
+  background: linear-gradient(135deg, rgba(124,58,237,0.25), rgba(217,70,239,0.25)) !important;
+  border-color: rgba(167,139,250,0.50) !important;
+  color:        #EDE9FE !important;
+  box-shadow:  0 0 10px rgba(124,58,237,0.25) !important;
+}
+
+/* ─── 26. NAV ONLINE DOT (index.html) ─────────────────────────────── */
+.nav-online, .nav-status { color: #10B981 !important; }
+.online-dot, .nav-status-dot { background: #10B981 !important; }
+
+/* ─── 27. CONSISTENCY / READINESS ────────────────────────────────── */
+.consistency-streak { color: #C4B5FD !important; }
+.ring-streak.active {
+  background:  rgba(124,58,237,0.16) !important;
+  border-color: rgba(167,139,250,0.38) !important;
+  color:        #C4B5FD !important;
+}
+
+/* ─── 28. SECTION EYEBROW LINES ───────────────────────────────────── */
+.section-eye::after {
+  background: linear-gradient(90deg, rgba(167,139,250,0.12), transparent) !important;
+}
+.section-title::after {
+  background: linear-gradient(90deg, rgba(124,58,237,0.30), transparent) !important;
+}
+
+/* ─── 29. CARD TOP SHIMMER LINES ──────────────────────────────────── */
+.card::before, .ltg-card::before, .ring-hero::before {
+  background: linear-gradient(90deg, transparent, rgba(167,139,250,0.25), transparent) !important;
+}
+
+/* ─── 30. HABIT STREAK HOT ────────────────────────────────────────── */
+.habit-streak.hot { color: #C4B5FD !important; text-shadow: 0 0 8px rgba(196,181,253,0.45) !important; }
+
+/* ─── 31. PILL NAV ITEM (index.html app-dock pill nav variant) ──────── */
+.pill-item { color: rgba(139,126,200,0.72) !important; }
+.pill-item:hover { color: #A78BFA !important; }
+
+/* ─── 32. MODAL BUTTONS ───────────────────────────────────────────── */
+.modal-btn:not(.primary) {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(167,139,250,0.15) !important;
+}
+.modal-btn:not(.primary):hover {
+  background:  rgba(124,58,237,0.18) !important;
+  border-color: rgba(167,139,250,0.45) !important;
+  box-shadow:  0 0 14px rgba(124,58,237,0.35) !important;
+}
+
+/* ─── 33. XP HERO SPARKLE ORBS ───────────────────────────────────── */
+.xp-hero::after {
+  background: radial-gradient(circle, rgba(196,181,253,0.20), transparent 70%) !important;
+}
+
+/* ─── PRINT / reduced-motion safety ───────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
+}

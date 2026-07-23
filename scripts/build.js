@@ -14,22 +14,23 @@ const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
 const ENV_FILE = path.join(ROOT, '.env');
 
-const PLACEHOLDER_FILES = ['sync.js'];
+const PLACEHOLDER_FILES = ['src/scripts/sync.js'];
 const PASSTHROUGH_FILES = [
-  'index.html',
-  'health.html',
-  'gym.html',
-  'grind-log.html',
-  'progression-tab.html',
-  'event-horizon.js',
-  'event-horizon.css',
-  'manifest.json',
   'sw.js',
-  'topbar.js',
-  'favicon-32.png',
-  'icon-192.png',
-  'icon-512.png',
-  'apple-touch-icon-180.png',
+  'src/pages/index.html',
+  'src/pages/health.html',
+  'src/pages/gym.html',
+  'src/pages/grind-log.html',
+  'src/pages/progression-tab.html',
+  'src/scripts/topbar.js',
+  'src/scripts/event-horizon.js',
+  'src/styles/liquid-amethyst.css',
+  'src/styles/event-horizon.css',
+  'src/data/manifest.json',
+  'public/favicon-32.png',
+  'public/icon-192.png',
+  'public/icon-512.png',
+  'public/apple-touch-icon-180.png',
 ];
 
 function loadEnvFile(filePath) {

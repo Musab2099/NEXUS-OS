@@ -6,17 +6,19 @@
   <meta name="viewport"
     content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0A0813">
-  <link rel="manifest" href="./manifest.json">
-  <link rel="icon" href="./favicon-32.png" sizes="32x32">
-  <link rel="apple-touch-icon" href="./apple-touch-icon-180.png">
+  <link rel="manifest" href="../data/manifest.json">
+  <link rel="icon" href="../../public/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="../../public/apple-touch-icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="NEXUS">
   <title>Calisthenics Strength — NEXUS</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="sync.js" defer></script>
-  <script src="topbar.js" defer></script>
+  <script src="../scripts/sync.js" defer></script>
+  <script src="../scripts/topbar.js" defer></script>
   <style>
     :root {
       --bg: #0A0813;
@@ -1926,11 +1928,18 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="../styles/liquid-amethyst.css">
 </head>
 
 <body>
+  <!-- Ambient orb layer -->
+  <div class="orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
   <div class="shell">
-    <a href="index.html" class="back-btn">
+    <a href="../pages/index.html" class="back-btn">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
         stroke-linecap="round" stroke-linejoin="round">
         <polyline points="15 18 9 12 15 6"></polyline>
@@ -2139,7 +2148,7 @@
     </div>
 
     <div class="divider"><span>Skill Progressions</span></div>
-    <a href="progression-tab.html" class="skills-cta">
+    <a href="../pages/progression-tab.html" class="skills-cta">
       <div class="skills-cta-emoji">🤸</div>
       <div class="skills-cta-body">
         <div class="skills-cta-title">Calisthenics Skill Tracker</div>
@@ -3168,10 +3177,13 @@
         } catch { }
       }
 
+      const REMOTE_RENDER_KEYS = [LS, PR_LS, MEAS_LS, SCHED_LS, 'ibrahim_gym_done'];
       window.addEventListener('storage', function (e) {
-        if (e.key !== null && e.key !== undefined && e.key !== LS) return;
-        S = load();
-        renderWorkout(); renderHistory(); renderHeatmap(); renderConsistencyChart();
+        if (!e.key || REMOTE_RENDER_KEYS.indexOf(e.key) === -1) return;
+        if (e.key === LS) { S = load(); renderWorkout(); renderHistory(); renderHeatmap(); renderConsistencyChart(); }
+        if (e.key === MEAS_LS) renderMeasurements();
+        if (e.key === SCHED_LS) { updateDayTabLabels(); renderSchedPicker(); }
+        if (e.key === 'ibrahim_gym_done') renderHeatmap();
       });
 
       /* ─────────────────────────── INIT ───────────────────────────────────── */
@@ -3192,8 +3204,19 @@
       if (typeof initCloudSync !== 'function') return;
       initCloudSync({
         appKey: 'gym',
-        syncedKeys: ['ibrahim_gym_v1', 'ibrahim_gym_done'],
-        onApplied: function () { window.dispatchEvent(new Event('storage')); }
+        syncedKeys: ['ibrahim_gym_v1', 'ibrahim_gym_done', 'gym_pr_v1', 'gym_measurements_v1', 'gym_schedule_v1'],
+        onApplied: function () {
+          // Force-republish any new synced key the client has locally but the
+          // remote blob doesn't yet (e.g. PRs/measurements/schedule on a
+          // device that hasn't logged them yet under the new sync set).
+          ['gym_pr_v1', 'gym_measurements_v1', 'gym_schedule_v1'].forEach(function (k) {
+            try {
+              var v = localStorage.getItem(k);
+              if (v != null) localStorage.setItem(k, v);
+            } catch (e) { }
+          });
+          window.dispatchEvent(new Event('storage'));
+        }
       });
     });
   </script>
