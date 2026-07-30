@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="amethyst">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0A0813">
+  <meta name="theme-color" content="#07051A">
+  <script>(function(){var t=localStorage.getItem('nexus_theme');if(t)document.documentElement.setAttribute('data-theme',t)})();</script>
   <link rel="manifest" href="../data/manifest.json">
   <link rel="icon" href="../../public/favicon-32.png" sizes="32x32">
   <link rel="apple-touch-icon" href="../../public/apple-touch-icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/themes.css">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="NEXUS">
@@ -19,8 +21,16 @@
   <script src="../scripts/sync.js" defer></script>
   <script src="../scripts/topbar.js" defer></script>
   <style>
+    @media(max-width:600px){.page,.shell,main{padding-bottom:0!important}}
+    /* Theme-agnostic tokens */
     :root {
-      /* Deep Cyber Amethyst palette */
+      --font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      --r: 14px;
+    }
+    /* Page-local color tokens — only applied in amethyst theme. Other themes
+       consume the canonical tokens from themes.css. */
+    [data-theme="amethyst"] {
       --bg: #0A0813;
       --card: #12101F;
       --card-2: rgba(138, 43, 226, 0.06);
@@ -42,9 +52,6 @@
       --magenta-glow: rgba(255, 20, 147, 0.40);
       --violet: #B026FF;
       --violet-glow: rgba(176, 38, 255, 0.28);
-      --font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
-      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-      --r: 14px;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     html,body{

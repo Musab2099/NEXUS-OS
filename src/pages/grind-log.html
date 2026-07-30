@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="amethyst">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0A0813">
+  <meta name="theme-color" content="#07051A">
+  <script>(function(){var t=localStorage.getItem('nexus_theme');if(t)document.documentElement.setAttribute('data-theme',t)})();</script>
   <link rel="manifest" href="../data/manifest.json">
   <link rel="icon" href="../../public/favicon-32.png" sizes="32x32">
   <link rel="apple-touch-icon" href="../../public/apple-touch-icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/themes.css">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="NEXUS">
@@ -17,8 +19,18 @@
   <script src="../scripts/sync.js" defer></script>
   <script src="../scripts/topbar.js" defer></script>
   <style>
+    @media(max-width:600px){.page,.shell,main{padding-bottom:0!important}}
+    /* Theme-agnostic tokens */
     :root {
-      /* Deep Cyber Amethyst */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    /* Page-local color tokens — only applied in amethyst theme. Other themes
+       consume the canonical tokens from themes.css. */
+    [data-theme="amethyst"] {
       --bg: #0A0813;
       --bg-deep: #0A0813;
       --bg-card: #12101F;
@@ -42,11 +54,6 @@
       --danger: #8A7FA8;
       --xp-color: #C77DFF;
       --xp-glow: rgba(199, 125, 255, 0.40);
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-      --font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
       color-scheme: dark;
     }
     *{box-sizing:border-box;margin:0;padding:0;}

@@ -35,23 +35,23 @@
   padding-bottom: 10px;
   padding-left: max(14px, env(safe-area-inset-left));
   padding-right: max(14px, env(safe-area-inset-right));
-  background: #02020C;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--topbar-bg, #02020C);
+  border-bottom: 1px solid var(--topbar-border, rgba(255, 255, 255, 0.07));
   font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
 }
 .topbar-pill {
   flex: 1 1 0; min-width: 0;
   display: inline-flex; align-items: center; gap: 8px;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--sbg, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
   border-radius: 11px;
   text-decoration: none;
-  color: #F1F5F9;
+  color: var(--t1, #F1F5F9);
   -webkit-tap-highlight-color: transparent;
   transition: background 0.15s, border-color 0.15s;
 }
-.topbar-pill:hover { background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.12); }
+.topbar-pill:hover { background: var(--card, rgba(255, 255, 255, 0.07)); border-color: var(--bdr-hov, rgba(255, 255, 255, 0.12)); }
 .topbar-pill-dot {
   width: 7px; height: 7px; border-radius: 50%;
   background: var(--pill-color, #6366F1);
@@ -71,14 +71,14 @@
 .topbar-pill-label {
   font-size: 10px; font-weight: 700;
   letter-spacing: 0.14em; text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--t3, rgba(255, 255, 255, 0.45));
   flex-shrink: 0;
 }
 .topbar-pill-count {
   margin-left: auto;
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: 12px; font-weight: 700;
-  color: #F1F5F9;
+  color: var(--t1, #F1F5F9);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -107,15 +107,15 @@
 @media (max-width: 600px) {
   .topbar {
     border-bottom: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    border-top: 1px solid var(--topbar-border, rgba(255, 255, 255, 0.10));
     padding-top: 8px;
     padding-bottom: max(10px, env(safe-area-inset-bottom));
     padding-left: max(6px, env(safe-area-inset-left));
     padding-right: max(6px, env(safe-area-inset-right));
     gap: 4px;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    background: rgba(2, 2, 12, 0.85);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    background: var(--nav-bg, rgba(2, 2, 12, 0.85));
     -webkit-backdrop-filter: blur(18px) saturate(140%);
     backdrop-filter: blur(18px) saturate(140%);
   }
@@ -146,15 +146,8 @@
   }
 }
 
-/* Body padding only when nav is fixed at bottom on phones */
-body.topbar-phone-mode {
-  padding-bottom: calc(78px + env(safe-area-inset-bottom));
-}
-@media (max-width: 600px) {
-  body:not(.topbar-desktop-mode) {
-    padding-bottom: calc(78px + env(safe-area-inset-bottom));
-  }
-}
+/* Body padding is set via inline style in applyDeviceClass()
+   to guarantee it wins over page-specific CSS. */
 
 /* Gym HUD */
 .topbar-gym-hud { display: flex; gap: 2px; align-items: center; }
@@ -193,6 +186,122 @@ body.topbar-modal-open {
     overflow-y: auto !important;
     overscroll-behavior: contain;
   }
+}
+
+/* ─── THEME SWITCHER (topbar.js) ───────────────────────────────────── */
+.topbar-theme-btn {
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.04);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  padding: 0;
+}
+.topbar-theme-btn:hover {
+  background: var(--card, rgba(255,255,255,0.07));
+  border-color: var(--bdr-hov, rgba(255,255,255,0.12));
+}
+.topbar-theme-btn svg {
+  width: 16px; height: 16px;
+  stroke: var(--t3, rgba(255,255,255,0.5));
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* Phone bottom bar: theme button as 6th column */
+.topbar--phone .topbar-theme-btn {
+  flex: none;
+  width: auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 2px 4px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+}
+.topbar--phone .topbar-theme-btn:hover {
+  background: transparent;
+}
+.topbar--phone .topbar-theme-btn span {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--t3, rgba(255,255,255,0.45));
+}
+
+/* Theme picker modal */
+.nx-theme-bg {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  display: none; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.nx-theme-bg.show { display: flex; }
+.nx-theme-modal {
+  background: var(--card, rgba(14,10,42,0.48));
+  border: 1px solid var(--border, rgba(167,139,250,0.15));
+  border-radius: 20px;
+  padding: 24px;
+  max-width: 340px; width: 100%;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+  backdrop-filter: blur(28px) saturate(170%);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+}
+.nx-theme-modal h3 {
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--t3, rgba(139,126,200,0.78));
+  margin: 0 0 16px;
+}
+.nx-theme-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.nx-theme-swatch {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 14px 8px; border-radius: 14px;
+  border: 2px solid transparent; background: transparent;
+  cursor: pointer; transition: all 0.2s; font-family: inherit;
+}
+.nx-theme-swatch:hover { background: var(--sbg, rgba(255,255,255,0.04)); }
+.nx-theme-swatch.active {
+  border-color: var(--a1, #7C3AED);
+  background: var(--sbg, rgba(124,58,237,0.06));
+}
+.nx-theme-dot {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 2px solid var(--border, rgba(255,255,255,0.15));
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  position: relative;
+}
+.nx-theme-dot::after {
+  content: '✓'; position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: white;
+  opacity: 0; transition: opacity 0.2s;
+}
+.nx-theme-swatch.active .nx-theme-dot::after { opacity: 1; }
+.nx-theme-name {
+  font-size: 11px; font-weight: 600;
+  color: var(--t2, rgba(212,205,255,0.88));
+  letter-spacing: 0.02em;
+}
+.nx-theme-swatch[data-t="amethyst"] .nx-theme-dot {
+  background: linear-gradient(135deg, #7C3AED, #D946EF);
+}
+.nx-theme-swatch[data-t="arctic"] .nx-theme-dot {
+  background: linear-gradient(135deg, #1D4ED8, #38BDF8);
+}
+.nx-theme-swatch[data-t="peri"] .nx-theme-dot {
+  background: linear-gradient(135deg, #4F46E5, #C7D2FE);
+}
+.nx-theme-swatch[data-t="ice"] .nx-theme-dot {
+  background: linear-gradient(135deg, #075985, #38BDF8);
 }
 `;
 
@@ -302,7 +411,21 @@ body.topbar-modal-open {
         '<span class="topbar-pill-count" id="topbarCount_' + t.id + '">—</span>' +
         '</a>';
     });
-    return '<header class="topbar" id="topbar" role="navigation" aria-label="Quick stats">' + pills + '</header>';
+    var themeSvg = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+    var themeBtn = '<button class="topbar-theme-btn" id="nxThemeBtn" title="Change theme">' + themeSvg + '<span>THEME</span></button>';
+
+    var modal = '<div class="nx-theme-bg" id="nxThemeBg">' +
+      '<div class="nx-theme-modal">' +
+      '<h3>Choose Theme</h3>' +
+      '<div class="nx-theme-grid">' +
+      '<button class="nx-theme-swatch" data-t="amethyst"><div class="nx-theme-dot"></div><span class="nx-theme-name">Amethyst</span></button>' +
+      '<button class="nx-theme-swatch" data-t="arctic"><div class="nx-theme-dot"></div><span class="nx-theme-name">Arctic</span></button>' +
+      '<button class="nx-theme-swatch" data-t="peri"><div class="nx-theme-dot"></div><span class="nx-theme-name">Peri</span></button>' +
+      '<button class="nx-theme-swatch" data-t="ice"><div class="nx-theme-dot"></div><span class="nx-theme-name">Ice</span></button>' +
+      '</div></div></div>';
+
+    return '<header class="topbar" id="topbar" role="navigation" aria-label="Quick stats">' +
+      pills + themeBtn + '</header>' + modal;
   }
 
   function injectStyleAndHTML() {
@@ -411,10 +534,80 @@ body.topbar-modal-open {
     document.body.classList.toggle('topbar-phone-mode', device === 'phone');
     document.body.classList.toggle('topbar-desktop-mode', device === 'desktop');
     document.documentElement.setAttribute('data-device', device);
+    // Inline padding guarantees override over page CSS.
+    if (device === 'phone') {
+      document.body.style.paddingBottom = 'calc(84px + env(safe-area-inset-bottom))';
+    } else {
+      document.body.style.paddingBottom = '';
+    }
     // Lock pinch-zoom on phones, allow it on desktop.
     if (device === 'phone') {
       lockGestures();
     }
+  }
+
+  // -------- Theme persistence --------
+  var THEME_KEY = 'nexus_theme';
+  var THEMES = ['amethyst', 'arctic', 'peri', 'ice'];
+
+  function applyTheme(id) {
+    document.documentElement.setAttribute('data-theme', id);
+    // Update modal active state
+    document.querySelectorAll('.nx-theme-swatch').forEach(function (sw) {
+      sw.classList.toggle('active', sw.getAttribute('data-t') === id);
+    });
+    // Update theme-color meta for PWA
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      var colors = { amethyst: '#07051A', arctic: '#EEF5FF', peri: '#0D1030', ice: '#F0F9FF' };
+      meta.setAttribute('content', colors[id] || '#07051A');
+    }
+  }
+
+  function cycleTheme() {
+    var current = localStorage.getItem(THEME_KEY) || 'amethyst';
+    var idx = THEMES.indexOf(current);
+    var next = THEMES[(idx + 1) % THEMES.length];
+    localStorage.setItem(THEME_KEY, next);
+    applyTheme(next);
+  }
+
+  function initTheme() {
+    var saved = localStorage.getItem(THEME_KEY);
+    if (saved && THEMES.indexOf(saved) !== -1) {
+      applyTheme(saved);
+    }
+    // Theme button click → open modal
+    var btn = document.getElementById('nxThemeBtn');
+    var bg = document.getElementById('nxThemeBg');
+    if (btn && bg) {
+      btn.addEventListener('click', function () {
+        bg.classList.add('show');
+        document.body.classList.add('topbar-modal-open');
+      });
+      bg.addEventListener('click', function (e) {
+        if (e.target === bg) {
+          bg.classList.remove('show');
+          document.body.classList.remove('topbar-modal-open');
+        }
+      });
+      // Swatch clicks
+      bg.querySelectorAll('.nx-theme-swatch').forEach(function (sw) {
+        sw.addEventListener('click', function () {
+          var t = sw.getAttribute('data-t');
+          localStorage.setItem(THEME_KEY, t);
+          applyTheme(t);
+          bg.classList.remove('show');
+          document.body.classList.remove('topbar-modal-open');
+        });
+      });
+    }
+    // Sync across tabs
+    window.addEventListener('storage', function (e) {
+      if (e.key === THEME_KEY && e.newValue) {
+        applyTheme(e.newValue);
+      }
+    });
   }
 
   // -------- Boot --------
@@ -423,6 +616,7 @@ body.topbar-modal-open {
     applyDeviceClass();
     render();
     startModalLock();
+    initTheme();
 
     // Re-evaluate on resize / orientation change / zoom change.
     let resizeTimer = null;

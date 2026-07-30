@@ -26,6 +26,7 @@ const PASSTHROUGH_FILES = [
   'src/scripts/event-horizon.js',
   'src/styles/liquid-amethyst.css',
   'src/styles/event-horizon.css',
+  'src/styles/themes.css',
   'src/data/manifest.json',
   'public/favicon-32.png',
   'public/icon-192.png',
@@ -76,7 +77,9 @@ function copyPassthrough() {
   for (const rel of PASSTHROUGH_FILES) {
     const src = path.join(ROOT, rel);
     if (!fs.existsSync(src)) continue;
-    fs.copyFileSync(src, path.join(DIST, rel));
+    const dest = path.join(DIST, rel);
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.copyFileSync(src, dest);
   }
 }
 
@@ -90,7 +93,9 @@ function renderFile(rel, env) {
     text = text.split(placeholder).join(value);
     if (text !== before) replaced++;
   }
-  fs.writeFileSync(path.join(DIST, rel), text);
+  const dest = path.join(DIST, rel);
+  fs.mkdirSync(path.dirname(dest), { recursive: true });
+  fs.writeFileSync(dest, text);
   return replaced;
 }
 

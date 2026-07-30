@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="amethyst">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#07051A">
+<script>(function(){var t=localStorage.getItem('nexus_theme');if(t)document.documentElement.setAttribute('data-theme',t)})();</script>
 <link rel="manifest" href="../data/manifest.json">
 <link rel="icon" href="../../public/favicon-32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="../../public/apple-touch-icon-180.png">
@@ -13,6 +14,7 @@
 <title>NEXUS — Ibrahim's OS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/themes.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../scripts/sync.js" defer></script>
 <script src="../scripts/topbar.js" defer></script>
@@ -24,8 +26,18 @@ ul{list-style:none}
 ::-webkit-scrollbar{display:none}
 *{scrollbar-width:none;-ms-overflow-style:none}
 
+/* Phone bottom padding handled by topbar.js inline style */
+@media(max-width:600px){.page,.shell,main{padding-bottom:0!important}}
+
 /* ─── TOKENS ─────────────────────────────────────────── */
 :root{
+  --r-card:20px;
+  --r-pill:999px;
+  --gap:14px;
+}
+/* Page-local color tokens — only applied in amethyst theme. Other themes
+   consume the canonical tokens from themes.css. */
+[data-theme="amethyst"]{
   --void:#07051A;
   --deep:#0C0920;
   --amethyst:#7C3AED;
@@ -44,10 +56,6 @@ ul{list-style:none}
   --glass-border:rgba(167,139,250,.14);
   --glass-border-hover:rgba(167,139,250,.32);
   --glass-blur:blur(26px) saturate(160%);
-
-  --r-card:20px;
-  --r-pill:999px;
-  --gap:14px;
 
   color-scheme:dark;
 }
