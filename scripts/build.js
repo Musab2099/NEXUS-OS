@@ -103,16 +103,20 @@ function main() {
   const env = loadCredentials();
   const fromEnvFile = fs.existsSync(ENV_FILE);
   const required = ['SUPABASE_URL', 'SUPABASE_KEY'];
+  let missingAny = false;
+
   for (const k of required) {
     if (!env[k] || env[k].startsWith('your-') || env[k].startsWith('https://your-')) {
-      console.error('✗ missing real value for', k);
-      if (!fromEnvFile && !process.env[k]) {
-        console.error('  Set it as an environment variable, or copy .env.example to .env');
-        console.error('  and fill it in for local dev.');
-      } else {
-        console.error('  Check that', fromEnvFile ? '.env' : 'process.env', 'contains a real value.');
-      }
-      process.exit(1);
+      missingAny = true;
+      env[k] = '__' + k + '__';
+    }
+  }
+
+  if (missingAny) {
+    console.warn('⚠ Warning: SUPABASE_URL and/or SUPABASE_KEY are missing or using placeholder values.');
+    console.warn('  Local-first features will work fine, but cloud sync will be disabled in this build.');
+    if (!fromEnvFile && !process.env.SUPABASE_URL) {
+      console.warn('  To enable sync, copy .env.example to .env and fill in your Supabase credentials.');
     }
   }
 
