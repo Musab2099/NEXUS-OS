@@ -1,5 +1,4 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "node scripts/build.js",
   "outputDirectory": "dist",
   "trailingSlash": false,
