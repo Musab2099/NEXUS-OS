@@ -28,19 +28,25 @@
   // -------- CSS --------
   // Default = desktop (top bar). Mobile rules below override.
   const css = `
-.topbar {
-  position: sticky; top: 0; z-index: 40;
-  display: flex; gap: 6px;
-  padding-top: max(12px, env(safe-area-inset-top));
-  padding-bottom: 10px;
-  padding-left: max(14px, env(safe-area-inset-left));
-  padding-right: max(14px, env(safe-area-inset-right));
-  background: var(--topbar-bg, #02020C);
-  border-bottom: 1px solid var(--topbar-border, rgba(255, 255, 255, 0.07));
-  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+ .topbar {
+   position: sticky; top: 12px; z-index: 40;
+   display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) auto; align-items: center; gap: 6px;
+   width: calc(100% - 28px); max-width: 1240px; min-width: 0;
+   margin: 12px auto 0;
+   box-sizing: border-box;
+   padding-top: max(12px, env(safe-area-inset-top));
+   padding-bottom: 10px;
+   padding-left: max(14px, env(safe-area-inset-left));
+   padding-right: max(14px, env(safe-area-inset-right));
+   background: var(--bg-header, var(--topbar-bg, #02020C));
+   border: 1px solid var(--topbar-border, rgba(255, 255, 255, 0.07));
+   border-radius: 16px;
+   overflow: hidden;
+   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+   font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
 }
 .topbar-pill {
-  flex: 1 1 0; min-width: 0;
+  min-width: 0; width: 100%;
   display: inline-flex; align-items: center; gap: 8px;
   padding: 8px 12px;
   background: var(--sbg, rgba(255, 255, 255, 0.04));
@@ -58,30 +64,26 @@
   box-shadow: 0 0 6px var(--pill-color, #6366F1);
   flex-shrink: 0;
 }
-.topbar-pill.warn .topbar-pill-dot { background: #F59E0B; box-shadow: 0 0 6px #F59E0B; }
-@media (prefers-reduced-motion: no-preference) {
-  .topbar-pill.miss .topbar-pill-dot {
-    animation: topbar-miss-pulse 1.6s ease-in-out infinite;
-  }
-  @keyframes topbar-miss-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-    50%      { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0); }
-  }
-}
 .topbar-pill-label {
   font-size: 10px; font-weight: 700;
   letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--t3, rgba(255, 255, 255, 0.45));
   flex-shrink: 0;
-}
-.topbar-pill-count {
-  margin-left: auto;
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 12px; font-weight: 700;
-  color: var(--t1, #F1F5F9);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
+} @media (min-width: 601px) and (max-width: 768px) {
+   .topbar {
+     display: flex;
+     align-items: center;
+     flex-wrap: nowrap;
+     overflow-x: auto;
+     width: calc(100% - 20px);
+     margin-top: 8px;
+     padding-left: 10px;
+     padding-right: 10px;
+   }
+   .topbar-pill { width: auto; flex: 0 0 auto; }
+   .topbar-theme-control { margin-left: auto; }
+   .topbar-theme-btn { width: auto; }
+ }
 
 /* ===========================================================
    PHONE LAYOUT — bottom tab bar
@@ -91,23 +93,36 @@
    (b) viewport width <= 600px (pure CSS fallback).
    We list both selectors before each rule so that the class
    override can win against a wider viewport.
-   =========================================================== */
-.topbar--phone,
-.topbar--phone { position: fixed; top: auto; left: 0; right: 0; bottom: 0; }
+   =========================================================== */ .topbar--phone { position: fixed; top: auto; left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right)); bottom: max(8px, env(safe-area-inset-bottom)); width: auto; margin: 0; }
 @media (max-width: 600px) {
   .topbar {
     position: fixed;
-    top: auto;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
+    top: auto;     left: max(8px, env(safe-area-inset-left));
+     right: max(8px, env(safe-area-inset-right));
+     bottom: max(8px, env(safe-area-inset-bottom));
+     width: auto;
+     margin: 0;
+     border-radius: 16px;
+     overflow: hidden;
+   }
 }
-.topbar--phone,
+.topbar--phone {     border: 1px solid var(--topbar-border, rgba(255, 255, 255, 0.10));
+     border-radius: 16px;
+  padding-top: 8px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  padding-left: max(6px, env(safe-area-inset-left));
+  padding-right: max(6px, env(safe-area-inset-right));
+  gap: 4px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  background: var(--nav-bg, rgba(2, 2, 12, 0.85));
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+}
 @media (max-width: 600px) {
   .topbar {
-    border-bottom: none;
-    border-top: 1px solid var(--topbar-border, rgba(255, 255, 255, 0.10));
+   border: 1px solid var(--topbar-border, rgba(255, 255, 255, 0.10));
+   border-radius: 16px;
     padding-top: 8px;
     padding-bottom: max(10px, env(safe-area-inset-bottom));
     padding-left: max(6px, env(safe-area-inset-left));
@@ -138,11 +153,6 @@
     letter-spacing: 0.08em;
     line-height: 1;
     text-align: center;
-  }
-  .topbar-pill-count {
-    margin-left: 0;
-    font-size: 10px;
-    line-height: 1;
   }
 }
 
@@ -190,15 +200,16 @@ body.topbar-modal-open {
 
 /* ─── THEME SWITCHER (topbar.js) ───────────────────────────────────── */
 .topbar-theme-btn {
-  flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  width: 32px; height: 32px;
-  border-radius: 9px;
-  border: 1px solid rgba(255,255,255,0.07);
-  background: rgba(255,255,255,0.04);
+  flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 34px;
+  padding: 8px 12px;
+  border-radius: 11px;
+  border: 1px solid var(--border, rgba(255,255,255,0.07));
+  background: var(--sbg, rgba(255,255,255,0.04));
+  color: var(--text-primary, var(--t1, #F1F5F9));
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
-  padding: 0;
 }
 .topbar-theme-btn:hover {
   background: var(--card, rgba(255,255,255,0.07));
@@ -211,6 +222,27 @@ body.topbar-modal-open {
   stroke-width: 1.8;
   stroke-linecap: round; stroke-linejoin: round;
 }
+.topbar-theme-btn span {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--t3, rgba(255,255,255,0.45));
+} .topbar-theme-control { position: relative; flex: 0 0 auto; }
+ .topbar-theme-menu {
+   position: absolute; top: calc(100% + 8px); right: 0; z-index: 60;
+  display: none; min-width: 168px; padding: 6px;
+  background: var(--card-bg, var(--card, #12101F));
+  border: 1px solid var(--border, rgba(255,255,255,.12)); border-radius: 12px;
+  box-shadow: var(--shadow, 0 12px 32px rgba(0,0,0,.3));
+} .topbar-theme-control.is-open .topbar-theme-menu { display: grid; gap: 2px; }
+ .topbar:has(.topbar-theme-control.is-open),
+ .topbar.theme-menu-open { overflow: visible; }
+.topbar-theme-option {
+  display: flex; align-items: center; gap: 8px; width: 100%; padding: 9px 10px;
+  border: 0; border-radius: 8px; background: transparent; color: var(--text-primary, var(--t1));
+  font: inherit; font-size: 12px; text-align: left; cursor: pointer;
+}
+.topbar-theme-option:hover, .topbar-theme-option[aria-checked="true"] { background: var(--sbg, rgba(255,255,255,.08)); }
+.topbar-theme-option::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--theme-dot); box-shadow: 0 0 8px var(--theme-dot); }
 
 /* Phone bottom bar: theme button as 6th column */
 .topbar--phone .topbar-theme-btn {
@@ -227,11 +259,31 @@ body.topbar-modal-open {
 }
 .topbar--phone .topbar-theme-btn:hover {
   background: transparent;
-}
-.topbar--phone .topbar-theme-btn span {
-  font-size: 9px;
-  letter-spacing: 0.08em;
-  color: var(--t3, rgba(255,255,255,0.45));
+} .topbar--phone .topbar-theme-btn span {
+   font-size: 9px;
+   letter-spacing: 0.08em;
+   color: var(--t3, rgba(255,255,255,0.45));
+ }
+ .topbar--phone .topbar-theme-menu {
+   top: auto;
+   bottom: calc(84px + max(8px, env(safe-area-inset-bottom)));
+ }
+ @media (max-width: 600px) {
+  .topbar-theme-btn {
+    width: auto;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 2px 4px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+  }
+  .topbar-theme-btn span { line-height: 1; }
+  .topbar-theme-menu {
+     top: auto;
+     bottom: calc(84px + max(8px, env(safe-area-inset-bottom)));
+     right: max(8px, env(safe-area-inset-right));
+   }
 }
 
 /* Theme picker modal */
@@ -321,7 +373,7 @@ body.topbar-modal-open {
       }
     },
     {
-      id: 'stack', href: '/src/pages/health.html', label: 'STACK', color: '#10B981',
+      id: 'stack', href: '/src/pages/health.html', label: 'WELLNESS', color: '#10B981',
       getStatus: function () {
         let items = [];
         try { items = JSON.parse(localStorage.getItem('stack:items')) || []; } catch (e) { }
@@ -408,11 +460,16 @@ body.topbar-modal-open {
         '<a href="' + t.href + '" class="topbar-pill" id="topbarPill_' + t.id + '" style="--pill-color:' + t.color + '">' +
         '<span class="topbar-pill-dot"></span>' +
         '<span class="topbar-pill-label">' + t.label + '</span>' +
-        '<span class="topbar-pill-count" id="topbarCount_' + t.id + '">—</span>' +
         '</a>';
     });
     var themeSvg = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
-    var themeBtn = '<button class="topbar-theme-btn" id="nxThemeBtn" title="Change theme">' + themeSvg + '<span>THEME</span></button>';
+    var themeBtn = '<div class="topbar-theme-control" id="nxThemeControl">' +
+      '<button type="button" class="topbar-theme-btn" id="nxThemeBtn" title="Choose theme" aria-label="Choose theme" aria-haspopup="menu" aria-expanded="false">' + themeSvg + '<span>THEME</span></button>' +
+      '<div class="topbar-theme-menu" id="nxThemeMenu" role="menu" aria-label="Choose theme">' +
+      '<button type="button" class="topbar-theme-option" role="menuitemradio" data-theme-option="amethyst" style="--theme-dot:#A78BFA">NEXUS Dark</button>' +
+      '<button type="button" class="topbar-theme-option" role="menuitemradio" data-theme-option="peri" style="--theme-dot:#818CF8">Periwinkle</button>' +
+      '<button type="button" class="topbar-theme-option" role="menuitemradio" data-theme-option="arctic" style="--theme-dot:#2563EB">Arctic White</button>' +
+      '</div></div>';
 
     var modal = '<div class="nx-theme-bg" id="nxThemeBg">' +
       '<div class="nx-theme-modal">' +
@@ -425,7 +482,7 @@ body.topbar-modal-open {
       '</div></div></div>';
 
     return '<header class="topbar" id="topbar" role="navigation" aria-label="Quick stats">' +
-      pills + themeBtn + '</header>' + modal;
+      pills + themeBtn + '</header>';
   }
 
   function injectStyleAndHTML() {
@@ -437,7 +494,9 @@ body.topbar-modal-open {
 
     const wrap = document.createElement('div');
     wrap.innerHTML = buildHTML().trim();
-    document.body.insertBefore(wrap.firstChild, document.body.firstChild);
+    const fragment = document.createDocumentFragment();
+    while (wrap.firstChild) fragment.appendChild(wrap.firstChild);
+    document.body.insertBefore(fragment, document.body.firstChild);
   }
 
   // -------- date helpers --------
@@ -467,20 +526,7 @@ body.topbar-modal-open {
   }
 
   function render() {
-    const root = document.getElementById('topbar');
-    if (!root) return;
-    TILES.forEach(function (t) {
-      const pillEl = document.getElementById('topbarPill_' + t.id);
-      const countEl = document.getElementById('topbarCount_' + t.id);
-      if (!pillEl || !countEl) return;
-      const r = t.getStatus();
-      if (r.html != null) {
-        countEl.innerHTML = r.html;
-      } else {
-        countEl.textContent = r.text;
-      }
-      setPillStatus(pillEl, r.status);
-    });
+    // Metric values intentionally stay off the navigation bar; it is labels-only.
   }
 
   // -------- Mobile lockdown helpers --------
@@ -547,66 +593,53 @@ body.topbar-modal-open {
   }
 
   // -------- Theme persistence --------
-  var THEME_KEY = 'nexus_theme';
-  var THEMES = ['amethyst', 'arctic', 'peri', 'ice'];
-
-  function applyTheme(id) {
-    document.documentElement.setAttribute('data-theme', id);
-    // Update modal active state
-    document.querySelectorAll('.nx-theme-swatch').forEach(function (sw) {
-      sw.classList.toggle('active', sw.getAttribute('data-t') === id);
-    });
-    // Update theme-color meta for PWA
-    var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) {
-      var colors = { amethyst: '#07051A', arctic: '#EEF5FF', peri: '#0D1030', ice: '#F0F9FF' };
-      meta.setAttribute('content', colors[id] || '#07051A');
+  function refreshThemeUI(id) {
+    var btn = document.getElementById('nxThemeBtn');
+    if (btn) {
+      btn.setAttribute('title', 'Choose theme');
+      btn.setAttribute('aria-label', 'Choose theme');
     }
-  }
-
-  function cycleTheme() {
-    var current = localStorage.getItem(THEME_KEY) || 'amethyst';
-    var idx = THEMES.indexOf(current);
-    var next = THEMES[(idx + 1) % THEMES.length];
-    localStorage.setItem(THEME_KEY, next);
-    applyTheme(next);
+    document.querySelectorAll('[data-theme-option]').forEach(function (option) {
+      option.setAttribute('aria-checked', String(option.getAttribute('data-theme-option') === id));
+    });
   }
 
   function initTheme() {
-    var saved = localStorage.getItem(THEME_KEY);
-    if (saved && THEMES.indexOf(saved) !== -1) {
-      applyTheme(saved);
-    }
-    // Theme button click → open modal
+    // theme.js owns application, persistence, PWA color, and cross-tab sync.
+    refreshThemeUI(window.NexusTheme ? window.NexusTheme.get() : 'amethyst');
     var btn = document.getElementById('nxThemeBtn');
-    var bg = document.getElementById('nxThemeBg');
-    if (btn && bg) {
+    var control = document.getElementById('nxThemeControl');
+    var menu = document.getElementById('nxThemeMenu');
+    if (btn) {
       btn.addEventListener('click', function () {
-        bg.classList.add('show');
-        document.body.classList.add('topbar-modal-open');
+        var open = !control.classList.contains('is-open');
+        control.classList.toggle('is-open', open);
+        var topbar = document.getElementById('topbar');
+        if (topbar) topbar.classList.toggle('theme-menu-open', open);
+        btn.setAttribute('aria-expanded', String(open));
       });
-      bg.addEventListener('click', function (e) {
-        if (e.target === bg) {
-          bg.classList.remove('show');
-          document.body.classList.remove('topbar-modal-open');
-        }
-      });
-      // Swatch clicks
-      bg.querySelectorAll('.nx-theme-swatch').forEach(function (sw) {
+    }
+    if (menu) {
+      menu.querySelectorAll('[data-theme-option]').forEach(function (sw) {
         sw.addEventListener('click', function () {
-          var t = sw.getAttribute('data-t');
-          localStorage.setItem(THEME_KEY, t);
-          applyTheme(t);
-          bg.classList.remove('show');
-          document.body.classList.remove('topbar-modal-open');
+          var t = sw.getAttribute('data-theme-option');           if (window.NexusTheme) window.NexusTheme.set(t);
+           control.classList.remove('is-open');
+           var topbar = document.getElementById('topbar');
+           if (topbar) topbar.classList.remove('theme-menu-open');
+           btn.setAttribute('aria-expanded', 'false');
         });
       });
     }
-    // Sync across tabs
-    window.addEventListener('storage', function (e) {
-      if (e.key === THEME_KEY && e.newValue) {
-        applyTheme(e.newValue);
+    document.addEventListener('click', function (event) {
+      if (control && !control.contains(event.target)) {
+        control.classList.remove('is-open');
+        var topbar = document.getElementById('topbar');
+        if (topbar) topbar.classList.remove('theme-menu-open');
+        btn.setAttribute('aria-expanded', 'false');
       }
+    });
+    window.addEventListener('nexus-theme-change', function (event) {
+      refreshThemeUI(event.detail.theme);
     });
   }
 

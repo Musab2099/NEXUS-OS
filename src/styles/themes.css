@@ -11,6 +11,11 @@
 /* Maps OLD variable names (used across all 5 pages) to canonical tokens.
    These sit in :root so they resolve for any theme. */
 :root {
+  --bg-header:       var(--topbar-bg);
+  --bg-nav:          var(--nav-bg);
+  --text-nav:        var(--t1);
+  --nav-border:      var(--topbar-border);
+  --card-bg:         var(--card);
   /* Background aliases */
   --void:           var(--bg);
   --bg-deep:        var(--bg);
@@ -138,7 +143,8 @@
 
   --t1:  #0C1A3A;
   --t2:  rgba(30, 58, 138, 0.72);
-  --t3:  rgba(30, 58, 138, 0.44);
+  /* Navigation text must remain readable on the light pill/header surfaces. */
+  --t3:  #334155;
 
   --a1:  #2563EB;
   --a2:  #3B82F6;
@@ -397,6 +403,8 @@
 [data-theme="ice"] .day-tab {
   color: var(--t3) !important;
 }
+[data-theme="arctic"] .pill-item.active,
+[data-theme="arctic"] .pill-item[aria-selected="true"],
 [data-theme="arctic"] .pill-item:hover,
 [data-theme="arctic"] .nav-item:hover,
 [data-theme="arctic"] .tab-btn:hover,
@@ -404,6 +412,12 @@
 [data-theme="ice"] .nav-item:hover,
 [data-theme="ice"] .tab-btn:hover {
   color: var(--a1) !important;
+}
+[data-theme="arctic"] .pill-item.active,
+[data-theme="arctic"] .pill-item[aria-selected="true"] {
+  background: var(--pill-on, #2563EB) !important;
+  color: var(--pill-tc, #FFFFFF) !important;
+  box-shadow: 0 0 18px rgba(37, 99, 235, 0.24) !important;
 }
 
 /* Light theme ghost buttons */
@@ -517,6 +531,50 @@
 [data-theme="ice"] .ltg-card::before,
 [data-theme="ice"] .ring-hero::before {
   background: linear-gradient(90deg, transparent, var(--border), transparent) !important;
+}
+
+/* Shared header contract: all page-level navbars follow the active theme. */
+:is(.navbar, .header) {
+  background: var(--bg-nav);
+  color: var(--text-nav);
+  border-color: var(--nav-border);
+}
+
+/* Cross-page contrast guardrails. Page styles use different class names, so
+   these token-based overrides keep shared dashboard surfaces readable in Light. */
+[data-theme="arctic"] body,
+[data-theme="ice"] body {
+  background: var(--bg) !important;
+  color: var(--text-primary) !important;
+}
+[data-theme="arctic"] :is(
+  .page-title, .subtitle, .hero-title, .hero-sub, .section-title, .section-sub,
+  .workout-card, .exercise-title, .ex-header-title, .ex-header-sub, .ex-name,
+  .ex-meta, .ex-note, .level-name, .level-target, .level-cue, .session-item,
+  .session-date, .session-val, .session-note, .ov-name, .ov-level, .sched-title,
+  .sched-sub, .btn-secondary, .back-btn, .logger-label, .empty-msg
+) { color: var(--text-primary) !important; }
+[data-theme="ice"] :is(
+  .page-title, .subtitle, .hero-title, .hero-sub, .section-title, .section-sub,
+  .workout-card, .exercise-title, .ex-header-title, .ex-header-sub, .ex-name,
+  .ex-meta, .ex-note, .level-name, .level-target, .level-cue, .session-item,
+  .session-date, .session-val, .session-note, .ov-name, .ov-level, .sched-title,
+  .sched-sub, .btn-secondary, .back-btn, .logger-label, .empty-msg
+) { color: var(--text-primary) !important; }
+[data-theme="arctic"] :is(.subtitle, .hero-sub, .section-sub, .ex-meta, .ex-note, .level-target, .session-note, .sched-sub, .logger-label, .empty-msg),
+[data-theme="ice"] :is(.subtitle, .hero-sub, .section-sub, .ex-meta, .ex-note, .level-target, .session-note, .sched-sub, .logger-label, .empty-msg) {
+  color: var(--text-secondary) !important;
+}
+[data-theme="arctic"] :is(.workout-card, .level-card, .session-item, .ex-row, .phase-section, .sched-modal, .card),
+[data-theme="ice"] :is(.workout-card, .level-card, .session-item, .ex-row, .phase-section, .sched-modal, .card) {
+  background: var(--card-bg) !important;
+  border-color: var(--border) !important;
+}
+[data-theme="arctic"] :is(.btn-secondary, .back-btn, .level-nav-btn, .sched-cancel-btn, .missed-btn),
+[data-theme="ice"] :is(.btn-secondary, .back-btn, .level-nav-btn, .sched-cancel-btn, .missed-btn) {
+  background: var(--sbg) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
 }
 
 /* ─── 7. PERIWINKLE SPECIFIC OVERRIDES ──────────────────────────────── */

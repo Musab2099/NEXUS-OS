@@ -15,12 +15,10 @@ dist/
 .vercel
 
 # AI / AirLLM Local Scripts & Cache
-run_airllm.py
 *.py
 !scripts/build.js
 .cache/
-huggingface/
-AirLLM_Shards/
+
 
 # Python Virtual Environments & Bytecode
 __pycache__/

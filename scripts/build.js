@@ -23,6 +23,7 @@ const PASSTHROUGH_FILES = [
   'src/pages/grind-log.html',
   'src/pages/progression-tab.html',
   'src/scripts/topbar.js',
+  'src/scripts/theme.js',
   'src/scripts/event-horizon.js',
   'src/styles/liquid-amethyst.css',
   'src/styles/event-horizon.css',
