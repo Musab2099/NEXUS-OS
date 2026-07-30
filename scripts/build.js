@@ -28,11 +28,18 @@ const PASSTHROUGH_FILES = [
   'src/styles/event-horizon.css',
   'src/styles/themes.css',
   'src/data/manifest.json',
-  'public/favicon-32.png',
-  'public/icon-192.png',
-  'public/icon-512.png',
-  'public/apple-touch-icon-180.png',
 ];
+
+// Files that need to be placed at the ROOT of dist/ so they
+// are reachable via absolute web paths like /icon-192.png.
+// Keys = source path relative to ROOT, Values = filename in dist/.
+const ROOT_ASSETS = {
+  'public/favicon-32.png':          'favicon-32.png',
+  'public/icon-192.png':            'icon-192.png',
+  'public/icon-512.png':            'icon-512.png',
+  'public/apple-touch-icon-180.png':'apple-touch-icon-180.png',
+  'src/data/manifest.json':         'manifest.json',
+};
 
 function loadEnvFile(filePath) {
   const env = {};
@@ -83,6 +90,19 @@ function copyPassthrough() {
   }
 }
 
+function copyRootAssets() {
+  for (const [rel, filename] of Object.entries(ROOT_ASSETS)) {
+    const src = path.join(ROOT, rel);
+    if (!fs.existsSync(src)) {
+      console.warn('  ⚠ root asset not found:', rel);
+      continue;
+    }
+    const dest = path.join(DIST, filename);
+    fs.copyFileSync(src, dest);
+    console.log('  ✓ copied', rel, '→ dist/' + filename);
+  }
+}
+
 function renderFile(rel, env) {
   const src = path.join(ROOT, rel);
   let text = fs.readFileSync(src, 'utf8');
@@ -122,6 +142,7 @@ function main() {
 
   ensureClean(DIST);
   copyPassthrough();
+  copyRootAssets();
   for (const rel of PLACEHOLDER_FILES) {
     const n = renderFile(rel, env);
     if (n === 0) {

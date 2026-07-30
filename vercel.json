@@ -4,9 +4,15 @@
   "outputDirectory": "dist",
   "trailingSlash": false,
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/", "destination": "/src/pages/index.html" },
+    { "source": "/health", "destination": "/src/pages/health.html" },
+    { "source": "/health.html", "destination": "/src/pages/health.html" },
+    { "source": "/gym", "destination": "/src/pages/gym.html" },
+    { "source": "/gym.html", "destination": "/src/pages/gym.html" },
+    { "source": "/grind-log", "destination": "/src/pages/grind-log.html" },
+    { "source": "/grind-log.html", "destination": "/src/pages/grind-log.html" },
+    { "source": "/progression-tab", "destination": "/src/pages/progression-tab.html" },
+    { "source": "/progression-tab.html", "destination": "/src/pages/progression-tab.html" },
+    { "source": "/(.*)", "destination": "/src/pages/index.html" }
   ]
-}
+}

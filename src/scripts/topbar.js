@@ -310,7 +310,7 @@ body.topbar-modal-open {
   // { text, status } where status is 'idle' | 'good' | 'warn' | 'miss'.
   const TILES = [
     {
-      id: 'goals', href: '../pages/index.html', label: 'GOALS', color: '#6366F1',
+      id: 'goals', href: '/src/pages/index.html', label: 'GOALS', color: '#6366F1',
       getStatus: function () {
         const key = 'goals:' + activeDateKey();
         let goals = [];
@@ -321,7 +321,7 @@ body.topbar-modal-open {
       }
     },
     {
-      id: 'stack', href: '../pages/health.html', label: 'STACK', color: '#10B981',
+      id: 'stack', href: '/src/pages/health.html', label: 'STACK', color: '#10B981',
       getStatus: function () {
         let items = [];
         try { items = JSON.parse(localStorage.getItem('stack:items')) || []; } catch (e) { }
@@ -348,7 +348,7 @@ body.topbar-modal-open {
       }
     },
     {
-      id: 'gym', href: '../pages/gym.html', label: 'GYM', color: '#F97316',
+      id: 'gym', href: '/src/pages/gym.html', label: 'GYM', color: '#F97316',
       getStatus: function () {
         let doneMap = {};
         try { doneMap = JSON.parse(localStorage.getItem('ibrahim_gym_done')) || {}; } catch (e) { }
@@ -377,7 +377,7 @@ body.topbar-modal-open {
       }
     },
     {
-      id: 'grind', href: '../pages/grind-log.html', label: 'GRIND', color: '#8B5CF6',
+      id: 'grind', href: '/src/pages/grind-log.html', label: 'GRIND', color: '#8B5CF6',
       getStatus: function () {
         let S = {};
         try { S = JSON.parse(localStorage.getItem('grind_log_v1')) || {}; } catch (e) { }
@@ -388,7 +388,7 @@ body.topbar-modal-open {
       }
     },
     {
-      id: 'calisthenics', href: '../pages/progression-tab.html', label: 'SKILLS', color: '#EF4444',
+      id: 'calisthenics', href: '/src/pages/progression-tab.html', label: 'SKILLS', color: '#EF4444',
       getStatus: function () {
         let S = {};
         try { S = JSON.parse(localStorage.getItem('cali_skills_v1')) || {}; } catch (e) { }
@@ -646,7 +646,7 @@ body.topbar-modal-open {
   // --- Service Worker registration (once per page via topbar.js) ---
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
+      navigator.serviceWorker.register('/sw.js')
         .catch((err) => console.warn('SW registration failed:', err));
     });
   }
