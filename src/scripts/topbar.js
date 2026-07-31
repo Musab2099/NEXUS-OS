@@ -108,4 +108,8 @@
   setActiveRoute(activeRoute());
   initThemeMenu();
   window.addEventListener('hashchange', function () { setActiveRoute(activeRoute()); });
+
+  // ── Release critical-first-paint guardrails ──
+  // Only after active route & theme menu are fully initialised.
+  document.documentElement.classList.remove('js-loading');
 })();

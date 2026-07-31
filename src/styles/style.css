@@ -19,6 +19,41 @@ html.nexus-ready body {
   }
 }
 
+/* ─── CRITICAL FIRST-PAINT STRUCTURAL CSS ──────────────────────────── */
+/* During .js-loading (before topbar.js / theme.js finish initialising),
+   enforce correct navbar layout so the header never paints as raw text. */
+html.js-loading .navbar {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: clamp(12px, 2vw, 28px) !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+html.js-loading .nav-pill {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  visibility: visible !important;
+}
+
+html.js-loading .nav-pill a {
+  display: inline-block !important;
+  white-space: nowrap !important;
+}
+
+html.js-loading .logo,
+html.js-loading .header-right {
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* Hide un-triggered dropdown lists on initial frame */
+html.js-loading .theme-dropdown .dropdown-menu {
+  display: none !important;
+}
+
 html,
 body {
   overscroll-behavior-y: none;
@@ -133,15 +168,28 @@ body {
   outline: none;
 }
 
+/* Active route styling — static HTML sets .active on the current page's link.
+   CSS-only initial route highlighting via data-initial-route covers all 6 routes
+   so the correct tab is highlighted on frame 0, before any JS runs. */
 .nav-link.active,
 .nav-link.is-active,
-html[data-initial-route="goals"] .nav-link[data-route="goals"] {
+html[data-initial-route="home"] .nav-link[data-route="home"],
+html[data-initial-route="goals"] .nav-link[data-route="goals"],
+html[data-initial-route="wellness"] .nav-link[data-route="wellness"],
+html[data-initial-route="gym"] .nav-link[data-route="gym"],
+html[data-initial-route="calisthenics"] .nav-link[data-route="calisthenics"],
+html[data-initial-route="grind"] .nav-link[data-route="grind"] {
   color: var(--pill-tc, #fff);
   background: var(--pill-on, var(--a1, #7C3AED));
   box-shadow: 0 0 18px color-mix(in srgb, var(--a1, #7C3AED) 42%, transparent);
 }
 
-html[data-initial-route="goals"] .nav-link[data-route="home"] {
+/* When a different route is active, remove active styling from Home link */
+html[data-initial-route="goals"] .nav-link[data-route="home"],
+html[data-initial-route="wellness"] .nav-link[data-route="home"],
+html[data-initial-route="gym"] .nav-link[data-route="home"],
+html[data-initial-route="calisthenics"] .nav-link[data-route="home"],
+html[data-initial-route="grind"] .nav-link[data-route="home"] {
   color: var(--text-secondary, var(--t2, rgba(255,255,255,.72)));
   background: transparent;
   box-shadow: none;
