@@ -667,6 +667,14 @@
   <link rel="stylesheet" href="../styles/style.css">
 </head>
 <body>
+  <!-- PRIMARY HEADER: the single shared navigation on every page -->
+  <header class="nexus-header" data-nexus-header>
+    <a class="nexus-brand" href="/src/pages/index.html" aria-label="NEXUS home"><span class="nexus-brand-mark" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><polygon points="14,2 26,8 26,20 14,26 2,20 2,8" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity=".1"/><polygon points="14,7 21,11 21,17 14,21 7,17 7,11" stroke="currentColor" stroke-width="1" fill="none" opacity=".7"/><circle cx="14" cy="14" r="3" fill="currentColor"/></svg></span><span>NEXUS</span></a>
+    <nav class="nexus-nav" aria-label="NEXUS navigation">
+      <a href="/src/pages/index.html" data-route="home">Home</a><a href="/src/pages/index.html#goals-section" data-route="goals">Goals</a><a href="/src/pages/health.html" data-route="wellness">Wellness</a><a href="/src/pages/gym.html" data-route="gym">Gym</a><a href="/src/pages/progression-tab.html" data-route="calisthenics">Calisthenics</a><a href="/src/pages/grind-log.html" data-route="grind">Grind Log</a>
+    </nav>
+    <div class="nexus-header-actions"><span class="nexus-online"><span class="nexus-online-dot" aria-hidden="true"></span>ONLINE</span><div class="nexus-theme-control" data-theme-control><button class="nexus-theme-button" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button><div class="nexus-theme-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button" data-theme-option="periwinkle" role="menuitemradio">Periwinkle</button><button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div></div></div>
+  </header>
   <!-- Ambient orb layer -->
   <div class="orbs" aria-hidden="true">
     <div class="orb orb-1"></div>

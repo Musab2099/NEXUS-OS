@@ -1,50 +1,324 @@
-/* NEXUS shared layout primitives.
-   Pages keep their app-specific visual styles; this file owns viewport chrome. */
+/* NEXUS shared layout and primary navigation contract.
+   Every page renders one static [data-nexus-header] header in its HTML.
+   topbar.js only enhances this markup; it never injects a replacement bar. */
+
 html,
 body {
   overscroll-behavior-y: none;
   -webkit-text-size-adjust: 100%;
+}
+
+body {
   background: var(--bg-main, var(--bg)) !important;
   color: var(--text-primary, var(--text)) !important;
 }
 
-.topbar,
-.nav {
-  padding-top: max(1rem, env(safe-area-inset-top));
+/* ─── PRIMARY HEADER ─────────────────────────────────────────────────── */
+.nexus-header {
+  position: sticky;
+  top: 8px;
+  z-index: 200;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(12px, 2vw, 28px);
+  width: min(1240px, calc(100% - 32px));
+  min-width: 0;
+  margin: 8px auto 0;
+  padding: max(1rem, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left));
+  box-sizing: border-box;
+  background: var(--bg-header, var(--topbar-bg, #02020C));
+  color: var(--text-nav, var(--text-primary, #F1F5F9));
+  border: 1px solid var(--nav-border, var(--topbar-border, rgba(255,255,255,.08)));
+  border-radius: 18px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .14);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
 }
 
-/* The dashboard's inline nav is branding/status chrome only. */
+.nexus-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: max-content;
+  color: var(--logo-c, var(--a2, #A78BFA));
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: .2em;
+  line-height: 1;
+  text-decoration: none;
+  transition: color .18s ease, transform .18s ease;
+}
+
+.nexus-brand:hover {
+  color: var(--a3, #D946EF);
+  transform: translateY(-1px);
+}
+
+.nexus-brand-mark {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+}
+
+.nexus-brand-mark svg {
+  display: block;
+  width: 28px;
+  height: 28px;
+}
+
+.nexus-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--card-bg, var(--card, rgba(255,255,255,.05)));
+  border: 1px solid var(--glass-border, var(--border, rgba(255,255,255,.08)));
+  border-radius: 999px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.nexus-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.nexus-nav a {
+  flex: 0 0 auto;
+  padding: 8px 13px;
+  border-radius: 999px;
+  color: var(--text-secondary, var(--t2, rgba(255,255,255,.72)));
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .025em;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.nexus-nav a:hover,
+.nexus-nav a:focus-visible {
+  color: var(--text-primary, var(--t1, #F1F5F9));
+  background: var(--sbg, rgba(255,255,255,.08));
+  outline: none;
+}
+
+.nexus-nav a.is-active {
+  color: var(--pill-tc, #fff);
+  background: var(--pill-on, var(--a1, #7C3AED));
+  box-shadow: 0 0 18px color-mix(in srgb, var(--a1, #7C3AED) 42%, transparent);
+}
+
+.nexus-header-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: max-content;
+}
+
+.nexus-online {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green, #10B981);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .13em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.nexus-online-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+  animation: nexus-online-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes nexus-online-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .35; }
+}
+
+.nexus-theme-control {
+  position: relative;
+}
+
+.nexus-theme-button {
+  min-height: 32px;
+  padding: 8px 11px;
+  border: 1px solid var(--border, rgba(255,255,255,.10));
+  border-radius: 10px;
+  background: var(--sbg, rgba(255,255,255,.05));
+  color: var(--text-secondary, var(--t2, #CBD5E1));
+  font: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .13em;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
+}
+
+.nexus-theme-button:hover,
+.nexus-theme-button:focus-visible {
+  color: var(--text-primary, var(--t1, #F1F5F9));
+  background: var(--card, rgba(255,255,255,.09));
+  border-color: var(--bdr-hov, rgba(255,255,255,.2));
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.nexus-theme-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 300;
+  display: none;
+  min-width: 166px;
+  gap: 2px;
+  padding: 6px;
+  border: 1px solid var(--border, rgba(255,255,255,.12));
+  border-radius: 12px;
+  background: var(--card-bg, var(--card, #12101F));
+  box-shadow: var(--shadow, 0 14px 34px rgba(0,0,0,.3));
+}
+
+.nexus-theme-control.is-open .nexus-theme-menu {
+  display: grid;
+}
+
+.nexus-theme-menu button {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 9px 10px 9px 24px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary, var(--t2, #CBD5E1));
+  font: inherit;
+  font-size: 11px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.nexus-theme-menu button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--a2, #A78BFA);
+  box-shadow: 0 0 7px currentColor;
+  transform: translateY(-50%);
+}
+
+.nexus-theme-menu button:hover,
+.nexus-theme-menu button:focus-visible,
+.nexus-theme-menu button[aria-checked="true"] {
+  background: var(--sbg, rgba(255,255,255,.08));
+  color: var(--text-primary, var(--t1, #F1F5F9));
+  outline: none;
+}
+
+@media (max-width: 900px) {
+  .nexus-header {
+    gap: 10px;
+  }
+
+  .nexus-nav a {
+    padding-inline: 10px;
+    font-size: 10px;
+  }
+}
+
 @media (max-width: 768px) {
-  .header .nav-links,
-  .header .pill-nav,
-  .nav .pill-nav {
-    display: none !important;
-  }
-
-  .topbar--phone,
-  .bottom-nav {
-    display: grid;
-    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-  }
-}
-
-@media (min-width: 769px) {
-  .bottom-nav,
-  .nav {
-    display: none !important;
-  }
-}
-
-@media (max-width: 768px) {
-  .page,
-  .shell,
-  main {
+  .nexus-header {
+    position: sticky;
+    top: 6px;
+    width: calc(100% - 16px);
+    margin-top: 6px;
     padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: 9px;
+    gap: 8px;
+    border-radius: 15px;
+  }
+
+  .nexus-brand {
+    gap: 6px;
+    font-size: 13px;
+    letter-spacing: .14em;
+  }
+
+  .nexus-brand-mark,
+  .nexus-brand-mark svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .nexus-nav {
+    justify-content: flex-start;
+  }
+
+  .nexus-nav a {
+    padding: 8px 9px;
+    font-size: 9px;
+  }
+
+  .nexus-header-actions {
+    gap: 6px;
+  }
+
+  .nexus-online {
+    font-size: 0;
+  }
+
+  .nexus-theme-button {
+    min-height: 30px;
+    padding: 8px 9px;
+    font-size: 8px;
   }
 }
 
-/* Page templates use different component class names, so keep the canonical
-   theme tokens authoritative after the legacy Liquid Amethyst layer. */
+@media (max-width: 520px) {
+  .nexus-header {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .nexus-nav a {
+    padding-inline: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nexus-online-dot {
+    animation: none;
+  }
+}
+
+/* Keep in-page destinations visible below the sticky header. */
+#goals-section {
+  scroll-margin-top: 120px;
+}
+
+/* Shared page safety and theme surface guardrails. */
 [data-theme="arctic-white"] :is(.card, .ltg-card, .ring-hero, .log-form-card, .hist-chart-wrap, .goal-contrib-card, .mood-chart-card, .level-card, .xp-hero, .sched-modal, .pr-modal, .modal),
 [data-theme="periwinkle"] :is(.card, .ltg-card, .ring-hero, .log-form-card, .hist-chart-wrap, .goal-contrib-card, .mood-chart-card, .level-card, .xp-hero, .sched-modal, .pr-modal, .modal) {
   background: var(--card) !important;
@@ -55,9 +329,4 @@ body {
 [data-theme="arctic-white"] :is(.shell, .page, main),
 [data-theme="periwinkle"] :is(.shell, .page, main) {
   color: var(--text-primary);
-}
-
-[data-theme="arctic-white"] :is(.hero-title, .hero-sub, .card-title, .card-eyebrow, .text-1, .text-2, .text-3),
-[data-theme="periwinkle"] :is(.hero-title, .hero-sub, .card-title, .card-eyebrow, .text-1, .text-2, .text-3) {
-  color: var(--text-primary) !important;
 }

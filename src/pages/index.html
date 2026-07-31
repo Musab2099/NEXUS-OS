@@ -140,88 +140,6 @@ body{
   padding:0 24px 60px;
 }
 
-/* ─── PILL NAV ───────────────────────────────────────── */
-.nav{
-  position:sticky;top:12px;
-  z-index:200;
-  display:flex;align-items:center;gap:14px;
-  width:100%;min-width:0;
-  margin:12px 0 0;
-  padding: max(1rem, env(safe-area-inset-top)) 12px 10px;
-  color:var(--text-nav);
-  background:var(--bg-nav);
-  border:1px solid var(--nav-border);
-  border-radius:16px;
-  overflow:hidden;
-  box-shadow:0 12px 32px rgba(0,0,0,.12);
-}
-.nav::before{
-  content:'';
-  position:absolute;inset:0;
-  background:var(--bg-nav);
-  backdrop-filter:blur(24px);
-  -webkit-backdrop-filter:blur(24px);
-  z-index:-1;
-}
-
-.logo{
-  display:flex;align-items:center;gap:9px;
-  text-decoration:none;flex-shrink:0;
-}
-.logo-text{
-  font-size:16px;font-weight:900;
-  letter-spacing:.2em;
-  color:var(--violet);
-}
-
-.pill-nav{
-  display:flex;align-items:center;justify-content:center;gap:1rem;
-  flex:0 1 auto;
-  width:auto;max-width:fit-content;min-width:0;
-  margin:0 auto;
-  background:var(--card-bg);
-  backdrop-filter:blur(14px);
-  -webkit-backdrop-filter:blur(14px);
-  border:1px solid var(--glass-border);
-  border-radius:var(--r-pill);
-  padding:4px;
-  overflow-x:auto;
-  scrollbar-width:none;
-}
-.pill-item{flex:0 0 auto}
-.pill-nav::-webkit-scrollbar{display:none}
-
-.pill-item{
-  padding:7px 20px;
-  border-radius:var(--r-pill);
-  font-size:12.5px;font-weight:500;
-  color:var(--text-secondary);
-  background:transparent;border:none;
-  white-space:nowrap;
-  letter-spacing:.01em;
-  transition:color .18s;
-}
-.pill-item:hover{color:var(--violet)}
-.pill-item.active{
-  background:var(--amethyst);
-  color:#fff;
-  box-shadow:0 0 22px rgba(124,58,237,.45);
-}
-
-.nav-online{
-  display:flex;align-items:center;gap:6px;
-  font-size:10px;letter-spacing:.14em;
-  color:var(--green);flex-shrink:0;
-}
-.online-dot{
-  width:6px;height:6px;border-radius:50%;
-  background:var(--green);
-  animation:blink-dot 2.2s ease-in-out infinite;
-}
-@keyframes blink-dot{
-  0%,100%{opacity:1}50%{opacity:.35}
-}
-
 /* ─── GREETING ───────────────────────────────────────── */
 .greeting{margin:30px 0 22px}
 .greeting-time{
@@ -714,19 +632,6 @@ body{
   .c-goals,.c-gym{grid-column:span 2}
   .c-ring,.c-grind,.c-wellness,.c-calisthenics,.c-skills,.c-stat{grid-column:span 1}
 }
-@media(max-width:768px){
-  .nav{top:8px;gap:8px;flex-wrap:wrap;margin-top:8px;padding:max(1rem,env(safe-area-inset-top)) 8px 8px}
-  .pill-nav{
-    order:3;flex:1 0 100%;width:100%;max-width:none;margin:0;
-    justify-content:flex-start;gap:.35rem;overflow-x:auto;
-  }
-  .pill-item{padding:7px 14px;font-size:12px}
-  .nav-online{margin-left:auto}
-}
-@media(max-width:520px){
-  .nav{top:6px;margin-top:6px;border-radius:14px}
-  .pill-nav{border-radius:12px}
-}
 @media(max-width:520px){
   .bento{grid-template-columns:1fr}
   .c-goals,.c-gym,.c-ring,.c-grind,.c-wellness,.c-calisthenics,.c-skills,.c-stat{grid-column:span 1}
@@ -740,6 +645,39 @@ body{
 </head>
 <body>
 
+  <!-- PRIMARY HEADER: the single shared navigation on every page -->
+  <header class="nexus-header" data-nexus-header>
+    <a class="nexus-brand" href="/src/pages/index.html" aria-label="NEXUS home">
+      <span class="nexus-brand-mark" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <polygon points="14,2 26,8 26,20 14,26 2,20 2,8" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity=".1"/>
+          <polygon points="14,7 21,11 21,17 14,21 7,17 7,11" stroke="currentColor" stroke-width="1" fill="none" opacity=".7"/>
+          <circle cx="14" cy="14" r="3" fill="currentColor"/>
+        </svg>
+      </span>
+      <span>NEXUS</span>
+    </a>
+    <nav class="nexus-nav" aria-label="NEXUS navigation">
+      <a href="/src/pages/index.html" data-route="home">Home</a>
+      <a href="/src/pages/index.html#goals-section" data-route="goals">Goals</a>
+      <a href="/src/pages/health.html" data-route="wellness">Wellness</a>
+      <a href="/src/pages/gym.html" data-route="gym">Gym</a>
+      <a href="/src/pages/progression-tab.html" data-route="calisthenics">Calisthenics</a>
+      <a href="/src/pages/grind-log.html" data-route="grind">Grind Log</a>
+    </nav>
+    <div class="nexus-header-actions">
+      <span class="nexus-online"><span class="nexus-online-dot" aria-hidden="true"></span>ONLINE</span>
+      <div class="nexus-theme-control" data-theme-control>
+        <button class="nexus-theme-button" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button>
+        <div class="nexus-theme-menu" data-theme-menu role="menu" aria-label="Choose theme">
+          <button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button>
+          <button type="button" data-theme-option="periwinkle" role="menuitemradio">Periwinkle</button>
+          <button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
 <!-- Ambient orb layer -->
 <div class="orbs" aria-hidden="true">
   <div class="orb orb-1"></div>
@@ -748,32 +686,6 @@ body{
 </div>
 
 <div class="page">
-
-  <!-- ── NAV ── -->
-  <nav class="nav" aria-label="NEXUS navigation">
-    <a class="logo" href="#" aria-label="NEXUS home">
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-        <polygon points="14,2 26,8 26,20 14,26 2,20 2,8" stroke="#7C3AED" stroke-width="1.5" fill="rgba(124,58,237,.1)"/>
-        <polygon points="14,7 21,11 21,17 14,21 7,17 7,11" stroke="#A78BFA" stroke-width="1" fill="rgba(167,139,250,.08)"/>
-        <circle cx="14" cy="14" r="3" fill="#7C3AED"/>
-      </svg>
-      <span class="logo-text">NEXUS</span>
-    </a>
-
-    <div class="pill-nav" role="tablist" aria-hidden="true">
-      <button class="pill-item active" role="tab" aria-selected="true"  onclick="navTo(this,'#')">Home</button>
-      <button class="pill-item"        role="tab" aria-selected="false" onclick="navTo(this,'#goals-section')">Goals</button>
-      <button class="pill-item"        role="tab" aria-selected="false" onclick="navTo(this,'/src/pages/health.html')">Wellness</button>
-      <button class="pill-item"        role="tab" aria-selected="false" onclick="navTo(this,'/src/pages/gym.html')">Gym</button>
-      <button class="pill-item"        role="tab" aria-selected="false" onclick="navTo(this,'/src/pages/progression-tab.html')">Calisthenics</button>
-      <button class="pill-item"        role="tab" aria-selected="false" onclick="navTo(this,'/src/pages/grind-log.html')">Grind Log</button>
-    </div>
-
-    <div class="nav-online" aria-label="System online">
-      <div class="online-dot" aria-hidden="true"></div>
-      ONLINE
-    </div>
-  </nav>
 
   <!-- ── GREETING ── -->
   <header class="greeting reveal d0">
@@ -1031,24 +943,6 @@ body{
     if (n.getHours() < 6) { const d = new Date(n); d.setDate(d.getDate() - 1); return dateToKey(d); }
     return dateToKey(n);
   }
-
-  // ──────────────────────────────────────────────
-  // NAV
-  // ──────────────────────────────────────────────
-  window.navTo = function(btn, href) {
-    document.querySelectorAll('.pill-item').forEach(b => {
-      b.classList.remove('active');
-      b.setAttribute('aria-selected', 'false');
-    });
-    btn.classList.add('active');
-    btn.setAttribute('aria-selected', 'true');
-    if (href.startsWith('#')) {
-      const el = document.querySelector(href);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.location = href;
-    }
-  };
 
   // ──────────────────────────────────────────────
   // GREETING
