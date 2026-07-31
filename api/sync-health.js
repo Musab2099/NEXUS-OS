@@ -9,7 +9,7 @@ const MISSING_DATABASE_CONFIG_ERROR = 'Server database configuration is incomple
 function corsHeaders() {
   return {
     'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Health-Sync-Token',
   };
 }
@@ -43,11 +43,8 @@ function tokensMatch(received, expected) {
 
 function suppliedToken(req) {
   const authorization = req.headers && req.headers.authorization;
-  if (typeof authorization === 'string' && /^Bearer\s+/i.test(authorization)) {
-    return authorization.replace(/^Bearer\s+/i, '').trim();
-  }
-  const header = req.headers && req.headers['x-health-sync-token'];
-  return typeof header === 'string' ? header : '';
+  if (typeof authorization !== 'string' || !/^Bearer\s+/i.test(authorization)) return '';
+  return authorization.replace(/^Bearer\s+/i, '').trim();
 }
 
 function cleanText(value, field, maxLength, required) {
@@ -125,7 +122,14 @@ function workoutDate(value) {
   if (value == null || value === '') return null;
   const text = String(value);
   const match = text.match(/\d{4}-\d{2}-\d{2}/);
-  if (match) return match[0];
+  if (match) {
+    const candidate = match[0];
+    const parsedCandidate = new Date(`${candidate}T00:00:00Z`);
+    return Number.isNaN(parsedCandidate.getTime())
+      || parsedCandidate.toISOString().slice(0, 10) !== candidate
+      ? null
+      : candidate;
+  }
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString().slice(0, 10);
 }
@@ -136,8 +140,9 @@ function validateHealthExportWorkout(workout) {
   }
 
   const duration = optionalNumber(workout.duration?.qty, 0);
-  const date = workoutDate(workout.start ?? workout.startDate);
-  if (!date) throw new Error('Each workout must include a valid start or startDate');
+  const date = workoutDate(workout.start)
+    || workoutDate(workout.startDate)
+    || new Date().toISOString().slice(0, 10);
   return validatePayload({
     user_id: workout.user_id ?? null,
     external_id: firstText(workout.id, workout.uuid),
@@ -145,7 +150,7 @@ function validateHealthExportWorkout(workout) {
     workout_type: firstText(workout.name, workout.workoutActivityType) || 'Workout',
     active_calories: optionalNumber(workout.activeEnergy?.qty ?? workout.activeEnergy, 0),
     avg_heart_rate: optionalNumber(workout.avgHeartRate?.qty ?? workout.heartRate?.avg, null),
-    duration_minutes: duration > 500 ? duration / 60 : duration,
+    duration_minutes: duration,
     source: 'apple_health',
   });
 }
@@ -164,7 +169,7 @@ function validateRequestPayload(body) {
 }
 
 function databaseConfig() {
-  const rawUrl = process.env.SUPABASE_URL;
+  const rawUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseUrl = typeof rawUrl === 'string' ? rawUrl.trim().replace(/\/+$/, '') : '';
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
   if (!supabaseUrl || !serviceKey) throw new Error(MISSING_DATABASE_CONFIG_ERROR);
@@ -323,15 +328,14 @@ async function handlePost(req, res) {
   try {
     const { supabaseUrl, serviceKey } = databaseConfig();
     const { nested, payloads } = requestPayload;
-    const hasExternalId = payloads.some((payload) => payload.external_id);
-    const endpoint = `${supabaseUrl}/rest/v1/apple_health_logs${hasExternalId ? '?on_conflict=external_id' : ''}`;
+    const endpoint = `${supabaseUrl}/rest/v1/apple_health_logs?on_conflict=external_id`;
     const result = await supabaseFetch(endpoint, {
       method: 'POST',
       headers: {
         apikey: serviceKey,
         Authorization: `Bearer ${serviceKey}`,
         'Content-Type': 'application/json',
-        Prefer: hasExternalId ? 'return=representation,resolution=merge-duplicates' : 'return=representation',
+        Prefer: 'return=representation,resolution=merge-duplicates',
       },
       body: JSON.stringify(nested ? payloads : payloads[0]),
     });
@@ -347,7 +351,7 @@ async function handlePost(req, res) {
 }
 
 async function handler(req, res) {
-  if (req.method === 'OPTIONS') return sendEmpty(res, 204);
+  if (req.method === 'OPTIONS') return sendEmpty(res, 200);
   if (req.method === 'GET') return handleGet(req, res);
   if (req.method === 'POST') return handlePost(req, res);
 
