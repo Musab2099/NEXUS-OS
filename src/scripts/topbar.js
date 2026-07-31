@@ -1,5 +1,5 @@
 // NEXUS primary header enhancement.
-// Every page owns the same static .nexus-header markup in its HTML.
+// Every page owns the same static .navbar[data-navbar] markup in its HTML.
 // This script only wires interactions; it never injects or replaces navigation.
 (function () {
   'use strict';
@@ -14,7 +14,7 @@
     }, { once: true });
   }
 
-  var header = document.querySelector('[data-nexus-header]');
+  var header = document.querySelector('.navbar[data-navbar]');
   if (!header) return;
 
   var links = Array.prototype.slice.call(header.querySelectorAll('[data-route]'));
@@ -41,6 +41,7 @@
   function setActiveRoute(route) {
     links.forEach(function (link) {
       var active = link.getAttribute('data-route') === route;
+      link.classList.toggle('active', active);
       link.classList.toggle('is-active', active);
       link.setAttribute('aria-current', active ? 'page' : 'false');
     });

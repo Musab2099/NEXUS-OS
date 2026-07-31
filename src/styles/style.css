@@ -1,6 +1,23 @@
 /* NEXUS shared layout and primary navigation contract.
-   Every page renders one static [data-nexus-header] header in its HTML.
+   Every page renders one static .navbar header in its HTML.
    topbar.js only enhances this markup; it never injects a replacement bar. */
+
+/* The blocking bootstrap adds .nexus-ready before the first paint. If a
+   stylesheet is delayed, raw header/body text never appears unstyled. */
+html:not(.nexus-ready) body {
+  visibility: hidden;
+}
+
+html.nexus-ready body {
+  visibility: visible;
+}
+
+/* JavaScript-disabled fallback: retain the readable static document. */
+@media (scripting: none) {
+  html:not(.nexus-ready) body {
+    visibility: visible;
+  }
+}
 
 html,
 body {
@@ -14,7 +31,7 @@ body {
 }
 
 /* ─── PRIMARY HEADER ─────────────────────────────────────────────────── */
-.nexus-header {
+.navbar {
   position: sticky;
   top: 8px;
   z-index: 200;
@@ -36,7 +53,7 @@ body {
   backdrop-filter: blur(20px) saturate(140%);
 }
 
-.nexus-brand {
+.logo {
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -50,12 +67,16 @@ body {
   transition: color .18s ease, transform .18s ease;
 }
 
-.nexus-brand:hover {
+.logo:hover {
   color: var(--a3, #D946EF);
   transform: translateY(-1px);
 }
 
-.nexus-brand-mark {
+.logo-text {
+  display: inline-block;
+}
+
+.logo-icon {
   display: inline-flex;
   width: 28px;
   height: 28px;
@@ -64,13 +85,13 @@ body {
   color: currentColor;
 }
 
-.nexus-brand-mark svg {
+.logo-icon svg {
   display: block;
   width: 28px;
   height: 28px;
 }
 
-.nexus-nav {
+.nav-pill {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -87,11 +108,11 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-.nexus-nav::-webkit-scrollbar {
+.nav-pill::-webkit-scrollbar {
   display: none;
 }
 
-.nexus-nav a {
+.nav-pill a {
   flex: 0 0 auto;
   padding: 8px 13px;
   border-radius: 999px;
@@ -105,20 +126,28 @@ body {
   transition: color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
 }
 
-.nexus-nav a:hover,
-.nexus-nav a:focus-visible {
+.nav-pill a:hover,
+.nav-pill a:focus-visible {
   color: var(--text-primary, var(--t1, #F1F5F9));
   background: var(--sbg, rgba(255,255,255,.08));
   outline: none;
 }
 
-.nexus-nav a.is-active {
+.nav-link.active,
+.nav-link.is-active,
+html[data-initial-route="goals"] .nav-link[data-route="goals"] {
   color: var(--pill-tc, #fff);
   background: var(--pill-on, var(--a1, #7C3AED));
   box-shadow: 0 0 18px color-mix(in srgb, var(--a1, #7C3AED) 42%, transparent);
 }
 
-.nexus-header-actions {
+html[data-initial-route="goals"] .nav-link[data-route="home"] {
+  color: var(--text-secondary, var(--t2, rgba(255,255,255,.72)));
+  background: transparent;
+  box-shadow: none;
+}
+
+.header-right {
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
@@ -126,7 +155,7 @@ body {
   min-width: max-content;
 }
 
-.nexus-online {
+.status-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -138,7 +167,7 @@ body {
   white-space: nowrap;
 }
 
-.nexus-online-dot {
+.status-pill-dot {
   width: 6px;
   height: 6px;
   flex: 0 0 auto;
@@ -153,11 +182,11 @@ body {
   50% { opacity: .35; }
 }
 
-.nexus-theme-control {
+.theme-dropdown {
   position: relative;
 }
 
-.nexus-theme-button {
+.theme-toggle {
   min-height: 32px;
   padding: 8px 11px;
   border: 1px solid var(--border, rgba(255,255,255,.10));
@@ -173,8 +202,8 @@ body {
   transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
 }
 
-.nexus-theme-button:hover,
-.nexus-theme-button:focus-visible {
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
   color: var(--text-primary, var(--t1, #F1F5F9));
   background: var(--card, rgba(255,255,255,.09));
   border-color: var(--bdr-hov, rgba(255,255,255,.2));
@@ -182,7 +211,7 @@ body {
   transform: translateY(-1px);
 }
 
-.nexus-theme-menu {
+.dropdown-menu {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
@@ -197,11 +226,13 @@ body {
   box-shadow: var(--shadow, 0 14px 34px rgba(0,0,0,.3));
 }
 
-.nexus-theme-control.is-open .nexus-theme-menu {
+.theme-dropdown:hover .dropdown-menu,
+.theme-dropdown:focus-within .dropdown-menu,
+.theme-dropdown.is-open .dropdown-menu {
   display: grid;
 }
 
-.nexus-theme-menu button {
+.dropdown-menu button {
   position: relative;
   display: block;
   width: 100%;
@@ -216,7 +247,7 @@ body {
   cursor: pointer;
 }
 
-.nexus-theme-menu button::before {
+.dropdown-menu button::before {
   content: '';
   position: absolute;
   top: 50%;
@@ -229,27 +260,27 @@ body {
   transform: translateY(-50%);
 }
 
-.nexus-theme-menu button:hover,
-.nexus-theme-menu button:focus-visible,
-.nexus-theme-menu button[aria-checked="true"] {
+.dropdown-menu button:hover,
+.dropdown-menu button:focus-visible,
+.dropdown-menu button[aria-checked="true"] {
   background: var(--sbg, rgba(255,255,255,.08));
   color: var(--text-primary, var(--t1, #F1F5F9));
   outline: none;
 }
 
 @media (max-width: 900px) {
-  .nexus-header {
+  .navbar {
     gap: 10px;
   }
 
-  .nexus-nav a {
+  .nav-pill a {
     padding-inline: 10px;
     font-size: 10px;
   }
 }
 
 @media (max-width: 768px) {
-  .nexus-header {
+  .navbar {
     position: sticky;
     top: 6px;
     width: calc(100% - 16px);
@@ -260,36 +291,36 @@ body {
     border-radius: 15px;
   }
 
-  .nexus-brand {
+  .logo {
     gap: 6px;
     font-size: 13px;
     letter-spacing: .14em;
   }
 
-  .nexus-brand-mark,
-  .nexus-brand-mark svg {
+  .logo-icon,
+  .logo-icon svg {
     width: 24px;
     height: 24px;
   }
 
-  .nexus-nav {
+  .nav-pill {
     justify-content: flex-start;
   }
 
-  .nexus-nav a {
+  .nav-pill a {
     padding: 8px 9px;
     font-size: 9px;
   }
 
-  .nexus-header-actions {
+  .header-right {
     gap: 6px;
   }
 
-  .nexus-online {
+  .status-pill {
     font-size: 0;
   }
 
-  .nexus-theme-button {
+  .theme-toggle {
     min-height: 30px;
     padding: 8px 9px;
     font-size: 8px;
@@ -297,18 +328,18 @@ body {
 }
 
 @media (max-width: 520px) {
-  .nexus-header {
+  .navbar {
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
   }
 
-  .nexus-nav a {
+  .nav-pill a {
     padding-inline: 8px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nexus-online-dot {
+  .status-pill-dot {
     animation: none;
   }
 }
