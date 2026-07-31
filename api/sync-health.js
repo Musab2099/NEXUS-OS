@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 
 const ALLOWED_ORIGIN = '*';
 
@@ -13,7 +14,6 @@ function corsHeaders() {
 function tokensMatch(received, expected) {
   if (typeof received !== 'string' || typeof expected !== 'string' || !received || !expected) return false;
   try {
-    const crypto = require('crypto');
     const a = Buffer.from(received);
     const b = Buffer.from(expected);
     return a.length === b.length && crypto.timingSafeEqual(a, b);
@@ -55,7 +55,6 @@ function cleanNumber(value, field, min, max, required) {
 }
 
 function cleanDate(value) {
-  // If no date provided, default to today (YYYY-MM-DD)
   if (!value) {
     return new Date().toISOString().slice(0, 10);
   }
@@ -76,12 +75,12 @@ function validatePayload(body) {
   return {
     user_id: cleanText(body.user_id, 'user_id', 128, false),
     external_id: cleanText(body.external_id, 'external_id', 180, false),
-    workout_date: cleanDate(body.workout_date), // Auto-defaults to today if omitted
+    workout_date: cleanDate(body.workout_date),
     workout_type: cleanText(body.workout_type, 'workout_type', 120, true),
     active_calories: cleanNumber(body.active_calories, 'active_calories', 0, 10000, true),
     avg_heart_rate: cleanNumber(body.avg_heart_rate, 'avg_heart_rate', 0, 300, false),
     duration_minutes: cleanNumber(body.duration_minutes, 'duration_minutes', 0, 1440, true),
-    source: cleanText(body.source, 'source', 80, false) || 'apple_health', // Auto-defaults to 'apple_health'
+    source: cleanText(body.source, 'source', 80, false) || 'apple_health',
   };
 }
 
@@ -98,7 +97,6 @@ async function readTodayRecords(date) {
   return result;
 }
 
-// CORS Preflight
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,
@@ -106,7 +104,6 @@ export async function OPTIONS() {
   });
 }
 
-// GET Handler
 export async function GET(request) {
   const expectedToken = process.env.APPLE_HEALTH_SYNC_TOKEN;
   if (!expectedToken || !tokensMatch(suppliedToken(request), expectedToken)) {
@@ -129,7 +126,6 @@ export async function GET(request) {
   }
 }
 
-// POST Handler
 export async function POST(request) {
   const expectedToken = process.env.APPLE_HEALTH_SYNC_TOKEN;
   if (!expectedToken || !tokensMatch(suppliedToken(request), expectedToken)) {
