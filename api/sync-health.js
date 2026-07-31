@@ -1,7 +1,10 @@
-import { NextResponse } from 'next/server';
-import crypto from 'crypto';
+'use strict';
+
+const crypto = require('crypto');
 
 const ALLOWED_ORIGIN = '*';
+const MAX_BODY_BYTES = 64 * 1024;
+const MISSING_DATABASE_CONFIG_ERROR = 'Server database configuration is incomplete: missing Supabase credentials';
 
 function corsHeaders() {
   return {
@@ -11,23 +14,40 @@ function corsHeaders() {
   };
 }
 
+function sendJson(res, status, body) {
+  Object.entries(corsHeaders()).forEach(([name, value]) => res.setHeader(name, value));
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.statusCode = status;
+  res.end(JSON.stringify(body));
+}
+
+function sendEmpty(res, status) {
+  Object.entries(corsHeaders()).forEach(([name, value]) => res.setHeader(name, value));
+  res.statusCode = status;
+  res.end();
+}
+
 function tokensMatch(received, expected) {
-  if (typeof received !== 'string' || typeof expected !== 'string' || !received || !expected) return false;
+  if (typeof received !== 'string' || typeof expected !== 'string') return false;
+  const normalizedReceived = received.trim();
+  const normalizedExpected = expected.trim();
+  if (!normalizedReceived || !normalizedExpected) return false;
   try {
-    const a = Buffer.from(received);
-    const b = Buffer.from(expected);
+    const a = Buffer.from(normalizedReceived);
+    const b = Buffer.from(normalizedExpected);
     return a.length === b.length && crypto.timingSafeEqual(a, b);
-  } catch (e) {
-    return received === expected;
+  } catch (error) {
+    return normalizedReceived === normalizedExpected;
   }
 }
 
-function suppliedToken(request) {
-  const authorization = request.headers.get('authorization');
-  if (typeof authorization === 'string' && authorization.startsWith('Bearer ')) {
-    return authorization.slice(7).trim();
+function suppliedToken(req) {
+  const authorization = req.headers && req.headers.authorization;
+  if (typeof authorization === 'string' && /^Bearer\s+/i.test(authorization)) {
+    return authorization.replace(/^Bearer\s+/i, '').trim();
   }
-  return request.headers.get('x-health-sync-token') || '';
+  const header = req.headers && req.headers['x-health-sync-token'];
+  return typeof header === 'string' ? header : '';
 }
 
 function cleanText(value, field, maxLength, required) {
@@ -55,13 +75,11 @@ function cleanNumber(value, field, min, max, required) {
 }
 
 function cleanDate(value) {
-  if (!value) {
-    return new Date().toISOString().slice(0, 10);
-  }
+  if (!value) return new Date().toISOString().slice(0, 10);
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     throw new Error('workout_date must use YYYY-MM-DD');
   }
-  const parsed = new Date(value + 'T00:00:00Z');
+  const parsed = new Date(`${value}T00:00:00Z`);
   if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== value) {
     throw new Error('workout_date is not a valid calendar date');
   }
@@ -84,12 +102,20 @@ function validatePayload(body) {
   };
 }
 
+function databaseConfig() {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
+  if (!supabaseUrl || !serviceKey) throw new Error(MISSING_DATABASE_CONFIG_ERROR);
+  return { supabaseUrl, serviceKey };
+}
+
 async function readTodayRecords(date) {
-  const endpoint = `${process.env.SUPABASE_URL}/rest/v1/apple_health_logs?workout_date=eq.${encodeURIComponent(date)}&order=created_at.desc&limit=20`;
+  const { supabaseUrl, serviceKey } = databaseConfig();
+  const endpoint = `${supabaseUrl}/rest/v1/apple_health_logs?workout_date=eq.${encodeURIComponent(date)}&order=created_at.desc&limit=20`;
   const response = await fetch(endpoint, {
     headers: {
-      apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+      apikey: serviceKey,
+      Authorization: `Bearer ${serviceKey}`,
     },
   });
   const result = await response.json().catch(() => null);
@@ -97,66 +123,101 @@ async function readTodayRecords(date) {
   return result;
 }
 
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 204,
-    headers: corsHeaders(),
+function readBody(req) {
+  const contentLength = Number(req.headers && req.headers['content-length']);
+  if (Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES) {
+    return Promise.reject(Object.assign(new Error('Payload is too large'), { statusCode: 413 }));
+  }
+
+  if (req.body != null) {
+    const rawBody = typeof req.body === 'string' || Buffer.isBuffer(req.body)
+      ? req.body
+      : JSON.stringify(req.body);
+    if (Buffer.byteLength(rawBody || '') > MAX_BODY_BYTES) {
+      return Promise.reject(Object.assign(new Error('Payload is too large'), { statusCode: 413 }));
+    }
+    if (typeof req.body === 'object' && !Buffer.isBuffer(req.body)) return Promise.resolve(req.body);
+    try {
+      return Promise.resolve(JSON.parse(Buffer.isBuffer(req.body) ? req.body.toString('utf8') : req.body));
+    } catch (error) {
+      return Promise.reject(new Error('Invalid JSON payload'));
+    }
+  }
+
+  return new Promise((resolve, reject) => {
+    let size = 0;
+    let rejected = false;
+    const chunks = [];
+    req.on('data', (chunk) => {
+      if (rejected) return;
+      size += Buffer.byteLength(chunk);
+      if (size > MAX_BODY_BYTES) {
+        rejected = true;
+        reject(Object.assign(new Error('Payload is too large'), { statusCode: 413 }));
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on('error', (error) => {
+      if (!rejected) reject(error);
+    });
+    req.on('end', () => {
+      if (rejected) return;
+      try {
+        const raw = Buffer.concat(chunks).toString('utf8');
+        resolve(raw ? JSON.parse(raw) : null);
+      } catch (error) {
+        reject(new Error('Invalid JSON payload'));
+      }
+    });
   });
 }
 
-export async function GET(request) {
+async function handleGet(req, res) {
   const expectedToken = process.env.APPLE_HEALTH_SYNC_TOKEN;
-  if (!expectedToken || !tokensMatch(suppliedToken(request), expectedToken)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders() });
-  }
-
-  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return NextResponse.json({ error: 'Server database configuration is incomplete' }, { status: 500, headers: corsHeaders() });
+  if (!expectedToken || !tokensMatch(suppliedToken(req), expectedToken)) {
+    return sendJson(res, 401, { error: 'Unauthorized' });
   }
 
   try {
-    const { searchParams } = new URL(request.url);
-    const dateParam = searchParams.get('date');
-    const date = cleanDate(dateParam);
+    const { searchParams } = new URL(req.url || '/', `https://${req.headers.host || 'localhost'}`);
+    const date = cleanDate(searchParams.get('date'));
     const records = await readTodayRecords(date);
-    return NextResponse.json({ ok: true, records: Array.isArray(records) ? records : [] }, { status: 200, headers: corsHeaders() });
+    return sendJson(res, 200, { ok: true, records: Array.isArray(records) ? records : [] });
   } catch (error) {
     console.error('Apple Health read request failed:', error);
-    return NextResponse.json({ error: 'Database request failed' }, { status: 502, headers: corsHeaders() });
+    const isBadDate = error.message === 'workout_date must use YYYY-MM-DD'
+      || error.message === 'workout_date is not a valid calendar date';
+    const status = error.message === MISSING_DATABASE_CONFIG_ERROR
+      ? 500
+      : (isBadDate ? 400 : 502);
+    return sendJson(res, status, { error: status === 500 || status === 400 ? error.message : 'Database request failed' });
   }
 }
 
-export async function POST(request) {
+async function handlePost(req, res) {
   const expectedToken = process.env.APPLE_HEALTH_SYNC_TOKEN;
-  if (!expectedToken || !tokensMatch(suppliedToken(request), expectedToken)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders() });
-  }
-
-  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return NextResponse.json({ error: 'Server database configuration is incomplete' }, { status: 500, headers: corsHeaders() });
-  }
-
-  let body;
-  try {
-    body = await request.json();
-  } catch (e) {
-    return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400, headers: corsHeaders() });
+  if (!expectedToken || !tokensMatch(suppliedToken(req), expectedToken)) {
+    return sendJson(res, 401, { error: 'Unauthorized' });
   }
 
   let payload;
   try {
-    payload = validatePayload(body);
+    payload = validatePayload(await readBody(req));
+    databaseConfig();
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 400, headers: corsHeaders() });
+    const status = error.statusCode || (error.message === MISSING_DATABASE_CONFIG_ERROR ? 500 : 400);
+    return sendJson(res, status, { error: error.message });
   }
 
   try {
-    const endpoint = `${process.env.SUPABASE_URL}/rest/v1/apple_health_logs${payload.external_id ? '?on_conflict=external_id' : ''}`;
+    const { supabaseUrl, serviceKey } = databaseConfig();
+    const endpoint = `${supabaseUrl}/rest/v1/apple_health_logs${payload.external_id ? '?on_conflict=external_id' : ''}`;
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
-        apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        apikey: serviceKey,
+        Authorization: `Bearer ${serviceKey}`,
         'Content-Type': 'application/json',
         Prefer: payload.external_id ? 'return=representation,resolution=merge-duplicates' : 'return=representation',
       },
@@ -166,12 +227,23 @@ export async function POST(request) {
     const result = await response.json().catch(() => null);
     if (!response.ok) {
       console.error('Supabase Apple Health insert failed:', response.status, result);
-      return NextResponse.json({ error: 'Database insert failed' }, { status: 502, headers: corsHeaders() });
+      return sendJson(res, 502, { error: 'Database insert failed' });
     }
 
-    return NextResponse.json({ ok: true, record: Array.isArray(result) ? result[0] : result }, { status: 201, headers: corsHeaders() });
+    return sendJson(res, 201, { ok: true, record: Array.isArray(result) ? result[0] : result });
   } catch (error) {
     console.error('Apple Health sync request failed:', error);
-    return NextResponse.json({ error: 'Database request failed' }, { status: 502, headers: corsHeaders() });
+    return sendJson(res, 502, { error: 'Database request failed' });
   }
 }
+
+async function handler(req, res) {
+  if (req.method === 'OPTIONS') return sendEmpty(res, 204);
+  if (req.method === 'GET') return handleGet(req, res);
+  if (req.method === 'POST') return handlePost(req, res);
+
+  res.setHeader('Allow', 'GET, POST, OPTIONS');
+  return sendJson(res, 405, { error: 'Method not allowed' });
+}
+
+module.exports = handler;
