@@ -102,6 +102,67 @@ function validatePayload(body) {
   };
 }
 
+function numericValue(value) {
+  if (value && typeof value === 'object') return value.qty ?? value.value ?? null;
+  return value;
+}
+
+function optionalNumber(value, fallback) {
+  const number = Number(numericValue(value));
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function firstText(...values) {
+  for (const value of values) {
+    if (value == null) continue;
+    const text = String(value).trim();
+    if (text) return text;
+  }
+  return null;
+}
+
+function workoutDate(value) {
+  if (value == null || value === '') return null;
+  const text = String(value);
+  const match = text.match(/\d{4}-\d{2}-\d{2}/);
+  if (match) return match[0];
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString().slice(0, 10);
+}
+
+function validateHealthExportWorkout(workout) {
+  if (!workout || typeof workout !== 'object' || Array.isArray(workout)) {
+    throw new Error('Each data.workouts item must be an object');
+  }
+
+  const duration = optionalNumber(workout.duration?.qty, 0);
+  const date = workoutDate(workout.start ?? workout.startDate);
+  if (!date) throw new Error('Each workout must include a valid start or startDate');
+  return validatePayload({
+    user_id: workout.user_id ?? null,
+    external_id: firstText(workout.id, workout.uuid),
+    workout_date: date,
+    workout_type: firstText(workout.name, workout.workoutActivityType) || 'Workout',
+    active_calories: optionalNumber(workout.activeEnergy?.qty ?? workout.activeEnergy, 0),
+    avg_heart_rate: optionalNumber(workout.avgHeartRate?.qty ?? workout.heartRate?.avg, null),
+    duration_minutes: duration > 500 ? duration / 60 : duration,
+    source: 'apple_health',
+  });
+}
+
+function validateRequestPayload(body) {
+  if (body && typeof body === 'object' && Array.isArray(body.data?.workouts)) {
+    if (body.data.workouts.length === 0) {
+      throw new Error('data.workouts must contain at least one workout');
+    }
+    return {
+      nested: true,
+      payloads: body.data.workouts.map(validateHealthExportWorkout),
+    };
+  }
+  return { nested: false, payloads: [validatePayload(body)] };
+}
+
 function databaseConfig() {
   const rawUrl = process.env.SUPABASE_URL;
   const supabaseUrl = typeof rawUrl === 'string' ? rawUrl.trim().replace(/\/+$/, '') : '';
@@ -250,9 +311,9 @@ async function handlePost(req, res) {
     return sendJson(res, 401, { error: 'Unauthorized' });
   }
 
-  let payload;
+  let requestPayload;
   try {
-    payload = validatePayload(await readBody(req));
+    requestPayload = validateRequestPayload(await readBody(req));
     databaseConfig();
   } catch (error) {
     const status = error.statusCode || (error.message === MISSING_DATABASE_CONFIG_ERROR ? 500 : 400);
@@ -261,18 +322,23 @@ async function handlePost(req, res) {
 
   try {
     const { supabaseUrl, serviceKey } = databaseConfig();
-    const endpoint = `${supabaseUrl}/rest/v1/apple_health_logs${payload.external_id ? '?on_conflict=external_id' : ''}`;
+    const { nested, payloads } = requestPayload;
+    const hasExternalId = payloads.some((payload) => payload.external_id);
+    const endpoint = `${supabaseUrl}/rest/v1/apple_health_logs${hasExternalId ? '?on_conflict=external_id' : ''}`;
     const result = await supabaseFetch(endpoint, {
       method: 'POST',
       headers: {
         apikey: serviceKey,
         Authorization: `Bearer ${serviceKey}`,
         'Content-Type': 'application/json',
-        Prefer: payload.external_id ? 'return=representation,resolution=merge-duplicates' : 'return=representation',
+        Prefer: hasExternalId ? 'return=representation,resolution=merge-duplicates' : 'return=representation',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(nested ? payloads : payloads[0]),
     });
 
+    if (nested) {
+      return sendJson(res, 201, { ok: true, records: Array.isArray(result) ? result : [result] });
+    }
     return sendJson(res, 201, { ok: true, record: Array.isArray(result) ? result[0] : result });
   } catch (error) {
     console.error('Apple Health sync request failed:', error);
