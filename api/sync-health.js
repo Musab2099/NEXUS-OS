@@ -103,24 +103,72 @@ function validatePayload(body) {
 }
 
 function databaseConfig() {
-  const supabaseUrl = process.env.SUPABASE_URL;
+  const rawUrl = process.env.SUPABASE_URL;
+  const supabaseUrl = typeof rawUrl === 'string' ? rawUrl.trim().replace(/\/+$/, '') : '';
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
   if (!supabaseUrl || !serviceKey) throw new Error(MISSING_DATABASE_CONFIG_ERROR);
+  try {
+    const parsedUrl = new URL(supabaseUrl);
+    if (!parsedUrl.hostname || parsedUrl.protocol !== 'https:') throw new Error('Invalid Supabase URL');
+  } catch (error) {
+    throw new Error(MISSING_DATABASE_CONFIG_ERROR);
+  }
   return { supabaseUrl, serviceKey };
+}
+
+async function responsePayload(response) {
+  if (typeof response.text === 'function') {
+    const text = await response.text();
+    if (!text) return null;
+    try {
+      return JSON.parse(text);
+    } catch (error) {
+      return text;
+    }
+  }
+  if (typeof response.json === 'function') return response.json().catch(() => null);
+  return null;
+}
+
+async function supabaseFetch(endpoint, options) {
+  try {
+    const response = await fetch(endpoint, options);
+    const result = await responsePayload(response);
+    if (!response.ok) {
+      console.error('Supabase request failed:', response.status, result);
+      const error = new Error('Database operation failed');
+      error.statusCode = response.status;
+      error.details = result;
+      throw error;
+    }
+    return result;
+  } catch (error) {
+    if (!error || error.statusCode == null) {
+      console.error('Supabase fetch failed:', error);
+    }
+    throw error;
+  }
 }
 
 async function readTodayRecords(date) {
   const { supabaseUrl, serviceKey } = databaseConfig();
   const endpoint = `${supabaseUrl}/rest/v1/apple_health_logs?workout_date=eq.${encodeURIComponent(date)}&order=created_at.desc&limit=20`;
-  const response = await fetch(endpoint, {
+  return supabaseFetch(endpoint, {
     headers: {
       apikey: serviceKey,
       Authorization: `Bearer ${serviceKey}`,
     },
   });
-  const result = await response.json().catch(() => null);
-  if (!response.ok) throw new Error('Database read failed');
-  return result;
+}
+
+function sendDatabaseError(res, error) {
+  const upstreamStatus = Number.isInteger(error && error.statusCode) ? error.statusCode : 502;
+  const details = error && error.details !== undefined ? error.details : (error && error.message) || 'Unknown database error';
+  return sendJson(res, upstreamStatus, {
+    error: 'Database operation failed',
+    status: upstreamStatus,
+    details,
+  });
 }
 
 function readBody(req) {
@@ -188,10 +236,11 @@ async function handleGet(req, res) {
     console.error('Apple Health read request failed:', error);
     const isBadDate = error.message === 'workout_date must use YYYY-MM-DD'
       || error.message === 'workout_date is not a valid calendar date';
-    const status = error.message === MISSING_DATABASE_CONFIG_ERROR
-      ? 500
-      : (isBadDate ? 400 : 502);
-    return sendJson(res, status, { error: status === 500 || status === 400 ? error.message : 'Database request failed' });
+    if (error.message === MISSING_DATABASE_CONFIG_ERROR) {
+      return sendJson(res, 500, { error: error.message });
+    }
+    if (isBadDate) return sendJson(res, 400, { error: error.message });
+    return sendDatabaseError(res, error);
   }
 }
 
@@ -213,7 +262,7 @@ async function handlePost(req, res) {
   try {
     const { supabaseUrl, serviceKey } = databaseConfig();
     const endpoint = `${supabaseUrl}/rest/v1/apple_health_logs${payload.external_id ? '?on_conflict=external_id' : ''}`;
-    const response = await fetch(endpoint, {
+    const result = await supabaseFetch(endpoint, {
       method: 'POST',
       headers: {
         apikey: serviceKey,
@@ -224,16 +273,10 @@ async function handlePost(req, res) {
       body: JSON.stringify(payload),
     });
 
-    const result = await response.json().catch(() => null);
-    if (!response.ok) {
-      console.error('Supabase Apple Health insert failed:', response.status, result);
-      return sendJson(res, 502, { error: 'Database insert failed' });
-    }
-
     return sendJson(res, 201, { ok: true, record: Array.isArray(result) ? result[0] : result });
   } catch (error) {
     console.error('Apple Health sync request failed:', error);
-    return sendJson(res, 502, { error: 'Database request failed' });
+    return sendDatabaseError(res, error);
   }
 }
 
