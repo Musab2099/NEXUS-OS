@@ -9,7 +9,7 @@
 ═══════════════════════════════════════════════════════════════════════ */
 
 /* ─── 1. CSS VARIABLE OVERRIDES ───────────────────────────────────── */
-:root {
+[data-theme="nexus-dark"] {
   /* Backgrounds */
   --bg:             #07051A;
   --bg-deep:        #07051A;
@@ -78,7 +78,7 @@
 
 /* ─── 2. BODY / BACKGROUND ────────────────────────────────────────── */
 html, body {
-  background: #07051A !important;
+  background: var(--bg-main, var(--bg)) !important;
 }
 
 /* Replace existing aurora/radial-gradient pseudo-element */

@@ -1,10 +1,10 @@
 /* ═══════════════════════════════════════════════════════════════════════
    NEXUS — Theme System
    ─────────────────────────────────────────────────────────────────────
-   4 themes: amethyst (default), arctic, peri, ice
+   3 themes: nexus-dark (default), arctic-white, periwinkle
    Uses data-theme attribute on <html> to switch.
 
-   Load BEFORE liquid-amethyst.css so LA can consume these tokens.
+   Load AFTER liquid-amethyst.css so these canonical tokens win the cascade.
    ══════════════════════════════════════════════════════════════════════ */
 
 /* ─── 1. BACKWARD-COMPAT ALIAS LAYER ────────────────────────────────── */
@@ -16,6 +16,10 @@
   --text-nav:        var(--t1);
   --nav-border:      var(--topbar-border);
   --card-bg:         var(--card);
+  --bg-main:         var(--bg);
+  --bg-card:         var(--card);
+  --text-primary:    var(--t1);
+  --text-secondary:  var(--t2);
   /* Background aliases */
   --void:           var(--bg);
   --bg-deep:        var(--bg);
@@ -78,7 +82,7 @@
 
 /* ─── 2. DEEP CYBER AMETHYST (default) ──────────────────────────────── */
 :root,
-[data-theme="amethyst"] {
+[data-theme="nexus-dark"] {
   --bg:      #07051A;
   --card:    rgba(14, 10, 42, 0.48);
   --card-2:  rgba(124, 58, 237, 0.06);
@@ -133,7 +137,7 @@
 }
 
 /* ─── 3. ARCTIC WHITE ───────────────────────────────────────────────── */
-[data-theme="arctic"] {
+[data-theme="arctic-white"] {
   --bg:      #EEF5FF;
   --card:    rgba(255, 255, 255, 0.90);
   --card-2:  rgba(37, 99, 235, 0.06);
@@ -189,7 +193,7 @@
 }
 
 /* ─── 4. PERIWINKLE ─────────────────────────────────────────────────── */
-[data-theme="peri"] {
+[data-theme="periwinkle"] {
   --bg:      #0D1030;
   --card:    rgba(20, 25, 68, 0.55);
   --card-2:  rgba(129, 140, 248, 0.06);
@@ -243,71 +247,16 @@
   color-scheme: dark;
 }
 
-/* ─── 5. ICE CHROME ─────────────────────────────────────────────────── */
-[data-theme="ice"] {
-  --bg:      #F0F9FF;
-  --card:    rgba(255, 255, 255, 0.94);
-  --card-2:  rgba(14, 165, 233, 0.06);
-  --border:  rgba(14, 165, 233, 0.10);
-  --bdr-hov: rgba(3, 105, 161, 0.28);
-  --shadow:  0 2px 20px rgba(3, 105, 161, 0.08), 0 0 0 1px rgba(14,165,233,0.07);
+/* ─── 5. LIGHT THEME OVERRIDES ──────────────────────────────────────── */
+/* Override hardcoded dark-theme component styles for Arctic White. */
 
-  --t1:  #0C2340;
-  --t2:  rgba(7, 89, 133, 0.72);
-  --t3:  rgba(3, 105, 161, 0.44);
-
-  --a1:  #0369A1;
-  --a2:  #0EA5E9;
-  --a3:  #7DD3FC;
-  --ag:  linear-gradient(135deg, #075985 0%, #0EA5E9 50%, #38BDF8 100%);
-
-  --bar:  linear-gradient(90deg, #075985, #0EA5E9, #38BDF8);
-  --bar2: #38BDF8;
-  --bar3: #7DD3FC;
-  --bar4: #818CF8;
-
-  --sbg:  rgba(14, 165, 233, 0.06);
-  --sbdr: rgba(14, 165, 233, 0.14);
-  --pill-on: #0369A1;
-  --pill-tc: #ffffff;
-  --logo-c:  #0369A1;
-  --logo-g:  linear-gradient(90deg, #075985, #0369A1);
-  --green:   #059669;
-  --ring-s:  #0369A1;
-
-  --dot-on:  #0369A1;
-  --hm0: rgba(14, 165, 233, 0.06);
-  --hm1: rgba(14, 165, 233, 0.18);
-  --hm2: rgba(14, 165, 233, 0.38);
-  --hm3: rgba(3, 105, 161, 0.65);
-  --hm4: #0369A1;
-
-  --o1c: #1D4ED8; --o1o: .10;
-  --o2c: #7DD3FC; --o2o: .16;
-  --o3c: #0EA5E9; --o3o: .08;
-
-  --push: #EC4899;
-  --pull: #3B82F6;
-  --legs: #6366F1;
-  --core: #4F46E5;
-
-  --nav-bg: rgba(240, 249, 255, 0.90);
-  --topbar-bg: rgba(240, 249, 255, 0.90);
-  --topbar-border: rgba(14, 165, 233, 0.10);
-
-  color-scheme: light;
-}
-
-/* ─── 6. LIGHT THEME OVERRIDES ──────────────────────────────────────── */
-/* For arctic and ice: override hardcoded dark-theme component styles */
-
-[data-theme="arctic"] body,
-[data-theme="ice"] body {
+[data-theme="arctic-white"] body,
+[data-theme="arctic-white"] body {
   background: var(--bg) !important;
 }
 
 /* Aurora background — subtle for light themes */
-[data-theme="arctic"] body::before {
+[data-theme="arctic-white"] body::before {
   background:
     radial-gradient(ellipse 62% 52% at 84% -8%,  rgba(37, 99, 235, 0.12) 0%, transparent 54%),
     radial-gradient(ellipse 50% 45% at -10% 102%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
@@ -315,7 +264,7 @@
     #EEF5FF !important;
   filter: blur(80px) !important;
 }
-[data-theme="ice"] body::before {
+[data-theme="arctic-white"] body::before {
   background:
     radial-gradient(ellipse 62% 52% at 84% -8%,  rgba(7, 89, 133, 0.10) 0%, transparent 54%),
     radial-gradient(ellipse 50% 45% at -10% 102%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
@@ -325,7 +274,7 @@
 }
 
 /* Periwinkle aurora */
-[data-theme="peri"] body::before {
+[data-theme="periwinkle"] body::before {
   background:
     radial-gradient(ellipse 62% 52% at 84% -8%,  rgba(79, 70, 229, 0.35) 0%, transparent 54%),
     radial-gradient(ellipse 50% 45% at -10% 102%, rgba(129, 140, 248, 0.20) 0%, transparent 50%),
@@ -334,24 +283,24 @@
 }
 
 /* Light theme card overrides */
-[data-theme="arctic"] .card,
-[data-theme="arctic"] .ltg-card,
-[data-theme="arctic"] .ring-hero,
-[data-theme="arctic"] .log-form-card,
-[data-theme="arctic"] .hist-chart-wrap,
-[data-theme="arctic"] .goal-contrib-card,
-[data-theme="arctic"] .mood-chart-card,
-[data-theme="arctic"] .level-card,
-[data-theme="arctic"] .xp-hero,
-[data-theme="ice"] .card,
-[data-theme="ice"] .ltg-card,
-[data-theme="ice"] .ring-hero,
-[data-theme="ice"] .log-form-card,
-[data-theme="ice"] .hist-chart-wrap,
-[data-theme="ice"] .goal-contrib-card,
-[data-theme="ice"] .mood-chart-card,
-[data-theme="ice"] .level-card,
-[data-theme="ice"] .xp-hero {
+[data-theme="arctic-white"] .card,
+[data-theme="arctic-white"] .ltg-card,
+[data-theme="arctic-white"] .ring-hero,
+[data-theme="arctic-white"] .log-form-card,
+[data-theme="arctic-white"] .hist-chart-wrap,
+[data-theme="arctic-white"] .goal-contrib-card,
+[data-theme="arctic-white"] .mood-chart-card,
+[data-theme="arctic-white"] .level-card,
+[data-theme="arctic-white"] .xp-hero,
+[data-theme="arctic-white"] .card,
+[data-theme="arctic-white"] .ltg-card,
+[data-theme="arctic-white"] .ring-hero,
+[data-theme="arctic-white"] .log-form-card,
+[data-theme="arctic-white"] .hist-chart-wrap,
+[data-theme="arctic-white"] .goal-contrib-card,
+[data-theme="arctic-white"] .mood-chart-card,
+[data-theme="arctic-white"] .level-card,
+[data-theme="arctic-white"] .xp-hero {
   background: var(--card) !important;
   border-color: var(--border) !important;
   box-shadow: var(--shadow) !important;
@@ -359,98 +308,98 @@
 }
 
 /* Light theme input overrides */
-[data-theme="arctic"] input,
-[data-theme="arctic"] textarea,
-[data-theme="arctic"] select,
-[data-theme="ice"] input,
-[data-theme="ice"] textarea,
-[data-theme="ice"] select {
+[data-theme="arctic-white"] input,
+[data-theme="arctic-white"] textarea,
+[data-theme="arctic-white"] select,
+[data-theme="arctic-white"] input,
+[data-theme="arctic-white"] textarea,
+[data-theme="arctic-white"] select {
   background: rgba(0, 0, 0, 0.04) !important;
   color: var(--t1) !important;
   border-color: var(--border) !important;
 }
 
 /* Light theme modal overrides */
-[data-theme="arctic"] .modal,
-[data-theme="arctic"] .sched-modal,
-[data-theme="arctic"] .pr-modal,
-[data-theme="ice"] .modal,
-[data-theme="ice"] .sched-modal,
-[data-theme="ice"] .pr-modal {
+[data-theme="arctic-white"] .modal,
+[data-theme="arctic-white"] .sched-modal,
+[data-theme="arctic-white"] .pr-modal,
+[data-theme="arctic-white"] .modal,
+[data-theme="arctic-white"] .sched-modal,
+[data-theme="arctic-white"] .pr-modal {
   background: rgba(255, 255, 255, 0.95) !important;
   border-color: var(--border) !important;
   color: var(--t1) !important;
 }
 
 /* Light theme rest timer */
-[data-theme="arctic"] .rest-timer,
-[data-theme="ice"] .rest-timer {
+[data-theme="arctic-white"] .rest-timer,
+[data-theme="arctic-white"] .rest-timer {
   background: rgba(255, 255, 255, 0.97) !important;
   border-color: var(--border) !important;
   color: var(--t1) !important;
 }
 
 /* Light theme pill/nav items */
-[data-theme="arctic"] .pill-item,
-[data-theme="arctic"] .nav-item,
-[data-theme="arctic"] .tab-btn,
-[data-theme="arctic"] .skill-tab,
-[data-theme="arctic"] .day-tab,
-[data-theme="ice"] .pill-item,
-[data-theme="ice"] .nav-item,
-[data-theme="ice"] .tab-btn,
-[data-theme="ice"] .skill-tab,
-[data-theme="ice"] .day-tab {
+[data-theme="arctic-white"] .pill-item,
+[data-theme="arctic-white"] .nav-item,
+[data-theme="arctic-white"] .tab-btn,
+[data-theme="arctic-white"] .skill-tab,
+[data-theme="arctic-white"] .day-tab,
+[data-theme="arctic-white"] .pill-item,
+[data-theme="arctic-white"] .nav-item,
+[data-theme="arctic-white"] .tab-btn,
+[data-theme="arctic-white"] .skill-tab,
+[data-theme="arctic-white"] .day-tab {
   color: var(--t3) !important;
 }
-[data-theme="arctic"] .pill-item.active,
-[data-theme="arctic"] .pill-item[aria-selected="true"],
-[data-theme="arctic"] .pill-item:hover,
-[data-theme="arctic"] .nav-item:hover,
-[data-theme="arctic"] .tab-btn:hover,
-[data-theme="ice"] .pill-item:hover,
-[data-theme="ice"] .nav-item:hover,
-[data-theme="ice"] .tab-btn:hover {
+[data-theme="arctic-white"] .pill-item.active,
+[data-theme="arctic-white"] .pill-item[aria-selected="true"],
+[data-theme="arctic-white"] .pill-item:hover,
+[data-theme="arctic-white"] .nav-item:hover,
+[data-theme="arctic-white"] .tab-btn:hover,
+[data-theme="arctic-white"] .pill-item:hover,
+[data-theme="arctic-white"] .nav-item:hover,
+[data-theme="arctic-white"] .tab-btn:hover {
   color: var(--a1) !important;
 }
-[data-theme="arctic"] .pill-item.active,
-[data-theme="arctic"] .pill-item[aria-selected="true"] {
+[data-theme="arctic-white"] .pill-item.active,
+[data-theme="arctic-white"] .pill-item[aria-selected="true"] {
   background: var(--pill-on, #2563EB) !important;
   color: var(--pill-tc, #FFFFFF) !important;
   box-shadow: 0 0 18px rgba(37, 99, 235, 0.24) !important;
 }
 
 /* Light theme ghost buttons */
-[data-theme="arctic"] .btn-ghost,
-[data-theme="arctic"] .missed-btn,
-[data-theme="arctic"] .schedule-btn,
-[data-theme="arctic"] .sched-cancel-btn,
-[data-theme="arctic"] .modal-btn:not(.primary),
-[data-theme="arctic"] .level-nav-btn,
-[data-theme="arctic"] .ltg-update-btn,
-[data-theme="ice"] .btn-ghost,
-[data-theme="ice"] .missed-btn,
-[data-theme="ice"] .schedule-btn,
-[data-theme="ice"] .sched-cancel-btn,
-[data-theme="ice"] .modal-btn:not(.primary),
-[data-theme="ice"] .level-nav-btn,
-[data-theme="ice"] .ltg-update-btn {
+[data-theme="arctic-white"] .btn-ghost,
+[data-theme="arctic-white"] .missed-btn,
+[data-theme="arctic-white"] .schedule-btn,
+[data-theme="arctic-white"] .sched-cancel-btn,
+[data-theme="arctic-white"] .modal-btn:not(.primary),
+[data-theme="arctic-white"] .level-nav-btn,
+[data-theme="arctic-white"] .ltg-update-btn,
+[data-theme="arctic-white"] .btn-ghost,
+[data-theme="arctic-white"] .missed-btn,
+[data-theme="arctic-white"] .schedule-btn,
+[data-theme="arctic-white"] .sched-cancel-btn,
+[data-theme="arctic-white"] .modal-btn:not(.primary),
+[data-theme="arctic-white"] .level-nav-btn,
+[data-theme="arctic-white"] .ltg-update-btn {
   border-color: var(--border) !important;
   background: var(--sbg) !important;
   color: var(--t2) !important;
 }
-[data-theme="arctic"] .btn-ghost:hover,
-[data-theme="arctic"] .missed-btn:hover,
-[data-theme="arctic"] .schedule-btn:hover,
-[data-theme="arctic"] .level-nav-btn:hover,
-[data-theme="arctic"] .ltg-update-btn:hover,
-[data-theme="arctic"] .sched-cancel-btn:hover,
-[data-theme="ice"] .btn-ghost:hover,
-[data-theme="ice"] .missed-btn:hover,
-[data-theme="ice"] .schedule-btn:hover,
-[data-theme="ice"] .level-nav-btn:hover,
-[data-theme="ice"] .ltg-update-btn:hover,
-[data-theme="ice"] .sched-cancel-btn:hover {
+[data-theme="arctic-white"] .btn-ghost:hover,
+[data-theme="arctic-white"] .missed-btn:hover,
+[data-theme="arctic-white"] .schedule-btn:hover,
+[data-theme="arctic-white"] .level-nav-btn:hover,
+[data-theme="arctic-white"] .ltg-update-btn:hover,
+[data-theme="arctic-white"] .sched-cancel-btn:hover,
+[data-theme="arctic-white"] .btn-ghost:hover,
+[data-theme="arctic-white"] .missed-btn:hover,
+[data-theme="arctic-white"] .schedule-btn:hover,
+[data-theme="arctic-white"] .level-nav-btn:hover,
+[data-theme="arctic-white"] .ltg-update-btn:hover,
+[data-theme="arctic-white"] .sched-cancel-btn:hover {
   background: var(--sbg) !important;
   border-color: var(--bdr-hov) !important;
   color: var(--t1) !important;
@@ -458,22 +407,22 @@
 }
 
 /* Light theme text fill overrides (gradient text needs dark fill) */
-[data-theme="arctic"] .xp-total,
-[data-theme="arctic"] .consistency-pct,
-[data-theme="arctic"] .ring-pct,
-[data-theme="arctic"] .weight-num,
-[data-theme="arctic"] .greeting-name,
-[data-theme="arctic"] .hero-title,
-[data-theme="arctic"] .big-n,
-[data-theme="arctic"] .big-num,
-[data-theme="ice"] .xp-total,
-[data-theme="ice"] .consistency-pct,
-[data-theme="ice"] .ring-pct,
-[data-theme="ice"] .weight-num,
-[data-theme="ice"] .greeting-name,
-[data-theme="ice"] .hero-title,
-[data-theme="ice"] .big-n,
-[data-theme="ice"] .big-num {
+[data-theme="arctic-white"] .xp-total,
+[data-theme="arctic-white"] .consistency-pct,
+[data-theme="arctic-white"] .ring-pct,
+[data-theme="arctic-white"] .weight-num,
+[data-theme="arctic-white"] .greeting-name,
+[data-theme="arctic-white"] .hero-title,
+[data-theme="arctic-white"] .big-n,
+[data-theme="arctic-white"] .big-num,
+[data-theme="arctic-white"] .xp-total,
+[data-theme="arctic-white"] .consistency-pct,
+[data-theme="arctic-white"] .ring-pct,
+[data-theme="arctic-white"] .weight-num,
+[data-theme="arctic-white"] .greeting-name,
+[data-theme="arctic-white"] .hero-title,
+[data-theme="arctic-white"] .big-n,
+[data-theme="arctic-white"] .big-num {
   background: linear-gradient(135deg, var(--t1) 30%, var(--a1) 100%) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
@@ -481,8 +430,8 @@
 }
 
 /* Light theme greeting name */
-[data-theme="arctic"] .greeting-h1 .name,
-[data-theme="ice"] .greeting-h1 .name {
+[data-theme="arctic-white"] .greeting-h1 .name,
+[data-theme="arctic-white"] .greeting-h1 .name {
   background: linear-gradient(135deg, var(--a1) 0%, var(--a2) 100%) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
@@ -490,46 +439,46 @@
 }
 
 /* Light theme app tiles */
-[data-theme="arctic"] .app-tile,
-[data-theme="ice"] .app-tile {
+[data-theme="arctic-white"] .app-tile,
+[data-theme="arctic-white"] .app-tile {
   background: var(--card) !important;
   border-color: var(--border) !important;
 }
-[data-theme="arctic"] .app-tile:hover,
-[data-theme="arctic"] .app-tile.tile-current,
-[data-theme="ice"] .app-tile:hover,
-[data-theme="ice"] .app-tile.tile-current {
+[data-theme="arctic-white"] .app-tile:hover,
+[data-theme="arctic-white"] .app-tile.tile-current,
+[data-theme="arctic-white"] .app-tile:hover,
+[data-theme="arctic-white"] .app-tile.tile-current {
   background: var(--sbg) !important;
   box-shadow: 0 4px 20px rgba(0,0,0,0.06) !important;
   border-color: var(--bdr-hov) !important;
 }
 
 /* Light theme goal rows */
-[data-theme="arctic"] .ltg-row,
-[data-theme="ice"] .ltg-row {
+[data-theme="arctic-white"] .ltg-row,
+[data-theme="arctic-white"] .ltg-row {
   background: rgba(0, 0, 0, 0.02) !important;
   border-color: var(--border) !important;
 }
-[data-theme="arctic"] .ltg-row.is-complete,
-[data-theme="ice"] .ltg-row.is-complete {
+[data-theme="arctic-white"] .ltg-row.is-complete,
+[data-theme="arctic-white"] .ltg-row.is-complete {
   background: var(--sbg) !important;
   border-color: var(--bdr-hov) !important;
   box-shadow: none !important;
 }
 
 /* Light theme dot grid — dimmer */
-[data-theme="arctic"] body::after,
-[data-theme="ice"] body::after {
+[data-theme="arctic-white"] body::after,
+[data-theme="arctic-white"] body::after {
   opacity: 0.3 !important;
 }
 
 /* Light theme card shimmer */
-[data-theme="arctic"] .card::before,
-[data-theme="arctic"] .ltg-card::before,
-[data-theme="arctic"] .ring-hero::before,
-[data-theme="ice"] .card::before,
-[data-theme="ice"] .ltg-card::before,
-[data-theme="ice"] .ring-hero::before {
+[data-theme="arctic-white"] .card::before,
+[data-theme="arctic-white"] .ltg-card::before,
+[data-theme="arctic-white"] .ring-hero::before,
+[data-theme="arctic-white"] .card::before,
+[data-theme="arctic-white"] .ltg-card::before,
+[data-theme="arctic-white"] .ring-hero::before {
   background: linear-gradient(90deg, transparent, var(--border), transparent) !important;
 }
 
@@ -542,36 +491,36 @@
 
 /* Cross-page contrast guardrails. Page styles use different class names, so
    these token-based overrides keep shared dashboard surfaces readable in Light. */
-[data-theme="arctic"] body,
-[data-theme="ice"] body {
+[data-theme="arctic-white"] body,
+[data-theme="arctic-white"] body {
   background: var(--bg) !important;
   color: var(--text-primary) !important;
 }
-[data-theme="arctic"] :is(
+[data-theme="arctic-white"] :is(
   .page-title, .subtitle, .hero-title, .hero-sub, .section-title, .section-sub,
   .workout-card, .exercise-title, .ex-header-title, .ex-header-sub, .ex-name,
   .ex-meta, .ex-note, .level-name, .level-target, .level-cue, .session-item,
   .session-date, .session-val, .session-note, .ov-name, .ov-level, .sched-title,
   .sched-sub, .btn-secondary, .back-btn, .logger-label, .empty-msg
 ) { color: var(--text-primary) !important; }
-[data-theme="ice"] :is(
+[data-theme="arctic-white"] :is(
   .page-title, .subtitle, .hero-title, .hero-sub, .section-title, .section-sub,
   .workout-card, .exercise-title, .ex-header-title, .ex-header-sub, .ex-name,
   .ex-meta, .ex-note, .level-name, .level-target, .level-cue, .session-item,
   .session-date, .session-val, .session-note, .ov-name, .ov-level, .sched-title,
   .sched-sub, .btn-secondary, .back-btn, .logger-label, .empty-msg
 ) { color: var(--text-primary) !important; }
-[data-theme="arctic"] :is(.subtitle, .hero-sub, .section-sub, .ex-meta, .ex-note, .level-target, .session-note, .sched-sub, .logger-label, .empty-msg),
-[data-theme="ice"] :is(.subtitle, .hero-sub, .section-sub, .ex-meta, .ex-note, .level-target, .session-note, .sched-sub, .logger-label, .empty-msg) {
+[data-theme="arctic-white"] :is(.subtitle, .hero-sub, .section-sub, .ex-meta, .ex-note, .level-target, .session-note, .sched-sub, .logger-label, .empty-msg),
+[data-theme="arctic-white"] :is(.subtitle, .hero-sub, .section-sub, .ex-meta, .ex-note, .level-target, .session-note, .sched-sub, .logger-label, .empty-msg) {
   color: var(--text-secondary) !important;
 }
-[data-theme="arctic"] :is(.workout-card, .level-card, .session-item, .ex-row, .phase-section, .sched-modal, .card),
-[data-theme="ice"] :is(.workout-card, .level-card, .session-item, .ex-row, .phase-section, .sched-modal, .card) {
+[data-theme="arctic-white"] :is(.workout-card, .level-card, .session-item, .ex-row, .phase-section, .sched-modal, .card),
+[data-theme="arctic-white"] :is(.workout-card, .level-card, .session-item, .ex-row, .phase-section, .sched-modal, .card) {
   background: var(--card-bg) !important;
   border-color: var(--border) !important;
 }
-[data-theme="arctic"] :is(.btn-secondary, .back-btn, .level-nav-btn, .sched-cancel-btn, .missed-btn),
-[data-theme="ice"] :is(.btn-secondary, .back-btn, .level-nav-btn, .sched-cancel-btn, .missed-btn) {
+[data-theme="arctic-white"] :is(.btn-secondary, .back-btn, .level-nav-btn, .sched-cancel-btn, .missed-btn),
+[data-theme="arctic-white"] :is(.btn-secondary, .back-btn, .level-nav-btn, .sched-cancel-btn, .missed-btn) {
   background: var(--sbg) !important;
   border-color: var(--border) !important;
   color: var(--text-primary) !important;
@@ -579,17 +528,17 @@
 
 /* ─── 7. PERIWINKLE SPECIFIC OVERRIDES ──────────────────────────────── */
 /* Periwinkle uses softer indigo tones for component highlights */
-[data-theme="peri"] .ex-row.done {
+[data-theme="periwinkle"] .ex-row.done {
   background: rgba(129, 140, 248, 0.12) !important;
   border-color: rgba(165, 180, 252, 0.38) !important;
 }
-[data-theme="peri"] .habit-check.on {
+[data-theme="periwinkle"] .habit-check.on {
   background: linear-gradient(135deg, #4F46E5 0%, #818CF8 100%) !important;
 }
-[data-theme="peri"] .mood-btn.on {
+[data-theme="periwinkle"] .mood-btn.on {
   background: linear-gradient(135deg, rgba(79,70,229,0.25), rgba(129,140,248,0.25)) !important;
 }
-[data-theme="peri"] .os-logo {
+[data-theme="periwinkle"] .os-logo {
   background: linear-gradient(90deg, #4F46E5 0%, #818CF8 50%, #4F46E5 100%) !important;
   background-size: 200% !important;
   -webkit-background-clip: text !important;

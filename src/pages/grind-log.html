@@ -1,16 +1,19 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="amethyst">
+<html lang="en" data-theme="nexus-dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#07051A">
+  <script>
+    const savedTheme = localStorage.getItem('nexus-theme') || 'nexus-dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
   <script src="../scripts/theme.js"></script>
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/favicon-32.png" sizes="32x32">
   <link rel="apple-touch-icon" href="/apple-touch-icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/themes.css">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="NEXUS">
@@ -30,7 +33,7 @@
     }
     /* Page-local color tokens — only applied in amethyst theme. Other themes
        consume the canonical tokens from themes.css. */
-    [data-theme="amethyst"] {
+    [data-theme="nexus-dark"] {
       --bg: #0A0813;
       --bg-deep: #0A0813;
       --bg-card: #12101F;
@@ -58,7 +61,7 @@
     }
     *{box-sizing:border-box;margin:0;padding:0;}
     html,body{
-      background:var(--bg-deep);
+      background:var(--bg-main);
       color:var(--text-primary);
       font-family:var(--font);
       -webkit-font-smoothing:antialiased;
@@ -119,10 +122,10 @@
     }
     .section-title{
       font-size:10.5px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;
-      color:var(--text-tertiary);
+      color:var(--text-secondary);
       display:flex;align-items:center;gap:12px;margin-bottom:14px;
     }
-    .section-title::before{content:'';width:18px;height:1px;background:var(--text-tertiary);opacity:0.6;}
+    .section-title::before{content:'';width:18px;height:1px;background:var(--text-secondary);opacity:0.6;}
     .section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(138,43,226,0.30),transparent);}
     .card{
       background:var(--bg-card);
@@ -161,7 +164,7 @@
     }
     .xp-eyebrow{
       font-size:10px;letter-spacing:0.20em;font-weight:700;text-transform:uppercase;
-      color:var(--text-tertiary);margin-bottom:6px;
+      color:var(--text-secondary);margin-bottom:6px;
     }
     .xp-total{
       font-size:52px;font-weight:800;letter-spacing:-0.04em;
@@ -178,7 +181,7 @@
     .xp-rank-wrap{text-align:right;}
     .xp-rank-label{
       font-size:10px;letter-spacing:0.16em;font-weight:700;text-transform:uppercase;
-      color:var(--text-tertiary);margin-bottom:4px;
+      color:var(--text-secondary);margin-bottom:4px;
     }
     .xp-rank-name{
       font-size:22px;font-weight:800;letter-spacing:-0.02em;
@@ -200,7 +203,7 @@
       transition:width 0.5s cubic-bezier(0.22,1,0.36,1);
     }
     .xp-bar-label{
-      font-size:10px;color:var(--text-tertiary);font-family:var(--font-mono);
+      font-size:10px;color:var(--text-secondary);font-family:var(--font-mono);
       margin-top:6px;display:flex;justify-content:space-between;
     }
     /* ===== STATS GRID ===== */
@@ -216,14 +219,14 @@
     }
     .stat-box-label{
       font-size:9.5px;letter-spacing:0.16em;font-weight:700;text-transform:uppercase;
-      color:var(--text-tertiary);font-family:var(--font-mono);
+      color:var(--text-secondary);font-family:var(--font-mono);
     }
     .stat-box-val{
       font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;
       color:var(--text-primary);line-height:1.1;
     }
     .stat-box-sub{
-      font-size:10px;color:var(--text-tertiary);font-family:var(--font-mono);
+      font-size:10px;color:var(--text-secondary);font-family:var(--font-mono);
     }
     /* ===== CATEGORY GRID ===== */
     .cat-grid{
@@ -273,13 +276,13 @@
       box-shadow:0 0 6px var(--cat-color, transparent);
     }
     .cat-today-xp{
-      font-size:10px;color:var(--text-tertiary);font-family:var(--font-mono);margin-top:6px;
+      font-size:10px;color:var(--text-secondary);font-family:var(--font-mono);margin-top:6px;
     }
     /* ===== LOG FORM ===== */
     .log-form-card{margin-bottom:14px;}
     .log-form-eyebrow{
       font-size:10px;letter-spacing:0.18em;font-weight:700;text-transform:uppercase;
-      color:var(--text-tertiary);font-family:var(--font-mono);margin-bottom:12px;
+      color:var(--text-secondary);font-family:var(--font-mono);margin-bottom:12px;
     }
     .log-form-row{
       display:grid;grid-template-columns:1fr 80px auto;gap:6px;align-items:stretch;
@@ -294,7 +297,7 @@
       color:var(--text-primary);
       font-family:inherit;font-size:14px;padding:10px 12px;
     }
-    .log-input::placeholder{color:var(--text-tertiary);}
+    .log-input::placeholder{color:var(--text-secondary);}
     .log-xp-input{
       background:transparent;border:none;outline:none;
       color:var(--light-accent);
@@ -303,7 +306,7 @@
       -moz-appearance:textfield;
     }
     .log-xp-input::-webkit-outer-spin-button,.log-xp-input::-webkit-inner-spin-button{-webkit-appearance:none;}
-    .log-xp-input::placeholder{color:var(--text-tertiary);}
+    .log-xp-input::placeholder{color:var(--text-secondary);}
     /* Log button — purple-to-magenta gradient glow */
     .log-add-btn{
       padding:0 14px;
@@ -372,7 +375,7 @@
       font-size:9.5px;font-weight:700;letter-spacing:0.06em;
       padding:2px 7px;border-radius:999px;
       background:rgba(138, 43, 226, 0.08);
-      color:var(--text-tertiary);
+      color:var(--text-secondary);
       font-family:var(--font-mono);text-transform:uppercase;
       flex-shrink:0;
     }
@@ -387,7 +390,7 @@
     }
     .task-del{
       background:transparent;border:none;
-      color:var(--text-tertiary);
+      color:var(--text-secondary);
       cursor:pointer;font-size:15px;padding:2px 6px;border-radius:6px;
       opacity:0.5;flex-shrink:0;
     }
@@ -398,7 +401,7 @@
     }
     .tasks-empty{
       text-align:center;padding:20px 0;
-      font-size:12px;color:var(--text-tertiary);font-style:italic;
+      font-size:12px;color:var(--text-secondary);font-style:italic;
     }
     /* ===== ANALYTICS ===== */
     .hist-grid{
@@ -413,7 +416,7 @@
     }
     .hist-chart-label{
       font-size:9.5px;letter-spacing:0.16em;font-weight:700;text-transform:uppercase;
-      color:var(--text-tertiary);font-family:var(--font-mono);
+      color:var(--text-secondary);font-family:var(--font-mono);
       margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;
     }
     .hist-chart-label span{color:var(--text-primary);font-size:13px;}
@@ -433,7 +436,7 @@
     .hist-day-labels{display:flex;gap:3px;margin-top:4px;}
     .hist-day-lbl{
       flex:1;text-align:center;
-      font-size:8px;color:var(--text-quaternary);
+      font-size:8px;color:var(--text-secondary);
       font-family:var(--font-mono);
     }
     .hist-day-lbl.today-lbl{
@@ -471,7 +474,7 @@
     .recent-row:last-child{border-bottom:none;}
     .recent-date{
       font-family:var(--font-mono);font-size:10px;
-      color:var(--text-tertiary);width:64px;flex-shrink:0;
+      color:var(--text-secondary);width:64px;flex-shrink:0;
     }
     .recent-task{flex:1;color:var(--text-secondary);}
     .recent-xp{
@@ -529,7 +532,7 @@
       box-shadow: 0 0 12px rgba(176, 38, 255, 0.22);
     }
     .goal-link-select option[value=""] {
-      color: var(--text-tertiary);
+      color: var(--text-secondary);
     }
     .goal-units-wrap {
       display: flex;
@@ -560,7 +563,7 @@
     }
     .goal-units-label {
       font-size: 10px;
-      color: var(--text-tertiary);
+      color: var(--text-secondary);
       font-family: var(--font-mono);
       white-space: nowrap;
     }
@@ -644,7 +647,7 @@
     }
     .goal-contrib-sessions {
       font-size: 10px;
-      color: var(--text-tertiary);
+      color: var(--text-secondary);
       font-family: var(--font-mono);
       flex-shrink: 0;
     }
@@ -664,6 +667,8 @@
     }
   </style>
   <link rel="stylesheet" href="../styles/liquid-amethyst.css">
+  <link rel="stylesheet" href="../styles/themes.css">
+  <link rel="stylesheet" href="../styles/style.css">
 </head>
 <body>
   <!-- Ambient orb layer -->
@@ -851,7 +856,7 @@
     function renderGoalContribs(){
       const logs=getAllLogs();const goals=getLongGoals();
       const panel=document.getElementById('goalContribPanel');
-      if(!goals.length){panel.innerHTML='<div style="font-size:12px;color:var(--text-tertiary);font-style:italic;text-align:center;padding:14px 0">Add goals on the dashboard, then link tasks here.</div>';return;}
+      if(!goals.length){panel.innerHTML='<div style="font-size:12px;color:var(--text-secondary);font-style:italic;text-align:center;padding:14px 0">Add goals on the dashboard, then link tasks here.</div>';return;}
 
       // Count sessions per goal
       const goalSessions={};const goalXP={};
@@ -864,7 +869,7 @@
       });
 
       const linkedGoals=goals.map((g,i)=>({g,i,sessions:goalSessions[i]||0,xp:goalXP[i]||0,pct:goalPct(g)})).filter(x=>x.sessions>0||x.pct>0);
-      if(!linkedGoals.length){panel.innerHTML='<div style="font-size:12px;color:var(--text-tertiary);font-style:italic;text-align:center;padding:14px 0">No tasks linked to goals yet. Use the goal link when logging.</div>';return;}
+      if(!linkedGoals.length){panel.innerHTML='<div style="font-size:12px;color:var(--text-secondary);font-style:italic;text-align:center;padding:14px 0">No tasks linked to goals yet. Use the goal link when logging.</div>';return;}
 
       panel.innerHTML='<div class="goal-contrib-label">Goals powered by Grind</div>'+linkedGoals.map(({g,i,sessions,xp,pct})=>`
         <div class="goal-contrib-row">
@@ -967,10 +972,10 @@
         const xp=catXP[cat.id]||0;const pct=Math.min(100,(xp/totalXP)*100);
         breakdown.innerHTML+=`<div class="cat-break-row"><div class="cat-break-dot" style="background:${cat.color};color:${cat.color}"></div><span class="cat-break-name">${cat.emoji} ${cat.name}</span><div class="cat-break-bar-track" style="color:${cat.color}"><div class="cat-break-bar-fill" style="width:${pct}%"></div></div><span class="cat-break-xp">${xp.toLocaleString()}</span></div>`;
       });
-      if(!breakdown.innerHTML)breakdown.innerHTML='<div style="font-size:12px;color:var(--text-tertiary);font-style:italic;text-align:center;padding:14px 0">No XP logged yet</div>';
+      if(!breakdown.innerHTML)breakdown.innerHTML='<div style="font-size:12px;color:var(--text-secondary);font-style:italic;text-align:center;padding:14px 0">No XP logged yet</div>';
       const recent=document.getElementById('recentList');
       const all=getAllLogs().slice().reverse().slice(0,20);const goals=getLongGoals();
-      if(!all.length){recent.innerHTML='<div style="font-size:12px;color:var(--text-tertiary);font-style:italic;text-align:center;padding:14px 0">No activity yet</div>';return;}
+      if(!all.length){recent.innerHTML='<div style="font-size:12px;color:var(--text-secondary);font-style:italic;text-align:center;padding:14px 0">No activity yet</div>';return;}
       recent.innerHTML=all.map(l=>{
         const cat=CATS.find(c=>c.id===l.cat)||CATS[CATS.length-1];
         const gTag=l.goalIdx!=null&&l.goalIdx!==''&&goals[Number(l.goalIdx)]?` · 🎯 ${escapeHtml(goals[Number(l.goalIdx)].title.slice(0,14))}…`:'';

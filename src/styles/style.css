@@ -1,0 +1,63 @@
+/* NEXUS shared layout primitives.
+   Pages keep their app-specific visual styles; this file owns viewport chrome. */
+html,
+body {
+  overscroll-behavior-y: none;
+  -webkit-text-size-adjust: 100%;
+  background: var(--bg-main, var(--bg)) !important;
+  color: var(--text-primary, var(--text)) !important;
+}
+
+.topbar,
+.nav {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+
+/* The dashboard's inline nav is branding/status chrome only. */
+@media (max-width: 768px) {
+  .header .nav-links,
+  .header .pill-nav,
+  .nav .pill-nav {
+    display: none !important;
+  }
+
+  .topbar--phone,
+  .bottom-nav {
+    display: grid;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+}
+
+@media (min-width: 769px) {
+  .bottom-nav,
+  .nav {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .page,
+  .shell,
+  main {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+}
+
+/* Page templates use different component class names, so keep the canonical
+   theme tokens authoritative after the legacy Liquid Amethyst layer. */
+[data-theme="arctic-white"] :is(.card, .ltg-card, .ring-hero, .log-form-card, .hist-chart-wrap, .goal-contrib-card, .mood-chart-card, .level-card, .xp-hero, .sched-modal, .pr-modal, .modal),
+[data-theme="periwinkle"] :is(.card, .ltg-card, .ring-hero, .log-form-card, .hist-chart-wrap, .goal-contrib-card, .mood-chart-card, .level-card, .xp-hero, .sched-modal, .pr-modal, .modal) {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="arctic-white"] :is(.shell, .page, main),
+[data-theme="periwinkle"] :is(.shell, .page, main) {
+  color: var(--text-primary);
+}
+
+[data-theme="arctic-white"] :is(.hero-title, .hero-sub, .card-title, .card-eyebrow, .text-1, .text-2, .text-3),
+[data-theme="periwinkle"] :is(.hero-title, .hero-sub, .card-title, .card-eyebrow, .text-1, .text-2, .text-3) {
+  color: var(--text-primary) !important;
+}

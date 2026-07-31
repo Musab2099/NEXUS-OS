@@ -34,7 +34,7 @@
    width: calc(100% - 28px); max-width: 1240px; min-width: 0;
    margin: 12px auto 0;
    box-sizing: border-box;
-   padding-top: max(12px, env(safe-area-inset-top));
+   padding-top: max(1rem, env(safe-area-inset-top));
    padding-bottom: 10px;
    padding-left: max(14px, env(safe-area-inset-left));
    padding-right: max(14px, env(safe-area-inset-right));
@@ -69,23 +69,7 @@
   letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--t3, rgba(255, 255, 255, 0.45));
   flex-shrink: 0;
-} @media (min-width: 601px) and (max-width: 768px) {
-   .topbar {
-     display: flex;
-     align-items: center;
-     flex-wrap: nowrap;
-     overflow-x: auto;
-     width: calc(100% - 20px);
-     margin-top: 8px;
-     padding-left: 10px;
-     padding-right: 10px;
-   }
-   .topbar-pill { width: auto; flex: 0 0 auto; }
-   .topbar-theme-control { margin-left: auto; }
-   .topbar-theme-btn { width: auto; }
- }
-
-/* ===========================================================
+}/* ===========================================================
    PHONE LAYOUT — bottom tab bar
    Activated by EITHER:
    (a) the .topbar--phone class added by JS detectDevice()
@@ -94,7 +78,7 @@
    We list both selectors before each rule so that the class
    override can win against a wider viewport.
    =========================================================== */ .topbar--phone { position: fixed; top: auto; left: max(8px, env(safe-area-inset-left)); right: max(8px, env(safe-area-inset-right)); bottom: max(8px, env(safe-area-inset-bottom)); width: auto; margin: 0; }
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .topbar {
     position: fixed;
     top: auto;     left: max(8px, env(safe-area-inset-left));
@@ -109,7 +93,7 @@
 .topbar--phone {     border: 1px solid var(--topbar-border, rgba(255, 255, 255, 0.10));
      border-radius: 16px;
   padding-top: 8px;
-  padding-bottom: max(10px, env(safe-area-inset-bottom));
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
   padding-left: max(6px, env(safe-area-inset-left));
   padding-right: max(6px, env(safe-area-inset-right));
   gap: 4px;
@@ -119,12 +103,12 @@
   -webkit-backdrop-filter: blur(18px) saturate(140%);
   backdrop-filter: blur(18px) saturate(140%);
 }
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .topbar {
    border: 1px solid var(--topbar-border, rgba(255, 255, 255, 0.10));
    border-radius: 16px;
     padding-top: 8px;
-    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
     padding-left: max(6px, env(safe-area-inset-left));
     padding-right: max(6px, env(safe-area-inset-right));
     gap: 4px;
@@ -268,7 +252,7 @@ body.topbar-modal-open {
    top: auto;
    bottom: calc(84px + max(8px, env(safe-area-inset-bottom)));
  }
- @media (max-width: 600px) {
+ @media (max-width: 768px) {
   .topbar-theme-btn {
     width: auto;
     flex-direction: column;
@@ -343,13 +327,13 @@ body.topbar-modal-open {
   color: var(--t2, rgba(212,205,255,0.88));
   letter-spacing: 0.02em;
 }
-.nx-theme-swatch[data-t="amethyst"] .nx-theme-dot {
+.nx-theme-swatch[data-t="nexus-dark"] .nx-theme-dot {
   background: linear-gradient(135deg, #7C3AED, #D946EF);
 }
-.nx-theme-swatch[data-t="arctic"] .nx-theme-dot {
+.nx-theme-swatch[data-t="arctic-white"] .nx-theme-dot {
   background: linear-gradient(135deg, #1D4ED8, #38BDF8);
 }
-.nx-theme-swatch[data-t="peri"] .nx-theme-dot {
+.nx-theme-swatch[data-t="periwinkle"] .nx-theme-dot {
   background: linear-gradient(135deg, #4F46E5, #C7D2FE);
 }
 .nx-theme-swatch[data-t="ice"] .nx-theme-dot {
@@ -381,7 +365,7 @@ body.topbar-modal-open {
         try { taken = JSON.parse(localStorage.getItem('stack:taken:' + activeDateKey())) || {}; } catch (e) { }
         const total = Array.isArray(items) ? items.length : 0;
         const done = total ? items.filter(function (i) { return i && taken[i.id]; }).length : 0;
-        
+
         let streak = 0;
         let map = {};
         try { map = JSON.parse(localStorage.getItem('ibrahim_habits_v2_days')) || {}; } catch (e) {}
@@ -392,10 +376,10 @@ body.topbar-modal-open {
           let k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
           if (map[k] && map[k].allDone) streak++; else if (i > 0) break;
         }
-        
+
         let flameClass = streak >= 3 ? 'eh-flame-active' : 'eh-flame-dim';
         let svg = '<svg class="topbar-flame-svg ' + flameClass + '" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.866 8.21 8.21 0 003 2.48z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z"></path></svg>';
-        
+
         return { html: svg, status: classifyFraction(done, total) };
       }
     },
@@ -405,7 +389,7 @@ body.topbar-modal-open {
         let doneMap = {};
         try { doneMap = JSON.parse(localStorage.getItem('ibrahim_gym_done')) || {}; } catch (e) { }
         const td = calendarDateKey();
-        
+
         const d = new Date();
         const dow = d.getDay();
         const startOfWeek = new Date(d);
@@ -422,7 +406,7 @@ body.topbar-modal-open {
         for(let i = 0; i < 4; i++){
             segs += '<span class="topbar-gym-seg' + (i < daysDoneThisWeek ? ' done' : '') + '"></span>';
         }
-        
+
         const count = doneMap[td] || 0;
         const status = count > 0 ? 'good' : pastSixPm() ? 'miss' : 'warn';
         return { html: '<div class="topbar-gym-hud">' + segs + '</div>', status: status };
@@ -466,18 +450,18 @@ body.topbar-modal-open {
     var themeBtn = '<div class="topbar-theme-control" id="nxThemeControl">' +
       '<button type="button" class="topbar-theme-btn" id="nxThemeBtn" title="Choose theme" aria-label="Choose theme" aria-haspopup="menu" aria-expanded="false">' + themeSvg + '<span>THEME</span></button>' +
       '<div class="topbar-theme-menu" id="nxThemeMenu" role="menu" aria-label="Choose theme">' +
-      '<button type="button" class="topbar-theme-option" role="menuitemradio" data-theme-option="amethyst" style="--theme-dot:#A78BFA">NEXUS Dark</button>' +
-      '<button type="button" class="topbar-theme-option" role="menuitemradio" data-theme-option="peri" style="--theme-dot:#818CF8">Periwinkle</button>' +
-      '<button type="button" class="topbar-theme-option" role="menuitemradio" data-theme-option="arctic" style="--theme-dot:#2563EB">Arctic White</button>' +
+      '<button type="button" class="topbar-theme-option" role="menuitemradio" data-theme-option="nexus-dark" style="--theme-dot:#A78BFA">NEXUS Dark</button>' +
+      '<button type="button" class="topbar-theme-option" role="menuitemradio" data-theme-option="periwinkle" style="--theme-dot:#818CF8">Periwinkle</button>' +
+      '<button type="button" class="topbar-theme-option" role="menuitemradio" data-theme-option="arctic-white" style="--theme-dot:#2563EB">Arctic White</button>' +
       '</div></div>';
 
     var modal = '<div class="nx-theme-bg" id="nxThemeBg">' +
       '<div class="nx-theme-modal">' +
       '<h3>Choose Theme</h3>' +
       '<div class="nx-theme-grid">' +
-      '<button class="nx-theme-swatch" data-t="amethyst"><div class="nx-theme-dot"></div><span class="nx-theme-name">Amethyst</span></button>' +
-      '<button class="nx-theme-swatch" data-t="arctic"><div class="nx-theme-dot"></div><span class="nx-theme-name">Arctic</span></button>' +
-      '<button class="nx-theme-swatch" data-t="peri"><div class="nx-theme-dot"></div><span class="nx-theme-name">Peri</span></button>' +
+      '<button class="nx-theme-swatch" data-t="nexus-dark"><div class="nx-theme-dot"></div><span class="nx-theme-name">Amethyst</span></button>' +
+      '<button class="nx-theme-swatch" data-t="arctic-white"><div class="nx-theme-dot"></div><span class="nx-theme-name">Arctic</span></button>' +
+      '<button class="nx-theme-swatch" data-t="periwinkle"><div class="nx-theme-dot"></div><span class="nx-theme-name">Peri</span></button>' +
       '<button class="nx-theme-swatch" data-t="ice"><div class="nx-theme-dot"></div><span class="nx-theme-name">Ice</span></button>' +
       '</div></div></div>';
 
@@ -572,9 +556,9 @@ body.topbar-modal-open {
     const bar = document.getElementById('topbar');
     if (bar) {
       if (device === 'phone') {
-        bar.classList.add('topbar--phone');
+        bar.classList.add('topbar--phone', 'bottom-nav');
       } else {
-        bar.classList.remove('topbar--phone');
+        bar.classList.remove('topbar--phone', 'bottom-nav');
       }
     }
     document.body.classList.toggle('topbar-phone-mode', device === 'phone');

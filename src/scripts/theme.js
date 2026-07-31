@@ -6,9 +6,15 @@
   var INDEX_KEY = 'nexus-theme-index';
   var LEGACY_KEY = 'nexus_theme';
   var THEMES = {
-    amethyst: { label: 'NEXUS Dark', color: '#07051A' },
-    peri: { label: 'Periwinkle', color: '#0D1030' },
-    arctic: { label: 'Arctic White', color: '#EEF5FF' }
+    'nexus-dark': { label: 'NEXUS Dark', color: '#07051A' },
+    periwinkle: { label: 'Periwinkle', color: '#0D1030' },
+    'arctic-white': { label: 'Arctic White', color: '#EEF5FF' }
+  };
+  var THEME_ALIASES = {
+    amethyst: 'nexus-dark',
+    peri: 'periwinkle',
+    arctic: 'arctic-white',
+    ice: 'arctic-white'
   };
 
   function storedTheme() {
@@ -22,13 +28,14 @@
   }
 
   function validTheme(theme) {
-    return Object.prototype.hasOwnProperty.call(THEMES, theme) ? theme : null;
+    var id = THEME_ALIASES[theme] || theme;
+    return Object.prototype.hasOwnProperty.call(THEMES, id) ? id : null;
   }
 
   function preferredTheme() {
     var stored = validTheme(storedTheme());
     if (stored) return stored;
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'arctic' : 'amethyst';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'arctic-white' : 'nexus-dark';
   }
 
   function apply(theme, persist) {
@@ -52,7 +59,7 @@
     themes: THEMES,
     get: function () { return validTheme(document.documentElement.getAttribute('data-theme')) || preferredTheme(); },
     set: function (theme) { return apply(theme, true); },
-    init: function () { return apply(preferredTheme(), false); }
+    init: function () { return apply(preferredTheme(), true); }
   };
 
   window.NexusTheme.init();

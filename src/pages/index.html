@@ -1,9 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="amethyst">
+<html lang="en" data-theme="nexus-dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#07051A">
+<script>
+  const savedTheme = localStorage.getItem('nexus-theme') || 'nexus-dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+</script>
 <script src="../scripts/theme.js"></script>
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/favicon-32.png" sizes="32x32">
@@ -14,7 +18,6 @@
 <title>NEXUS — Ibrahim's OS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../styles/themes.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../scripts/sync.js" defer></script>
 <script src="../scripts/topbar.js" defer></script>
@@ -37,7 +40,7 @@ ul{list-style:none}
 }
 /* Page-local color tokens — only applied in amethyst theme. Other themes
    consume the canonical tokens from themes.css. */
-[data-theme="amethyst"]{
+[data-theme="nexus-dark"]{
   --void:#07051A;
   --deep:#0C0920;
   --amethyst:#7C3AED;
@@ -64,8 +67,8 @@ ul{list-style:none}
 html{scroll-behavior:smooth}
 body{
   min-height:100vh;
-  background:var(--void);
-  color:var(--text);
+  background:var(--bg-main);
+  color:var(--text-primary);
   font-family:'Inter',system-ui,sans-serif;
   overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
@@ -144,7 +147,7 @@ body{
   display:flex;align-items:center;gap:14px;
   width:100%;min-width:0;
   margin:12px 0 0;
-  padding:10px 12px;
+  padding: max(1rem, env(safe-area-inset-top)) 12px 10px;
   color:var(--text-nav);
   background:var(--bg-nav);
   border:1px solid var(--nav-border);
@@ -192,7 +195,7 @@ body{
   padding:7px 20px;
   border-radius:var(--r-pill);
   font-size:12.5px;font-weight:500;
-  color:var(--text-muted);
+  color:var(--text-secondary);
   background:transparent;border:none;
   white-space:nowrap;
   letter-spacing:.01em;
@@ -223,7 +226,7 @@ body{
 .greeting{margin:30px 0 22px}
 .greeting-time{
   font-size:10px;letter-spacing:.22em;
-  color:var(--text-muted);text-transform:uppercase;
+  color:var(--text-secondary);text-transform:uppercase;
   font-weight:600;margin-bottom:7px;
 }
 .greeting-h1{
@@ -237,7 +240,7 @@ body{
   background-clip:text;
 }
 .greeting-sub{
-  font-size:13.5px;color:var(--text-sub);
+  font-size:13.5px;color:var(--text-secondary);
   margin-top:8px;font-weight:400;line-height:1.5;
 }
 
@@ -280,7 +283,7 @@ body{
 }
 .card-eyebrow{
   font-size:9px;letter-spacing:.24em;
-  color:var(--text-muted);text-transform:uppercase;font-weight:600;
+  color:var(--text-secondary);text-transform:uppercase;font-weight:600;
 }
 .card-icon{
   width:30px;height:30px;border-radius:9px;
@@ -291,12 +294,12 @@ body{
 }
 .card-h{
   font-size:20px;font-weight:700;
-  color:var(--text);
+  color:var(--text-primary);
   letter-spacing:-.015em;
   margin-bottom:3px;
 }
 .card-sub{
-  font-size:12px;color:var(--text-sub);
+  font-size:12px;color:var(--text-secondary);
   margin-bottom:16px;
 }
 
@@ -306,8 +309,8 @@ body{
   display:flex;justify-content:space-between;
   align-items:center;margin-bottom:6px;
 }
-.prog-name{font-size:12px;font-weight:500;color:var(--text)}
-.prog-pct{font-size:11px;color:var(--text-muted)}
+.prog-name{font-size:12px;font-weight:500;color:var(--text-primary)}
+.prog-pct{font-size:11px;color:var(--text-secondary)}
 .prog-track{
   height:5px;background:rgba(255,255,255,.07);
   border-radius:3px;overflow:hidden;
@@ -326,7 +329,7 @@ body{
 .stat{display:flex;flex-direction:column;gap:3px}
 .stat-n{
   font-size:22px;font-weight:700;
-  color:var(--text);
+  color:var(--text-primary);
   letter-spacing:-.025em;
   font-variant-numeric:tabular-nums;
 }
@@ -334,7 +337,7 @@ body{
 .stat-n.c{color:var(--cyan)}
 .stat-n.g{color:var(--green)}
 .stat-k{
-  font-size:9.5px;color:var(--text-muted);
+  font-size:9.5px;color:var(--text-secondary);
   letter-spacing:.11em;text-transform:uppercase;
 }
 
@@ -361,8 +364,8 @@ body{
   position:absolute;inset:0;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
 }
-.ring-val{font-size:16px;font-weight:700;color:var(--text)}
-.ring-unit{font-size:9px;color:var(--text-muted)}
+.ring-val{font-size:16px;font-weight:700;color:var(--text-primary)}
+.ring-unit{font-size:9px;color:var(--text-secondary)}
 
 /* ─── DAY RING HERO (merged) ─────────────────────────── */
 .ring-hero-card{
@@ -375,18 +378,18 @@ body{
   position:absolute;inset:0;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
 }
-.ring-pct{font-size:20px;font-weight:800;color:var(--text)}
-.ring-phase{font-size:8px;letter-spacing:.16em;color:var(--text-muted);text-transform:uppercase;margin-top:2px}
-.ring-clock{font-size:9px;color:var(--text-muted);margin-top:2px}
+.ring-pct{font-size:20px;font-weight:800;color:var(--text-primary)}
+.ring-phase{font-size:8px;letter-spacing:.16em;color:var(--text-secondary);text-transform:uppercase;margin-top:2px}
+.ring-clock{font-size:9px;color:var(--text-secondary);margin-top:2px}
 .ring-info{flex:1}
-.ring-status{font-size:13px;font-weight:600;color:var(--text)}
-.ring-remaining{font-size:11px;color:var(--text-sub);margin-top:4px}
-.ring-hours{font-size:10px;color:var(--text-muted);margin-top:3px}
+.ring-status{font-size:13px;font-weight:600;color:var(--text-primary)}
+.ring-remaining{font-size:11px;color:var(--text-secondary);margin-top:4px}
+.ring-hours{font-size:10px;color:var(--text-secondary);margin-top:3px}
 .ring-settings-btn{
   background:rgba(124,58,237,.12);
   border:1px solid rgba(124,58,237,.22);
   border-radius:8px;
-  color:var(--text-muted);
+  color:var(--text-secondary);
   font-size:13px;
   padding:4px 8px;
   margin-left:8px;
@@ -395,7 +398,7 @@ body{
 .ring-settings-btn:hover{
   background:rgba(124,58,237,.25);
   border-color:rgba(167,139,250,.45);
-  color:var(--text);
+  color:var(--text-primary);
 }
 .ring-status-row{display:flex;align-items:center}
 
@@ -404,9 +407,9 @@ body{
   display:flex;justify-content:space-between;align-items:flex-end;
   margin-bottom:8px;
 }
-.xp-today{font-size:11px;color:var(--text-sub)}
+.xp-today{font-size:11px;color:var(--text-secondary)}
 .xp-today b{color:var(--violet);font-weight:600}
-.xp-lim{font-size:10px;color:var(--text-muted)}
+.xp-lim{font-size:10px;color:var(--text-secondary)}
 .xp-track{
   height:8px;background:rgba(255,255,255,.06);
   border-radius:4px;overflow:hidden;
@@ -432,8 +435,8 @@ body{
 .skill-list{display:flex;flex-direction:column;gap:11px}
 .skill-item{display:flex;flex-direction:column;gap:5px}
 .skill-hdr{display:flex;justify-content:space-between;align-items:center}
-.skill-name{font-size:12px;font-weight:500;color:var(--text)}
-.skill-lvl{font-size:10px;color:var(--text-muted)}
+.skill-name{font-size:12px;font-weight:500;color:var(--text-primary)}
+.skill-lvl{font-size:10px;color:var(--text-secondary)}
 .skill-dots{display:flex;gap:4px}
 .dot{
   width:9px;height:9px;border-radius:50%;
@@ -459,17 +462,17 @@ body{
   padding:5px 0;
 }
 .meta-row+.meta-row{border-top:1px solid rgba(167,139,250,.06)}
-.meta-k{font-size:12px;color:var(--text-sub)}
+.meta-k{font-size:12px;color:var(--text-secondary)}
 .meta-v{font-size:12px;font-weight:600}
 .v-v{color:var(--violet)}
 .v-g{color:#34D399}
 .v-c{color:var(--cyan)}
-.v-m{color:var(--text-muted)}
+.v-m{color:var(--text-secondary)}
 
 /* ─── LTG GOALS (from original) ──────────────────────── */
 .section-eye{
   font-size:10px;letter-spacing:.22em;
-  color:var(--text-muted);text-transform:uppercase;
+  color:var(--text-secondary);text-transform:uppercase;
   font-weight:600;margin:28px 0 12px;
   position:relative;padding-bottom:8px;
 }
@@ -493,7 +496,7 @@ body{
 }
 .ltg-eyebrow{
   font-size:9px;letter-spacing:.24em;
-  color:var(--text-muted);text-transform:uppercase;font-weight:600;
+  color:var(--text-secondary);text-transform:uppercase;font-weight:600;
 }
 .ltg-add-btn{
   width:32px;height:32px;border-radius:10px;
@@ -511,7 +514,7 @@ body{
 }
 .ltg-list{display:flex;flex-direction:column;gap:10px}
 .ltg-empty{
-  font-size:13px;color:var(--text-muted);
+  font-size:13px;color:var(--text-secondary);
   text-align:center;padding:20px 0;
 }
 .ltg-row{
@@ -529,8 +532,8 @@ body{
   display:flex;justify-content:space-between;align-items:center;
   margin-bottom:8px;
 }
-.ltg-row-title{font-size:13px;font-weight:600;color:var(--text)}
-.ltg-row-nums{font-size:11px;color:var(--text-muted);margin-top:2px}
+.ltg-row-title{font-size:13px;font-weight:600;color:var(--text-primary)}
+.ltg-row-nums{font-size:11px;color:var(--text-secondary);margin-top:2px}
 .ltg-pct-badge{
   background:rgba(124,58,237,.16);color:#C4B5FD;
   font-size:11px;font-weight:700;
@@ -558,7 +561,7 @@ body{
   background:rgba(0,0,0,.30);
   border:1px solid rgba(167,139,250,.15);
   border-radius:10px;
-  color:var(--text);font-size:13px;
+  color:var(--text-primary);font-size:13px;
   padding:8px 12px;
   font-family:inherit;
   outline:none;
@@ -618,11 +621,11 @@ body{
   -webkit-backdrop-filter:blur(40px) saturate(160%);
 }
 .modal-title{font-size:18px;font-weight:700;margin-bottom:6px}
-.modal-sub{font-size:12px;color:var(--text-muted);margin-bottom:20px}
+.modal-sub{font-size:12px;color:var(--text-secondary);margin-bottom:20px}
 .modal-row{margin-bottom:14px}
 .modal-row label{
   display:block;font-size:11px;font-weight:600;
-  color:var(--text-sub);margin-bottom:5px;
+  color:var(--text-secondary);margin-bottom:5px;
   letter-spacing:.04em;
 }
 .modal-row input, .modal-row select{
@@ -630,7 +633,7 @@ body{
   background:rgba(0,0,0,.30);
   border:1px solid rgba(167,139,250,.15);
   border-radius:10px;
-  color:var(--text);font-family:inherit;font-size:14px;
+  color:var(--text-primary);font-family:inherit;font-size:14px;
   padding:10px 12px;
   outline:none;
   transition:border-color .18s, box-shadow .18s;
@@ -648,13 +651,13 @@ body{
   font-size:13px;font-weight:600;
   border:1px solid rgba(167,139,250,.15);
   background:rgba(255,255,255,.04);
-  color:var(--text-sub);
+  color:var(--text-secondary);
   transition:all .18s;
 }
 .modal-btn:hover{
   background:rgba(124,58,237,.18);
   border-color:rgba(167,139,250,.45);
-  color:var(--text);
+  color:var(--text-primary);
 }
 .modal-btn.primary{
   background:linear-gradient(135deg,#7C3AED 0%,#A855F7 45%,#D946EF 100%);
@@ -669,7 +672,7 @@ body{
 .ltg-form-row{margin-bottom:14px}
 .ltg-form-row label{
   display:block;font-size:11px;font-weight:600;
-  color:var(--text-sub);margin-bottom:5px;
+  color:var(--text-secondary);margin-bottom:5px;
   letter-spacing:.04em;
 }
 .ltg-form-row input, .ltg-form-row select{
@@ -677,7 +680,7 @@ body{
   background:rgba(0,0,0,.30);
   border:1px solid rgba(167,139,250,.15);
   border-radius:10px;
-  color:var(--text);font-family:inherit;font-size:14px;
+  color:var(--text-primary);font-family:inherit;font-size:14px;
   padding:10px 12px;
   outline:none;
   transition:border-color .18s, box-shadow .18s;
@@ -712,7 +715,7 @@ body{
   .c-ring,.c-grind,.c-wellness,.c-calisthenics,.c-skills,.c-stat{grid-column:span 1}
 }
 @media(max-width:768px){
-  .nav{top:8px;gap:8px;flex-wrap:wrap;margin-top:8px;padding:8px}
+  .nav{top:8px;gap:8px;flex-wrap:wrap;margin-top:8px;padding:max(1rem,env(safe-area-inset-top)) 8px 8px}
   .pill-nav{
     order:3;flex:1 0 100%;width:100%;max-width:none;margin:0;
     justify-content:flex-start;gap:.35rem;overflow-x:auto;
@@ -732,6 +735,8 @@ body{
   .ring-hero-card{flex-direction:column;align-items:flex-start}
 }
 </style>
+<link rel="stylesheet" href="../styles/themes.css">
+<link rel="stylesheet" href="../styles/style.css">
 </head>
 <body>
 
@@ -755,7 +760,7 @@ body{
       <span class="logo-text">NEXUS</span>
     </a>
 
-    <div class="pill-nav" role="tablist">
+    <div class="pill-nav" role="tablist" aria-hidden="true">
       <button class="pill-item active" role="tab" aria-selected="true"  onclick="navTo(this,'#')">Home</button>
       <button class="pill-item"        role="tab" aria-selected="false" onclick="navTo(this,'#goals-section')">Goals</button>
       <button class="pill-item"        role="tab" aria-selected="false" onclick="navTo(this,'/src/pages/health.html')">Wellness</button>
@@ -839,7 +844,7 @@ body{
       <span class="badge badge-g" id="grindBadge" style="margin-bottom:18px">—</span>
 
       <div class="big-n" id="grindTotalXP">0</div>
-      <p style="font-size:10px;color:var(--text-muted);letter-spacing:.14em;text-transform:uppercase;margin:4px 0 18px">Total XP earned</p>
+      <p style="font-size:10px;color:var(--text-secondary);letter-spacing:.14em;text-transform:uppercase;margin:4px 0 18px">Total XP earned</p>
 
       <div>
         <div class="xp-header">
@@ -875,9 +880,9 @@ body{
           </div>
         </div>
         <div>
-          <p style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px">Sleep</p>
-          <p style="font-size:11px;color:var(--text-sub)" id="wellnessSleepTime">—</p>
-          <p style="font-size:11px;color:var(--text-sub);margin-top:2px" id="wellnessSleepQuality">—</p>
+          <p style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px">Sleep</p>
+          <p style="font-size:11px;color:var(--text-secondary)" id="wellnessSleepTime">—</p>
+          <p style="font-size:11px;color:var(--text-secondary);margin-top:2px" id="wellnessSleepQuality">—</p>
         </div>
       </div>
 
@@ -897,7 +902,7 @@ body{
           <div class="stats" style="margin-top:8px" id="gymStats"></div>
         </div>
         <div>
-          <p style="font-size:9px;letter-spacing:.16em;color:var(--text-muted);text-transform:uppercase;margin-bottom:7px">16-week heatmap</p>
+          <p style="font-size:9px;letter-spacing:.16em;color:var(--text-secondary);text-transform:uppercase;margin-bottom:7px">16-week heatmap</p>
           <div class="heatmap" id="heatmap" aria-label="Workout activity heatmap"></div>
         </div>
       </div>
@@ -932,7 +937,7 @@ body{
         <div class="card-icon" aria-hidden="true">◈</div>
       </div>
       <div class="big-n" id="nexusStreak">—</div>
-      <p style="font-size:10px;color:var(--text-muted);letter-spacing:.14em;text-transform:uppercase;margin:4px 0 16px">Day streak</p>
+      <p style="font-size:10px;color:var(--text-secondary);letter-spacing:.14em;text-transform:uppercase;margin:4px 0 16px">Day streak</p>
       <div class="div"></div>
       <div style="display:flex;flex-direction:column;gap:0" id="nexusStats"></div>
     </article>

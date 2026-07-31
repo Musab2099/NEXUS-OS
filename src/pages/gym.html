@@ -1,18 +1,20 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="amethyst">
+<html lang="en" data-theme="nexus-dark">
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#07051A">
+  <script>
+    const savedTheme = localStorage.getItem('nexus-theme') || 'nexus-dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
   <script src="../scripts/theme.js"></script>
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/favicon-32.png" sizes="32x32">
   <link rel="apple-touch-icon" href="/apple-touch-icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles/themes.css">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="NEXUS">
@@ -30,7 +32,7 @@
     }
     /* Page-local color tokens — only applied in amethyst theme. Other themes
        consume the canonical tokens from themes.css. */
-    [data-theme="amethyst"] {
+    [data-theme="nexus-dark"] {
       --bg: #0A0813;
       --bg-card: #12101F;
       --text-1: #FFFFFF;
@@ -58,8 +60,8 @@
     body {
       margin: 0;
       padding: 0;
-      background: var(--bg);
-      color: var(--text-1);
+      background: var(--bg-main);
+      color: var(--text-primary);
       font-family: var(--font);
       -webkit-font-smoothing: antialiased;
       min-height: 100vh;
@@ -120,7 +122,7 @@
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 999px;
-      color: var(--text-2);
+      color: var(--text-secondary);
       font-family: var(--font);
       font-size: 12px;
       font-weight: 600;
@@ -132,7 +134,7 @@
 
     .back-btn:hover {
       background: rgba(176, 38, 255, 0.18);
-      color: var(--text-1);
+      color: var(--text-primary);
       border-color: rgba(176, 38, 255, 0.50);
       box-shadow: 0 0 14px rgba(176, 38, 255, 0.30);
     }
@@ -150,7 +152,7 @@
       font-weight: 700;
       letter-spacing: 0.20em;
       text-transform: uppercase;
-      color: var(--text-3);
+      color: var(--text-secondary);
     }
 
     .hero-title {
@@ -166,7 +168,7 @@
 
     .hero-sub {
       font-size: 13px;
-      color: var(--text-3);
+      color: var(--text-secondary);
     }
 
     .hero-row {
@@ -185,7 +187,7 @@
       border-radius: 999px;
       border: 1px solid var(--border);
       background: var(--bg-card);
-      color: var(--text-3);
+      color: var(--text-secondary);
       font-family: var(--font);
       font-size: 11px;
       font-weight: 700;
@@ -196,7 +198,7 @@
 
     .schedule-btn:hover {
       background: rgba(176, 38, 255, 0.18);
-      color: var(--text-1);
+      color: var(--text-primary);
       border-color: rgba(176, 38, 255, 0.50);
       box-shadow: 0 0 12px rgba(176, 38, 255, 0.30);
     }
@@ -227,12 +229,12 @@
 
     .today-pill-name {
       font-size: 13px;
-      color: var(--text-2);
+      color: var(--text-secondary);
     }
 
     .today-pill-rest {
       font-size: 13px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       font-style: italic;
     }
 
@@ -256,7 +258,7 @@
       font-size: 10px;
       letter-spacing: 0.20em;
       font-weight: 700;
-      color: var(--text-3);
+      color: var(--text-secondary);
       text-transform: uppercase;
     }
 
@@ -284,7 +286,7 @@
       font-family: inherit;
       font-size: 12px;
       font-weight: 700;
-      color: var(--text-3);
+      color: var(--text-secondary);
       cursor: pointer;
       text-align: center;
       transition: background .15s, border-color .15s, color .15s, box-shadow .18s;
@@ -293,14 +295,14 @@
 
     .day-tab:hover {
       background: rgba(176, 38, 255, 0.12);
-      color: var(--text-2);
+      color: var(--text-secondary);
       box-shadow: 0 0 10px rgba(176, 38, 255, 0.20);
     }
 
     .day-tab.active {
       background: linear-gradient(135deg, rgba(138, 43, 226, 0.25), rgba(255, 20, 147, 0.20));
       border-color: var(--tab-color, var(--border-strong));
-      color: var(--text-1);
+      color: var(--text-primary);
       box-shadow: 0 0 14px -2px var(--tab-color, transparent);
     }
 
@@ -341,7 +343,7 @@
 
     .ex-header-sub {
       font-size: 12px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       margin-left: auto;
     }
 
@@ -404,7 +406,7 @@
       letter-spacing: 0.12em;
       text-transform: uppercase;
       font-family: var(--mono);
-      color: var(--text-3);
+      color: var(--text-secondary);
     }
 
     .phase-skill .phase-name {
@@ -422,7 +424,7 @@
     .phase-duration {
       font-size: 9.5px;
       font-family: var(--mono);
-      color: var(--text-4);
+      color: var(--text-secondary);
     }
 
     .phase-exercises {
@@ -459,7 +461,7 @@
 
     .ss-hint {
       font-size: 9px;
-      color: var(--text-4);
+      color: var(--text-secondary);
       font-family: var(--mono);
     }
 
@@ -525,7 +527,7 @@
 
     .ex-row.done .ex-name {
       text-decoration: line-through;
-      color: var(--text-3);
+      color: var(--text-secondary);
     }
 
     .ex-row.skill-ex {
@@ -571,20 +573,20 @@
     .ex-name {
       font-size: 13.5px;
       font-weight: 600;
-      color: var(--text-1);
+      color: var(--text-primary);
       line-height: 1.3;
     }
 
     .ex-meta {
       font-size: 11px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       margin-top: 3px;
       font-family: var(--mono);
     }
 
     .ex-note {
       font-size: 11px;
-      color: var(--text-2);
+      color: var(--text-secondary);
       margin-top: 3px;
       font-style: italic;
     }
@@ -597,7 +599,7 @@
       margin-left: 7px;
       background: rgba(138, 43, 226, 0.12);
       border: 1px solid rgba(138, 43, 226, 0.22);
-      color: var(--text-4);
+      color: var(--text-secondary);
       font-size: 9px;
       font-weight: 700;
       font-family: var(--mono);
@@ -643,11 +645,11 @@
 
     .done-summary {
       font-size: 13px;
-      color: var(--text-3);
+      color: var(--text-secondary);
     }
 
     .done-summary strong {
-      color: var(--text-1);
+      color: var(--text-primary);
     }
 
     .done-btns {
@@ -784,18 +786,18 @@
     .skills-cta-title {
       font-size: 15px;
       font-weight: 800;
-      color: var(--text-1);
+      color: var(--text-primary);
       margin-bottom: 3px;
     }
 
     .skills-cta-sub {
       font-size: 12px;
-      color: var(--text-3);
+      color: var(--text-secondary);
     }
 
     .skills-cta-arrow {
       font-size: 18px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       flex-shrink: 0;
     }
 
@@ -851,7 +853,7 @@
 
     .sched-sub {
       font-size: 12px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       margin-bottom: 16px;
     }
 
@@ -870,7 +872,7 @@
       font-family: inherit;
       font-size: 11px;
       font-weight: 700;
-      color: var(--text-3);
+      color: var(--text-secondary);
       cursor: pointer;
       text-align: center;
       line-height: 1.4;
@@ -880,13 +882,13 @@
 
     .sched-day-btn:hover {
       background: rgba(176, 38, 255, 0.12);
-      color: var(--text-2);
+      color: var(--text-secondary);
     }
 
     .sched-day-btn.selected {
       background: linear-gradient(135deg, rgba(138, 43, 226, 0.30), rgba(255, 20, 147, 0.25));
       border-color: rgba(176, 38, 255, 0.60);
-      color: var(--text-1);
+      color: var(--text-primary);
       box-shadow: 0 0 12px rgba(176, 38, 255, 0.30);
     }
 
@@ -898,14 +900,14 @@
 
     .sched-preview {
       font-size: 12px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       margin-bottom: 16px;
       font-family: var(--mono);
       min-height: 16px;
     }
 
     .sched-preview strong {
-      color: var(--text-2);
+      color: var(--text-secondary);
     }
 
     .sched-actions {
@@ -919,7 +921,7 @@
       border-radius: 10px;
       border: 1px solid var(--border);
       background: rgba(255, 255, 255, 0.04);
-      color: var(--text-1);
+      color: var(--text-primary);
       font-family: inherit;
       font-size: 13px;
       font-weight: 700;
@@ -979,7 +981,7 @@
 
     .weight-unit {
       font-size: 16px;
-      color: var(--text-3);
+      color: var(--text-secondary);
     }
 
     .weight-delta {
@@ -999,12 +1001,12 @@
       display: flex;
       justify-content: space-between;
       font-size: 12px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       margin-bottom: 14px;
     }
 
     .weight-goal-row strong {
-      color: var(--text-1);
+      color: var(--text-primary);
     }
 
     .weight-bar-track {
@@ -1032,7 +1034,7 @@
       flex: 1;
       background: rgba(0, 0, 0, 0.28);
       border: 1px solid var(--border);
-      color: var(--text-1);
+      color: var(--text-primary);
       font-family: inherit;
       font-size: 16px;
       font-weight: 600;
@@ -1088,14 +1090,14 @@
       font-weight: 700;
       letter-spacing: 0.10em;
       text-transform: uppercase;
-      color: var(--text-3);
+      color: var(--text-secondary);
       font-family: var(--mono);
     }
 
     .log-input {
       background: rgba(0, 0, 0, 0.28);
       border: 1px solid var(--border);
-      color: var(--text-1);
+      color: var(--text-primary);
       font-family: var(--mono);
       font-size: 13px;
       font-weight: 600;
@@ -1171,7 +1173,7 @@
       border-radius: 999px;
       background: rgba(138, 43, 226, 0.06);
       border: 1px solid var(--border);
-      color: var(--text-2);
+      color: var(--text-secondary);
     }
 
     .log-target-pill.hit {
@@ -1257,7 +1259,7 @@
       gap: 5px;
       font-size: 10px;
       font-family: var(--mono);
-      color: var(--text-3);
+      color: var(--text-secondary);
     }
 
     .heatmap-legend-dot {
@@ -1284,7 +1286,7 @@
       font-weight: 700;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--text-3);
+      color: var(--text-secondary);
       font-family: var(--mono);
       margin-bottom: 3px;
     }
@@ -1293,12 +1295,12 @@
       font-size: 20px;
       font-weight: 700;
       font-variant-numeric: tabular-nums;
-      color: var(--text-1);
+      color: var(--text-primary);
     }
 
     .heatmap-stat-sub {
       font-size: 10px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       font-family: var(--mono);
     }
 
@@ -1330,7 +1332,7 @@
 
     .consistency-pct-label {
       font-size: 12px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       margin-left: 6px;
     }
 
@@ -1357,7 +1359,7 @@
     .hist-date {
       font-family: var(--mono);
       font-size: 11px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       width: 72px;
       flex-shrink: 0;
     }
@@ -1365,13 +1367,13 @@
     .hist-workout {
       flex: 1;
       font-weight: 600;
-      color: var(--text-1);
+      color: var(--text-primary);
     }
 
     .hist-stats {
       font-family: var(--mono);
       font-size: 11px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       text-align: right;
       white-space: nowrap;
     }
@@ -1442,7 +1444,7 @@
       font-family: var(--mono);
       font-size: 17px;
       font-weight: 800;
-      color: var(--text-1);
+      color: var(--text-primary);
       font-variant-numeric: tabular-nums;
     }
 
@@ -1473,7 +1475,7 @@
       font-weight: 700;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--text-3);
+      color: var(--text-secondary);
       font-family: var(--mono);
       margin-bottom: 4px;
     }
@@ -1481,7 +1483,7 @@
     .rest-timer-msg {
       font-size: 14px;
       font-weight: 700;
-      color: var(--text-1);
+      color: var(--text-primary);
       margin-bottom: 8px;
     }
 
@@ -1495,7 +1497,7 @@
       border-radius: 6px;
       border: 1px solid var(--border);
       background: rgba(138, 43, 226, 0.06);
-      color: var(--text-3);
+      color: var(--text-secondary);
       font-size: 11px;
       font-weight: 700;
       cursor: pointer;
@@ -1505,7 +1507,7 @@
 
     .rest-preset:hover {
       background: rgba(176, 38, 255, 0.18);
-      color: var(--text-2);
+      color: var(--text-secondary);
       border-color: rgba(176, 38, 255, 0.40);
     }
 
@@ -1518,7 +1520,7 @@
     .rest-skip {
       background: transparent;
       border: none;
-      color: var(--text-3);
+      color: var(--text-secondary);
       font-size: 17px;
       cursor: pointer;
       padding: 4px 6px;
@@ -1528,7 +1530,7 @@
     }
 
     .rest-skip:hover {
-      color: var(--text-1);
+      color: var(--text-primary);
       background: rgba(176, 38, 255, 0.18);
     }
 
@@ -1582,13 +1584,13 @@
     .pr-modal-title {
       font-size: 18px;
       font-weight: 800;
-      color: var(--text-1);
+      color: var(--text-primary);
       margin-bottom: 2px;
     }
 
     .pr-modal-exname {
       font-size: 12px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       font-family: var(--mono);
       margin-bottom: 18px;
     }
@@ -1613,7 +1615,7 @@
     .pr-input {
       background: rgba(0, 0, 0, 0.30);
       border: 1px solid var(--border-strong);
-      color: var(--text-1);
+      color: var(--text-primary);
       font-family: var(--mono);
       font-size: 13px;
       padding: 9px 11px;
@@ -1634,13 +1636,13 @@
     }
 
     .pr-input::placeholder {
-      color: var(--text-4);
+      color: var(--text-secondary);
     }
 
     .pr-unit-sel {
       background: rgba(0, 0, 0, 0.30);
       border: 1px solid var(--border-strong);
-      color: var(--text-2);
+      color: var(--text-secondary);
       font-family: var(--mono);
       font-size: 12px;
       padding: 9px 6px;
@@ -1690,7 +1692,7 @@
     .pr-hist-date {
       font-family: var(--mono);
       font-size: 10px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       width: 68px;
       flex-shrink: 0;
     }
@@ -1699,14 +1701,14 @@
       font-family: var(--mono);
       font-size: 17px;
       font-weight: 700;
-      color: var(--text-1);
+      color: var(--text-primary);
       font-variant-numeric: tabular-nums;
       flex-shrink: 0;
     }
 
     .pr-hist-unit {
       font-size: 11px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       margin-right: 4px;
       flex-shrink: 0;
     }
@@ -1714,7 +1716,7 @@
     .pr-hist-note {
       flex: 1;
       font-size: 12px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       font-style: italic;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -1739,7 +1741,7 @@
     .pr-del {
       background: transparent;
       border: none;
-      color: var(--text-3);
+      color: var(--text-secondary);
       cursor: pointer;
       font-size: 16px;
       padding: 2px 4px;
@@ -1759,7 +1761,7 @@
 
     .pr-empty {
       font-size: 12px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       font-style: italic;
       text-align: center;
       padding: 18px 0;
@@ -1797,7 +1799,7 @@
       font-weight: 700;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--text-3);
+      color: var(--text-secondary);
       font-family: var(--mono);
       margin-bottom: 4px;
     }
@@ -1806,7 +1808,7 @@
       font-size: 22px;
       font-weight: 700;
       font-variant-numeric: tabular-nums;
-      color: var(--text-1);
+      color: var(--text-primary);
       line-height: 1.1;
     }
 
@@ -1825,7 +1827,7 @@
     }
 
     .meas-stat-delta.flat {
-      color: var(--text-4);
+      color: var(--text-secondary);
     }
 
     .meas-form-grid {
@@ -1846,7 +1848,7 @@
       font-weight: 700;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--text-3);
+      color: var(--text-secondary);
       font-family: var(--mono);
     }
 
@@ -1864,7 +1866,7 @@
     .meas-hist-date {
       font-family: var(--mono);
       font-size: 10px;
-      color: var(--text-3);
+      color: var(--text-secondary);
       width: 68px;
       flex-shrink: 0;
     }
@@ -1873,13 +1875,13 @@
       flex: 1;
       font-family: var(--mono);
       font-size: 12px;
-      color: var(--text-2);
+      color: var(--text-secondary);
     }
 
     .meas-del {
       background: transparent;
       border: none;
-      color: var(--text-3);
+      color: var(--text-secondary);
       cursor: pointer;
       font-size: 15px;
       padding: 2px 4px;
@@ -1937,6 +1939,8 @@
     }
   </style>
   <link rel="stylesheet" href="../styles/liquid-amethyst.css">
+  <link rel="stylesheet" href="../styles/themes.css">
+  <link rel="stylesheet" href="../styles/style.css">
 </head>
 
 <body>
@@ -2017,13 +2021,13 @@
       </div>
       <div class="consistency-wrap"><canvas id="consistencyChart"></canvas></div>
       <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap">
-        <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);color:var(--text-3)">
+        <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);color:var(--text-secondary)">
           <div style="width:10px;height:10px;border-radius:2px;background:#8A2BE2"></div>all done
         </div>
-        <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);color:var(--text-3)">
+        <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);color:var(--text-secondary)">
           <div style="width:10px;height:10px;border-radius:2px;background:#B026FF"></div>partial
         </div>
-        <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);color:var(--text-3)">
+        <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);color:var(--text-secondary)">
           <div style="width:10px;height:10px;border-radius:2px;background:#0F0B1A;border:1px solid rgba(74,68,94,0.3)">
           </div>missed
         </div>
@@ -2167,7 +2171,7 @@
 
     <div class="divider"><span>Recent Sessions</span></div>
     <div class="card" id="histCard">
-      <div style="text-align:center;font-size:12px;color:var(--text-3);padding:16px 0;font-style:italic">No sessions
+      <div style="text-align:center;font-size:12px;color:var(--text-secondary);padding:16px 0;font-style:italic">No sessions
         logged yet.</div>
     </div>
   </div>
@@ -2717,7 +2721,7 @@
         });
         const histEl = document.getElementById('measHistList');
         const recent = all.slice().reverse().slice(0, 5);
-        if (!recent.length) { histEl.innerHTML = '<div style="font-size:12px;color:var(--text-3);font-style:italic;text-align:center;padding:10px 0">No measurements logged yet.</div>'; return; }
+        if (!recent.length) { histEl.innerHTML = '<div style="font-size:12px;color:var(--text-secondary);font-style:italic;text-align:center;padding:10px 0">No measurements logged yet.</div>'; return; }
         histEl.innerHTML = recent.map(m => `
         <div class="meas-hist-row">
           <div class="meas-hist-date">${fmtDate(m.date)}</div>
@@ -2749,7 +2753,7 @@
           restEl.textContent = '';
           currentDay = schedIdx;
         } else {
-          dotEl.style.background = 'var(--text-4)';
+          dotEl.style.background = 'var(--text-secondary)';
           dotEl.style.boxShadow = 'none';
           nameEl.textContent = '';
           restEl.textContent = 'Rest day — recover and sleep';
@@ -3135,7 +3139,7 @@
           <line x1="0" y1="${goalY}" x2="100" y2="${goalY}" stroke="rgba(199,125,255,0.55)" stroke-width="1" stroke-dasharray="2 3"/>
           <circle cx="${pts[pts.length - 1][0].toFixed(1)}" cy="${pts[pts.length - 1][1].toFixed(1)}" r="2.5" fill="#FF1493"/>
         </svg>
-        <div style="font-size:10px;color:var(--text-4);font-family:var(--mono);text-align:right;margin-top:2px">— 175 lb goal</div>`;
+        <div style="font-size:10px;color:var(--text-secondary);font-family:var(--mono);text-align:right;margin-top:2px">— 175 lb goal</div>`;
       }
       window.saveWeight = function () {
         const v = parseFloat(document.getElementById('wInput').value);
@@ -3154,7 +3158,7 @@
       function renderHistory() {
         const histCard = document.getElementById('histCard');
         const keys = Object.keys(S).filter(k => k.startsWith('hist_')).sort().reverse();
-        if (!keys.length) { histCard.innerHTML = '<div style="text-align:center;font-size:12px;color:var(--text-3);padding:16px 0;font-style:italic">No sessions logged yet.</div>'; return; }
+        if (!keys.length) { histCard.innerHTML = '<div style="text-align:center;font-size:12px;color:var(--text-secondary);padding:16px 0;font-style:italic">No sessions logged yet.</div>'; return; }
         histCard.innerHTML = keys.slice(0, 14).map(k => {
           const dateStr = k.slice(5);
           const h = S[k];

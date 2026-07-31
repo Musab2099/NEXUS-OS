@@ -28,6 +28,7 @@ const PASSTHROUGH_FILES = [
   'src/styles/liquid-amethyst.css',
   'src/styles/event-horizon.css',
   'src/styles/themes.css',
+  'src/styles/style.css',
   'src/data/manifest.json',
 ];
 
