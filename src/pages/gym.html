@@ -2026,6 +2026,9 @@
           <button class="done-btn" id="doneBtnEl" onclick="toggleWorkoutDone()">Mark workout done</button>
         </div>
       </div>
+      <div style="margin-top:10px; display:flex; justify-content:flex-end;">
+        <button class="log-save-btn" type="button" onclick="window.location.href='/src/pages/live-workout.html?day=' + getDayParamFromCurrentSelection()" style="margin:0; min-width:180px;">Start Workout</button>
+      </div>
       <div class="ex-header">
         <div class="ex-header-dot" id="exHeaderDot"></div>
         <div class="ex-header-title" id="exHeaderTitle">—</div>
@@ -2479,6 +2482,10 @@
       function todayKey() {
         const d = new Date();
         return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+      function getDayParamFromCurrentSelection() {
+        const map = ['monday', 'tuesday', 'thursday', 'friday'];
+        return map[currentDay] || 'monday';
       }
       function fmtDate(k) {
         const [y, m, d] = k.split('-').map(Number);

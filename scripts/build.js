@@ -20,6 +20,7 @@ const PASSTHROUGH_FILES = [
   'src/pages/index.html',
   'src/pages/health.html',
   'src/pages/gym.html',
+  'src/pages/live-workout.html',
   'src/pages/grind-log.html',
   'src/pages/progression-tab.html',
   'src/scripts/topbar.js',
