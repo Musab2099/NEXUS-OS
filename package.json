@@ -5,6 +5,7 @@
   "description": "NEXUS — Ibrahim's personal operating system (private).",
   "scripts": {
     "build": "node scripts/build.js",
+    "test": "node --test",
     "dev": "node scripts/build.js && npx serve dist",
     "clean": "rm -rf dist"
   },
