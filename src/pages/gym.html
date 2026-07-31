@@ -236,6 +236,96 @@
       font-style: italic;
     }
 
+    .apple-health-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 15px;
+      margin: 0 0 14px;
+      border: 1px solid rgba(176, 38, 255, 0.24);
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(138, 43, 226, 0.08), rgba(255, 20, 147, 0.05));
+    }
+
+    .apple-health-mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      border-radius: 11px;
+      background: linear-gradient(135deg, rgba(138, 43, 226, 0.28), rgba(255, 20, 147, 0.22));
+      font-size: 17px;
+    }
+
+    .apple-health-copy {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .apple-health-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+    }
+
+    .apple-health-status {
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 700;
+      color: #C77DFF;
+      letter-spacing: 0.04em;
+    }
+
+    .apple-health-sub {
+      margin-top: 3px;
+      overflow: hidden;
+      color: var(--text-secondary);
+      font-size: 11px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .apple-health-stats {
+      display: flex;
+      flex-shrink: 0;
+      gap: 12px;
+    }
+
+    .apple-health-stat {
+      text-align: right;
+    }
+
+    .apple-health-value {
+      display: block;
+      color: var(--text-primary);
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .apple-health-label {
+      display: block;
+      margin-top: 2px;
+      color: var(--text-secondary);
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    @media(max-width:480px) {
+      .apple-health-card { align-items: flex-start; }
+      .apple-health-stats { flex-direction: column; gap: 6px; }
+      .apple-health-stat { text-align: right; }
+    }
+
     .divider {
       display: flex;
       align-items: center;
@@ -1958,6 +2048,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="../scripts/sync.js" defer></script>
+<script src="../scripts/apple-health.js" defer></script>
 <script src="../scripts/topbar.js" defer></script>
 </head>
 
@@ -1998,6 +2089,18 @@
       </div>
       <button class="schedule-btn" onclick="openScheduleModal()">⚙ Schedule</button>
     </div>
+
+    <section class="apple-health-card" id="appleHealthCard" aria-label="Apple Health workout metrics">
+      <div class="apple-health-mark" aria-hidden="true">♥</div>
+      <div class="apple-health-copy">
+        <div class="apple-health-title">Apple Health <span class="apple-health-status" id="appleHealthStatus">CHECKING</span></div>
+        <div class="apple-health-sub" id="appleHealthSub">Loading Apple Watch metrics…</div>
+      </div>
+      <div class="apple-health-stats" aria-live="polite">
+        <div class="apple-health-stat"><span class="apple-health-value" id="appleHealthCalories">—</span><span class="apple-health-label">active kcal</span></div>
+        <div class="apple-health-stat"><span class="apple-health-value" id="appleHealthHeartRate">—</span><span class="apple-health-label">avg bpm</span></div>
+      </div>
+    </section>
 
     <div class="day-tabs">
       <button class="day-tab" style="--tab-color:var(--push)" data-day="0" onclick="setDay(0)">
@@ -3240,6 +3343,50 @@
       }
       init();
     })();
+  </script>
+
+  <script>
+    (function () {
+      function formatMetric(value, suffix) {
+        return value == null || !Number.isFinite(Number(value)) ? '—' : Number(value).toLocaleString(undefined, { maximumFractionDigits: 0 }) + suffix;
+      }
+
+      function renderAppleHealth(rows, offline) {
+        var date = window.appleHealth.today();
+        var row = (rows || []).filter(function (item) { return item.workout_date === date; })[0] || null;
+        var status = document.getElementById('appleHealthStatus');
+        var sub = document.getElementById('appleHealthSub');
+        var calories = document.getElementById('appleHealthCalories');
+        var heartRate = document.getElementById('appleHealthHeartRate');
+        if (!status || !sub || !calories || !heartRate) return;
+        if (!row) {
+          status.textContent = offline ? 'OFFLINE' : 'NO DATA';
+          sub.textContent = offline ? 'No cached Apple Watch workout for today' : 'No Apple Health workout synced for today';
+          calories.textContent = '—';
+          heartRate.textContent = '—';
+          return;
+        }
+        status.textContent = offline ? 'CACHED' : 'SYNCED';
+        sub.textContent = row.workout_type + (row.duration_minutes ? ' · ' + formatMetric(row.duration_minutes, ' min') : '');
+        calories.textContent = formatMetric(row.active_calories, '');
+        heartRate.textContent = row.avg_heart_rate == null ? '—' : formatMetric(row.avg_heart_rate, '');
+      }
+
+      function loadAppleHealth() {
+        if (!window.appleHealth) return;
+        var cached = window.appleHealth.cached();
+        renderAppleHealth(cached, !navigator.onLine);
+        if (!navigator.onLine) return;
+        window.appleHealth.refresh().then(function (rows) {
+          renderAppleHealth(rows, false);
+        }).catch(function () {
+          renderAppleHealth(window.appleHealth.cached(), true);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', loadAppleHealth);
+      window.addEventListener('online', loadAppleHealth);
+    }());
   </script>
 
   <script>

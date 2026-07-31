@@ -165,6 +165,9 @@ nexus/
 ├── grind-log.html       — XP productivity tracker
 ├── valorant-cc.html     — Calisthenics skill progressions (planche, HS, FL, MU, L-sit, BL)
 ├── sync.js              — Supabase cloud sync helper (shared)
+├── apple-health.js      — Apple Health read-through cache for the gym page
+├── api/sync-health.js   — Vercel POST endpoint for iOS Shortcut payloads
+├── supabase/apple_health_logs.sql — database schema and RLS policy
 ├── topbar.js            — Persistent nav bar + PWA service worker registration (shared)
 ├── sw.js                — Service worker (offline cache)
 ├── manifest.json        — PWA manifest (theme_color: #0A0813)
@@ -220,6 +223,36 @@ create policy "public access" on app_state for all using (true);
    ```
    `.env` is gitignored — the real credentials never enter the repo.
 
+### 1b. Apple Health sync
+1. Run `supabase/apple_health_logs.sql` in the Supabase SQL editor. It creates the read-only browser table and keeps inserts restricted to the server endpoint.
+2. Add these **server-only** environment variables in Vercel (never put either value in the PWA or the Shortcut URL):
+   - `SUPABASE_SERVICE_ROLE_KEY` — Supabase Settings → API → service_role key.
+   - `APPLE_HEALTH_SYNC_TOKEN` — a long random secret shared only with your Shortcut.
+3. Redeploy. The endpoint is `https://YOUR-DOMAIN/api/sync-health`.
+4. The Gym page reads only the current local date through the same-origin `GET /api/sync-health` read-through route, shows Active Calories and Avg Heart Rate, and keeps the last successful record in `localStorage` for offline display. Both GET and POST require `APPLE_HEALTH_SYNC_TOKEN`; store the token locally as `apple_health_sync_token` for the PWA read client. NEXUS is currently a single-user app without login; add authenticated row-level policies and bind `user_id` to the session before using this endpoint for multiple users.
+
+#### iOS Shortcut: Get Contents of URL
+Use a `POST` request to `https://YOUR-DOMAIN/api/sync-health`. Add `Authorization: Bearer YOUR_APPLE_HEALTH_SYNC_TOKEN` to both Shortcut POST requests and the PWA's locally configured read token. The PWA uses authenticated `GET /api/sync-health` internally for the current local date; the browser never receives the Supabase service-role key.
+
+Before opening the Gym page, configure the PWA read token once in the browser console:
+```js
+localStorage.setItem('apple_health_sync_token', 'YOUR_APPLE_HEALTH_SYNC_TOKEN')
+```
+
+Add the header `Authorization: Bearer YOUR_APPLE_HEALTH_SYNC_TOKEN` and send this JSON body:
+```json
+{
+  "external_id": "2026-07-31T08:15:00Z",
+  "workout_date": "2026-07-31",
+  "workout_type": "Traditional Strength Training",
+  "active_calories": 420,
+  "avg_heart_rate": 138,
+  "duration_minutes": 52,
+  "source": "apple_health"
+}
+```
+`workout_date` must be the iPhone's local `YYYY-MM-DD` date to avoid timezone shifts. `external_id` is optional but should be stable for the same Apple Health workout (for example, its start timestamp) so Shortcut retries update instead of duplicating the row. `user_id` is optional and reserved for a future authenticated setup. `avg_heart_rate` may be `null` if Apple Health did not provide it. The endpoint returns `201` with `{ "ok": true, "record": ... }` when saved.
+
 ### 2. Build
 The committed source uses placeholders (`__SUPABASE_URL__`, `__SUPABASE_KEY__`) in `sync.js`. The build script swaps them for the real values from `.env` and writes a deployable `dist/` folder:
 ```bash
@@ -269,7 +302,7 @@ In `gym.html`, tap **⚙ Schedule** and select your 4 training days in order. Da
 | Styling | Pure CSS3, CSS custom properties |
 | Charts | Chart.js 4.4 |
 | Database | Supabase (Postgres + Realtime) |
-| Auth | None — single-user, localStorage key-based |
+| Auth | None — single-user, localStorage key-based; Apple Health POST uses a private token |
 | Hosting | Vercel (static) |
 | Offline | Service Worker (Cache API) |
 

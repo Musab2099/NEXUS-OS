@@ -1,6 +1,6 @@
 // NEXUS service worker
 // Bump CACHE_VERSION any time you change the cached file list or want to force-refresh clients.
-const CACHE_VERSION = 'nexus-v6';
+const CACHE_VERSION = 'nexus-v7';
 
 const CACHE_FILES = [
   '/',
@@ -11,6 +11,7 @@ const CACHE_FILES = [
   '/src/pages/progression-tab.html',
   '/src/scripts/topbar.js',
   '/src/scripts/sync.js',
+  '/src/scripts/apple-health.js',
   '/src/data/manifest.json',
   '/manifest.json',
   '/icon-192.png',

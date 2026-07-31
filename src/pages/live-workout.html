@@ -71,7 +71,14 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; }
+    html, body {
+      height: 100%;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      touch-action: pan-y;
+      overscroll-behavior-y: contain;
+    }
     body {
       background:
         radial-gradient(circle at 15% 10%, rgba(124,58,237,0.22), transparent 30%),
@@ -80,19 +87,25 @@
       color: var(--text);
       font-family: 'Inter', system-ui, sans-serif;
       -webkit-font-smoothing: antialiased;
-      overflow: hidden;
     }
 
     .view {
       position: fixed;
       inset: 0;
+      width: 100%;
+      height: 100dvh;
+      min-height: 100dvh;
+      max-height: 100dvh;
+      overflow-x: hidden;
       overflow-y: auto;
+      overscroll-behavior-y: contain;
       opacity: 0;
       pointer-events: none;
       transform: translateY(16px);
       transition: opacity 0.25s ease, transform 0.25s ease;
       -webkit-overflow-scrolling: touch;
       padding: 18px 14px 120px;
+      touch-action: pan-y;
     }
     .view.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
@@ -102,9 +115,17 @@
       border-radius: 18px;
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
+      position: relative;
+      z-index: 1;
+    }
+    .card::before, .day-card::before, .skill-chip::before,
+    .footer::before, .footer::after {
+      pointer-events: none;
     }
 
     .btn-grad {
+      position: relative;
+      z-index: 1;
       border: none;
       color: white;
       width: 100%;
@@ -188,7 +209,6 @@
       padding: 18px 14px 16px;
       cursor: pointer;
       position: relative;
-      overflow: hidden;
       transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     }
     .day-card.sel {
@@ -253,7 +273,7 @@
       gap: 8px;
       max-height: 0;
       opacity: 0;
-      overflow: hidden;
+      overflow: clip;
       transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.25s ease;
       margin-top: 0;
     }
@@ -289,9 +309,19 @@
       left: 0; right: 0; bottom: 0;
       padding: 14px 14px 30px;
       background: linear-gradient(to top, var(--bg) 55%, transparent);
-      z-index: 30;
+      z-index: 40;
+      pointer-events: none;
     }
-    .footer-inner { max-width: 760px; margin: 0 auto; }
+    .footer-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      pointer-events: auto;
+    }
+    #start-btn {
+      position: relative;
+      z-index: 10;
+      pointer-events: auto;
+    }
 
     #tracker { padding-bottom: 120px; }
     .topbar {
@@ -532,7 +562,7 @@
 
     <div class="footer">
       <div class="footer-inner">
-        <button class="btn-grad" id="start-btn" disabled onclick="startWorkout()">Select a day to begin</button>
+        <button class="btn-grad" id="start-btn" type="button" disabled>Select a day to begin</button>
       </div>
     </div>
   </div>
@@ -748,24 +778,30 @@
     applyTheme(S.theme);
 
     function showView(id) {
+      const target = document.getElementById(id);
+      if (!target) return;
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
+      target.classList.add('active');
     }
 
     function selectDay(day) {
+      if (!WORKOUTS[day]) return;
       S.day = day;
       document.querySelectorAll('.day-card').forEach(card => card.classList.toggle('sel', card.dataset.day === day));
       const btn = document.getElementById('start-btn');
+      if (!btn) return;
       btn.disabled = false;
+      btn.removeAttribute('disabled');
       btn.textContent = `Start ${WORKOUTS[day].name} →`;
     }
 
     function toggleSkills(on) {
-      S.skillOn = on;
+      S.skillOn = Boolean(on);
       const grid = document.getElementById('skills-grid');
       const hint = document.getElementById('skill-hint');
-      grid.classList.toggle('open', on);
-      hint.style.display = on ? 'block' : 'none';
+      if (!grid || !hint) return;
+      grid.classList.toggle('open', S.skillOn);
+      hint.style.display = S.skillOn ? 'block' : 'none';
       if (!on) {
         S.pickedSkills = [];
         document.querySelectorAll('.skill-chip').forEach(chip => chip.classList.remove('sel'));
@@ -773,7 +809,8 @@
     }
 
     function pickSkill(el) {
-      const sk = el.dataset.sk;
+      const sk = el && el.dataset ? el.dataset.sk : null;
+      if (!el || !SKILLS[sk]) return;
       if (el.classList.contains('sel')) {
         el.classList.remove('sel');
         S.pickedSkills = S.pickedSkills.filter(s => s !== sk);
@@ -793,17 +830,18 @@
     }
 
     function startWorkout() {
-      if (!S.day) return;
+      const workout = S.day && WORKOUTS[S.day];
+      if (!workout || !Array.isArray(workout.exercises)) return;
 
-      let skillExes = [];
-      if (S.skillOn && S.pickedSkills.length) {
-        skillExes = S.pickedSkills.map(sk => {
-          const d = SKILLS[sk];
-          return { id:'sk_' + sk, name: d.icon + ' ' + d.name, muscles:[d.prog], sets:d.sets, reps:d.reps, notes:'Skill block · focus on quality, not quantity', isSkill:true };
-        });
-      }
+      const pickedSkills = Array.isArray(S.pickedSkills) ? S.pickedSkills : [];
+      const skillExes = S.skillOn
+        ? pickedSkills
+          .map(sk => SKILLS[sk])
+          .filter(Boolean)
+          .map(d => ({ id:'sk_' + d.name.toLowerCase().replace(/[^a-z0-9]+/g, '_'), name: d.icon + ' ' + d.name, muscles:[d.prog], sets:d.sets, reps:d.reps, notes:'Skill block · focus on quality, not quantity', isSkill:true }))
+        : [];
 
-      S.exercises = [...skillExes, ...WORKOUTS[S.day].exercises.map(ex => ({ ...ex }))];
+      S.exercises = [...skillExes, ...workout.exercises.map(ex => ({ ...ex }))];
       S.exIdx = 0;
       S.curSet = 1;
       S.log = [];
@@ -1103,6 +1141,13 @@
         exercises: S.exercises,
       }));
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const startBtn = document.getElementById('start-btn');
+      if (startBtn) {
+        startBtn.addEventListener('click', startWorkout);
+      }
+    });
 
     window.addEventListener('load', () => {
       const params = new URLSearchParams(location.search);
