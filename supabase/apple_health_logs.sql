@@ -10,11 +10,27 @@ create table if not exists public.apple_health_logs (
   avg_heart_rate numeric(6, 2) check (avg_heart_rate is null or (avg_heart_rate >= 0 and avg_heart_rate <= 300)),
   duration_minutes numeric(8, 2) not null check (duration_minutes >= 0),
   source text not null default 'apple_health',
+  -- Preserve the original Health Auto Export workout/metric fields after
+  -- recursively sanitizing quantity-shaped values into JSON-safe primitives.
+  metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
 
 alter table public.apple_health_logs
   add column if not exists external_id text;
+
+alter table public.apple_health_logs
+  add column if not exists metadata jsonb;
+
+-- Repair older installations where the column existed without the current
+-- default or nullability guarantees.
+update public.apple_health_logs
+set metadata = '{}'::jsonb
+where metadata is null;
+
+alter table public.apple_health_logs
+  alter column metadata set default '{}'::jsonb,
+  alter column metadata set not null;
 
 drop index if exists public.apple_health_logs_external_id_uidx;
 

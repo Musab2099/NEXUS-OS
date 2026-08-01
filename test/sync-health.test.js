@@ -99,7 +99,6 @@ describe('api/sync-health', () => {
       { authorization: 'test-sync-token' },
       { authorization: 'Basic test-sync-token' },
       { authorization: 'Bearer wrong-token' },
-      { 'x-health-sync-token': 'test-sync-token' },
     ];
 
     for (const headers of requests) {
@@ -113,7 +112,24 @@ describe('api/sync-health', () => {
     assert.equal(fetchCalls.length, 0);
   });
 
-  test('maps Health Auto Export v2 workouts and persists them as an array', async () => {
+  test('accepts the custom sync-token header for Health Auto Export clients', async () => {
+    const response = await invoke(
+      'POST',
+      {
+        external_id: 'custom-header-test',
+        workout_date: '2026-07-31',
+        workout_type: 'Custom Header Test',
+        active_calories: 1,
+        duration_minutes: 1,
+      },
+      { 'x-health-sync-token': 'test-sync-token' }
+    );
+
+    assert.equal(response.statusCode, 201);
+    assert.equal(fetchCalls.length, 1);
+  });
+
+  test('maps Health Auto Export v2 workouts and persists sanitized metadata', async () => {
     const response = await invoke(
       'POST',
       {
@@ -126,6 +142,8 @@ describe('api/sync-health', () => {
               avgHeartRate: { qty: 138 },
               duration: { qty: 52 },
               id: 'apple-workout-123',
+              HKElevationAscended: { qty: 12.5, units: 'm' },
+              metadata: { source: 'watch', nested: { valid: true } },
             },
           ],
         },
@@ -166,6 +184,16 @@ describe('api/sync-health', () => {
         avg_heart_rate: 138,
         duration_minutes: 52,
         source: 'apple_health',
+        metadata: {
+          start: '2026-07-31T08:15:00Z',
+          name: 'Traditional Strength Training',
+          activeEnergy: { qty: 420 },
+          avgHeartRate: { qty: 138 },
+          duration: { qty: 52 },
+          id: 'apple-workout-123',
+          HKElevationAscended: { qty: 12.5, units: 'm' },
+          metadata: { source: 'watch', nested: { valid: true } },
+        },
       },
     ]);
   });
@@ -204,7 +232,39 @@ describe('api/sync-health', () => {
       avg_heart_rate: 144,
       duration_minutes: 30,
       source: 'apple_health',
+      metadata: {
+        start: 'not-a-date',
+        startDate: 'also-not-a-date',
+        workoutActivityType: 'Cycling',
+        activeEnergy: 125,
+        heartRate: { avg: 144 },
+        duration: { qty: 30 },
+        uuid: 'fallback-workout-123',
+      },
     });
+  });
+
+  test('preserves literal prototype keys in sanitized metadata', async () => {
+    const response = await invoke(
+      'POST',
+      {
+        external_id: 'prototype-key-test',
+        workout_date: '2026-07-31',
+        workout_type: 'Metadata Test',
+        active_calories: 1,
+        duration_minutes: 1,
+        metadata: JSON.parse('{"__proto__":{"safe":true},"normal":{"value":1}}'),
+      },
+      { authorization: 'Bearer test-sync-token' }
+    );
+
+    assert.equal(response.statusCode, 201);
+    const saved = JSON.parse(fetchCalls[0].options.body);
+    assert.deepEqual(
+      saved.metadata,
+      JSON.parse('{"__proto__":{"safe":true},"normal":{"value":1}}')
+    );
+    assert.equal(Object.getPrototypeOf(saved.metadata), Object.prototype);
   });
 
   test('preserves support for flat JSON payloads', async () => {
@@ -233,6 +293,7 @@ describe('api/sync-health', () => {
       avg_heart_rate: null,
       duration_minutes: 45,
       source: 'manual-test',
+      metadata: {},
     });
   });
 
@@ -263,10 +324,39 @@ describe('api/sync-health', () => {
         'GET, POST, PUT, PATCH, OPTIONS'
       );
       assert.equal(response.request.url, '/api/sync-health?source=automated-test');
-      assert.deepEqual(JSON.parse(fetchCalls.at(-1).options.body), payload);
+      assert.deepEqual(JSON.parse(fetchCalls.at(-1).options.body), {
+        ...payload,
+        metadata: {},
+      });
     }
 
     assert.equal(fetchCalls.length, 2);
+  });
+
+  test('writes batches in chunks while preserving raw HAE workout metadata', async () => {
+    const workouts = Array.from({ length: 51 }, (_, index) => ({
+      id: `batch-workout-${index}`,
+      start: '2026-07-31T08:15:00Z',
+      workoutActivityType: 'Cycling',
+      activeEnergy: { qty: index + 1, units: 'kcal' },
+      duration: { qty: 30, units: 'min' },
+      HKElevationAscended: { qty: index, units: 'm' },
+    }));
+
+    const response = await invoke(
+      'POST',
+      workouts,
+      { authorization: 'Bearer test-sync-token' }
+    );
+
+    assert.equal(response.statusCode, 201);
+    assert.equal(fetchCalls.length, 2);
+    assert.equal(JSON.parse(fetchCalls[0].options.body).length, 50);
+    assert.equal(JSON.parse(fetchCalls[1].options.body).length, 1);
+    assert.deepEqual(JSON.parse(fetchCalls[1].options.body)[0].metadata.HKElevationAscended, {
+      qty: 50,
+      units: 'm',
+    });
   });
 
   test('reads authenticated records for a requested date', async () => {
@@ -305,10 +395,37 @@ describe('api/sync-health', () => {
     assert.equal(fetchCalls.length, 0);
   });
 
-  test('uses Supabase environment fallbacks for an upsert', async () => {
-    delete process.env.SUPABASE_URL;
+  test('returns a generic error when Supabase rejects a write', async () => {
+    global.fetch = async (url, options) => {
+      fetchCalls.push({ url, options });
+      return {
+        ok: false,
+        status: 400,
+        text: async () => JSON.stringify({ code: 'PGRST204', hint: 'metadata column missing' }),
+      };
+    };
+
+    const response = await invoke(
+      'POST',
+      {
+        external_id: 'database-error-test',
+        workout_date: '2026-07-31',
+        workout_type: 'Database Error Test',
+        active_calories: 1,
+        duration_minutes: 1,
+      },
+      { authorization: 'Bearer test-sync-token' }
+    );
+
+    assert.equal(response.statusCode, 400);
+    assert.deepEqual(response.body, {
+      error: 'Database operation failed',
+      status: 400,
+    });
+  });
+
+  test('does not use the public anon key for server-side database access', async () => {
     delete process.env.SUPABASE_SERVICE_ROLE_KEY;
-    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://fallback.supabase.co';
     process.env.SUPABASE_KEY = 'anon-fallback-key';
 
     const response = await invoke(
@@ -323,16 +440,10 @@ describe('api/sync-health', () => {
       { authorization: 'Bearer test-sync-token' }
     );
 
-    assert.equal(response.statusCode, 201);
-    assert.equal(fetchCalls.length, 1);
-    assert.equal(
-      fetchCalls[0].url,
-      'https://fallback.supabase.co/rest/v1/apple_health_logs?on_conflict=external_id'
-    );
-    assert.equal(fetchCalls[0].options.headers.apikey, 'anon-fallback-key');
-    assert.equal(
-      fetchCalls[0].options.headers.Authorization,
-      'Bearer anon-fallback-key'
-    );
+    assert.equal(response.statusCode, 500);
+    assert.deepEqual(response.body, {
+      error: 'Server database configuration is incomplete: missing Supabase credentials',
+    });
+    assert.equal(fetchCalls.length, 0);
   });
 });

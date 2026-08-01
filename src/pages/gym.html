@@ -5,31 +5,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#07051A">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../styles/liquid-amethyst.css">
-<link rel="stylesheet" href="../styles/themes.css">
-<link rel="stylesheet" href="../styles/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../styles/liquid-amethyst.css">
+  <link rel="stylesheet" href="../styles/themes.css">
+  <link rel="stylesheet" href="../styles/style.css">
 
-<link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/favicon-32.png" sizes="32x32">
   <link rel="apple-touch-icon" href="/apple-touch-icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="NEXUS">
   <title>Calisthenics Strength — NEXUS</title>
 
+  <style>
+    @media(max-width:600px) {
 
+      .page,
+      .shell,
+      main {
+        padding-bottom: 0 !important
+      }
+    }
 
-<style>
-    @media(max-width:600px){.page,.shell,main{padding-bottom:0!important}}
-    /* Theme-agnostic tokens */
     :root {
       --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
       --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
     }
-    /* Page-local color tokens — only applied in amethyst theme. Other themes
-       consume the canonical tokens from themes.css. */
+
     [data-theme="nexus-dark"] {
       --bg: #0A0813;
       --bg-card: #12101F;
@@ -161,7 +166,6 @@
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-      color: transparent;
     }
 
     .hero-sub {
@@ -321,9 +325,14 @@
     }
 
     @media(max-width:480px) {
-      .apple-health-card { align-items: flex-start; }
-      .apple-health-stats { flex-direction: column; gap: 6px; }
-      .apple-health-stat { text-align: right; }
+      .apple-health-card {
+        align-items: flex-start;
+      }
+
+      .apple-health-stats {
+        flex-direction: column;
+        gap: 6px;
+      }
     }
 
     .divider {
@@ -383,7 +392,6 @@
 
     .day-tab:hover {
       background: rgba(176, 38, 255, 0.12);
-      color: var(--text-secondary);
       box-shadow: 0 0 10px rgba(176, 38, 255, 0.20);
     }
 
@@ -553,7 +561,6 @@
       font-family: var(--mono);
     }
 
-    /* Override ex-row when inside superset */
     .superset-group .ex-row {
       border-radius: 0 !important;
       margin-bottom: 0 !important;
@@ -716,11 +723,6 @@
       color: #FF6BAA;
     }
 
-    .ex-badge.planche {
-      background: linear-gradient(135deg, rgba(138, 43, 226, 0.30), rgba(255, 20, 147, 0.30));
-      color: #C77DFF;
-    }
-
     /* ── DONE BAR ── */
     .done-bar {
       display: flex;
@@ -806,6 +808,36 @@
       background: rgba(107, 79, 160, 0.25);
       border-color: rgba(107, 79, 160, 0.70);
       box-shadow: 0 0 14px rgba(107, 79, 160, 0.40);
+    }
+
+    /* ── START WORKOUT BUTTON ── */
+    .start-workout-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #8A2BE2 0%, #FF1493 100%);
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(176, 38, 255, 0.45);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform .12s, box-shadow .18s, filter .18s;
+    }
+
+    .start-workout-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.12);
+      box-shadow: 0 6px 24px rgba(176, 38, 255, 0.60);
+    }
+
+    .start-workout-btn:active {
+      transform: scale(0.97);
     }
 
     /* ── PR BUTTON ── */
@@ -970,7 +1002,6 @@
 
     .sched-day-btn:hover {
       background: rgba(176, 38, 255, 0.12);
-      color: var(--text-secondary);
     }
 
     .sched-day-btn.selected {
@@ -1064,7 +1095,6 @@
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-      color: transparent;
     }
 
     .weight-unit {
@@ -1415,7 +1445,6 @@
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-      color: transparent;
     }
 
     .consistency-pct-label {
@@ -1595,7 +1624,6 @@
 
     .rest-preset:hover {
       background: rgba(176, 38, 255, 0.18);
-      color: var(--text-secondary);
       border-color: rgba(176, 38, 255, 0.40);
     }
 
@@ -2026,45 +2054,74 @@
       }
     }
   </style>
-<script>
-  (function () {
-    var savedTheme = 'nexus-dark';
-    try {
-      var storedTheme = localStorage.getItem('nexus-theme') || localStorage.getItem('nexus_theme');
-      var themeIndex = Number(localStorage.getItem('nexus-theme-index'));
-      var themeKeys = ['nexus-dark', 'periwinkle', 'arctic-white'];
-      if (storedTheme === 'amethyst') storedTheme = 'nexus-dark';
-      if (storedTheme === 'peri') storedTheme = 'periwinkle';
-      if (storedTheme === 'arctic' || storedTheme === 'ice') storedTheme = 'arctic-white';
-      if (themeKeys.indexOf(storedTheme) !== -1) savedTheme = storedTheme;
-      else if (Number.isInteger(themeIndex) && themeKeys[themeIndex]) savedTheme = themeKeys[themeIndex];
-    } catch (e) {}
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    document.documentElement.setAttribute('data-initial-route', 'gym');
-    document.documentElement.classList.add('js-loading', 'nexus-ready');
-  }());</script>
-<noscript><style>html:not(.nexus-ready) body{visibility:visible!important}</style></noscript>
-<script src="../scripts/theme.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="../scripts/sync.js" defer></script>
-<script src="../scripts/apple-health.js" defer></script>
-<script src="../scripts/topbar.js" defer></script>
+  <script>
+    (function () {
+      var savedTheme = 'nexus-dark';
+      try {
+        var storedTheme = localStorage.getItem('nexus-theme') || localStorage.getItem('nexus_theme');
+        var themeIndex = Number(localStorage.getItem('nexus-theme-index'));
+        var themeKeys = ['nexus-dark', 'periwinkle', 'arctic-white'];
+        if (storedTheme === 'amethyst') storedTheme = 'nexus-dark';
+        if (storedTheme === 'peri') storedTheme = 'periwinkle';
+        if (storedTheme === 'arctic' || storedTheme === 'ice') storedTheme = 'arctic-white';
+        if (themeKeys.indexOf(storedTheme) !== -1) savedTheme = storedTheme;
+        else if (Number.isInteger(themeIndex) && themeKeys[themeIndex]) savedTheme = themeKeys[themeIndex];
+      } catch (e) { }
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      document.documentElement.setAttribute('data-initial-route', 'gym');
+      document.documentElement.classList.add('js-loading', 'nexus-ready');
+    }());
+  </script>
+  <noscript>
+    <style>
+      html:not(.nexus-ready) body {
+        visibility: visible !important
+      }
+    </style>
+  </noscript>
+  <script src="../scripts/theme.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="../scripts/sync.js" defer></script>
+  <script src="../scripts/apple-health.js" defer></script>
+  <script src="../scripts/topbar.js" defer></script>
 </head>
 
 <body>
-  <!-- PRIMARY HEADER: the single shared navigation on every page -->
   <header class="navbar" data-navbar>
-    <a class="logo" href="/src/pages/index.html" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><polygon points="14,2 26,8 26,20 14,26 2,20 2,8" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity=".1"/><polygon points="14,7 21,11 21,17 14,21 7,17 7,11" stroke="currentColor" stroke-width="1" fill="none" opacity=".7"/><circle cx="14" cy="14" r="3" fill="currentColor"/></svg></span><span class="logo-text">NEXUS</span></a>
-    <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/src/pages/index.html" class="nav-link" data-route="home">Home</a><a href="/src/pages/index.html#goals-section" class="nav-link" data-route="goals">Goals</a><a href="/src/pages/health.html" class="nav-link" data-route="wellness">Wellness</a><a href="/src/pages/gym.html" class="nav-link active" data-route="gym" aria-current="page">Gym</a><a href="/src/pages/progression-tab.html" class="nav-link" data-route="calisthenics">Calisthenics</a><a href="/src/pages/grind-log.html" class="nav-link" data-route="grind">Grind Log</a></nav>
-    <div class="header-right"><span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span><div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button><div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button" data-theme-option="periwinkle" role="menuitemradio">Periwinkle</button><button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div></div></div>
+    <a class="logo" href="/src/pages/index.html" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><svg
+          width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <polygon points="14,2 26,8 26,20 14,26 2,20 2,8" stroke="currentColor" stroke-width="1.5" fill="currentColor"
+            fill-opacity=".1" />
+          <polygon points="14,7 21,11 21,17 14,21 7,17 7,11" stroke="currentColor" stroke-width="1" fill="none"
+            opacity=".7" />
+          <circle cx="14" cy="14" r="3" fill="currentColor" />
+        </svg></span><span class="logo-text">NEXUS</span></a>
+    <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/src/pages/index.html" class="nav-link"
+        data-route="home">Home</a><a href="/src/pages/index.html#goals-section" class="nav-link"
+        data-route="goals">Goals</a><a href="/src/pages/health.html" class="nav-link"
+        data-route="wellness">Wellness</a><a href="/src/pages/gym.html" class="nav-link active" data-route="gym"
+        aria-current="page">Gym</a><a href="/src/pages/progression-tab.html" class="nav-link"
+        data-route="calisthenics">Calisthenics</a><a href="/src/pages/grind-log.html" class="nav-link"
+        data-route="grind">Grind Log</a></nav>
+    <div class="header-right"><span class="status-pill"><span class="status-pill-dot"
+          aria-hidden="true"></span>ONLINE</span>
+      <div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button
+          aria-haspopup="menu" aria-expanded="false">THEME</button>
+        <div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button"
+            data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button"
+            data-theme-option="periwinkle" role="menuitemradio">Periwinkle</button><button type="button"
+            data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div>
+      </div>
+    </div>
   </header>
-  <!-- Ambient orb layer -->
+
   <div class="orbs" aria-hidden="true">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
     <div class="orb orb-3"></div>
   </div>
+
   <div class="shell">
     <a href="/src/pages/index.html" class="back-btn">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
@@ -2077,7 +2134,8 @@
     <div class="hero">
       <div class="hero-eyebrow">Summer 2026</div>
       <div class="hero-title">Ibrahim's Calisthenics Grind 💪</div>
-      <div class="hero-sub">Skill Block → Strength → Finisher · 4 days/week · Recomp</div>
+      <!-- ✏️ UPDATED: removed "Skill Block" from subtitle — skills are now in the live tracker -->
+      <div class="hero-sub">Push · Pull · Legs · Full Body · 4 days/week · Recomp</div>
     </div>
 
     <div class="hero-row">
@@ -2093,15 +2151,19 @@
     <section class="apple-health-card" id="appleHealthCard" aria-label="Apple Health workout metrics">
       <div class="apple-health-mark" aria-hidden="true">♥</div>
       <div class="apple-health-copy">
-        <div class="apple-health-title">Apple Health <span class="apple-health-status" id="appleHealthStatus">CHECKING</span></div>
+        <div class="apple-health-title">Apple Health <span class="apple-health-status"
+            id="appleHealthStatus">CHECKING</span></div>
         <div class="apple-health-sub" id="appleHealthSub">Loading Apple Watch metrics…</div>
       </div>
       <div class="apple-health-stats" aria-live="polite">
-        <div class="apple-health-stat"><span class="apple-health-value" id="appleHealthCalories">—</span><span class="apple-health-label">active kcal</span></div>
-        <div class="apple-health-stat"><span class="apple-health-value" id="appleHealthHeartRate">—</span><span class="apple-health-label">avg bpm</span></div>
+        <div class="apple-health-stat"><span class="apple-health-value" id="appleHealthCalories">—</span><span
+            class="apple-health-label">active kcal</span></div>
+        <div class="apple-health-stat"><span class="apple-health-value" id="appleHealthHeartRate">—</span><span
+            class="apple-health-label">avg bpm</span></div>
       </div>
     </section>
 
+    <!-- ✏️ UPDATED: Tab 3 emoji ⚫ → 🦵, label "Thu · Core" → "Thu · Legs" -->
     <div class="day-tabs">
       <button class="day-tab" style="--tab-color:var(--push)" data-day="0" onclick="setDay(0)">
         <span class="day-tab-emoji">🔴</span>
@@ -2112,8 +2174,8 @@
         <span class="day-tab-label" id="tabLabel1">Tue · Pull</span>
       </button>
       <button class="day-tab" style="--tab-color:var(--legs)" data-day="2" onclick="setDay(2)">
-        <span class="day-tab-emoji">⚫</span>
-        <span class="day-tab-label" id="tabLabel2">Thu · Core</span>
+        <span class="day-tab-emoji">🦵</span>
+        <span class="day-tab-label" id="tabLabel2">Thu · Legs</span>
       </button>
       <button class="day-tab" style="--tab-color:var(--core)" data-day="3" onclick="setDay(3)">
         <span class="day-tab-emoji">🟡</span>
@@ -2129,13 +2191,17 @@
           <button class="done-btn" id="doneBtnEl" onclick="toggleWorkoutDone()">Mark workout done</button>
         </div>
       </div>
+      <!-- Start Workout button routes to live tracker with current day pre-selected -->
       <div style="margin-top:10px; display:flex; justify-content:flex-end;">
-        <button class="log-save-btn" type="button" onclick="window.location.href='/src/pages/live-workout.html?day=' + getDayParamFromCurrentSelection()" style="margin:0; min-width:180px;">Start Workout</button>
+        <button class="start-workout-btn" type="button"
+          onclick="window.location.href='/src/pages/live-workout.html?day=' + getDayParamFromCurrentSelection()">
+          ▶ Start Workout
+        </button>
       </div>
-      <div class="ex-header">
+      <div class="ex-header" style="margin-top:16px;">
         <div class="ex-header-dot" id="exHeaderDot"></div>
         <div class="ex-header-title" id="exHeaderTitle">—</div>
-        <div class="ex-header-sub" id="exHeaderSub">70–80 min</div>
+        <div class="ex-header-sub" id="exHeaderSub">50–60 min</div>
       </div>
       <div id="exerciseList"></div>
     </div>
@@ -2151,13 +2217,16 @@
       </div>
       <div class="consistency-wrap"><canvas id="consistencyChart"></canvas></div>
       <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap">
-        <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);color:var(--text-secondary)">
+        <div
+          style="display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);color:var(--text-secondary)">
           <div style="width:10px;height:10px;border-radius:2px;background:#8A2BE2"></div>all done
         </div>
-        <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);color:var(--text-secondary)">
+        <div
+          style="display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);color:var(--text-secondary)">
           <div style="width:10px;height:10px;border-radius:2px;background:#B026FF"></div>partial
         </div>
-        <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);color:var(--text-secondary)">
+        <div
+          style="display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);color:var(--text-secondary)">
           <div style="width:10px;height:10px;border-radius:2px;background:#0F0B1A;border:1px solid rgba(74,68,94,0.3)">
           </div>missed
         </div>
@@ -2294,15 +2363,16 @@
       <div class="skills-cta-emoji">🤸</div>
       <div class="skills-cta-body">
         <div class="skills-cta-title">Calisthenics Skill Tracker</div>
-        <div class="skills-cta-sub">Handstand · Planche · Front Lever · Muscle-Up · L-Sit · Back Lever</div>
+        <div class="skills-cta-sub">Handstand · Planche · Front Lever · Muscle-Up · L-Sit · Back Lever — or add skills
+          via Live Tracker</div>
       </div>
       <div class="skills-cta-arrow">→</div>
     </a>
 
     <div class="divider"><span>Recent Sessions</span></div>
     <div class="card" id="histCard">
-      <div style="text-align:center;font-size:12px;color:var(--text-secondary);padding:16px 0;font-style:italic">No sessions
-        logged yet.</div>
+      <div style="text-align:center;font-size:12px;color:var(--text-secondary);padding:16px 0;font-style:italic">No
+        sessions logged yet.</div>
     </div>
   </div>
 
@@ -2378,9 +2448,7 @@
       const SCHED_LS = 'gym_schedule_v1';
       const DOW_NAMES_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
       const DOW_NAMES_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-      // Default: Mon, Tue, Thu, Fri — leaves Wed as rest (blueprint)
-      const DEFAULT_SCHEDULE = [1, 2, 4, 5];
+      const DEFAULT_SCHEDULE = [1, 2, 4, 5]; // Mon, Tue, Thu, Fri
 
       function load() { try { const r = localStorage.getItem(LS); return r ? JSON.parse(r) : {}; } catch { return {}; } }
       function save(s) { try { localStorage.setItem(LS, JSON.stringify(s)); } catch { } }
@@ -2399,179 +2467,150 @@
       function ss(k, v) { S[k] = v; save(S); }
 
       /* ─────────────────────────── WORKOUT METADATA ────────────────────────── */
-      const WORKOUT_LABELS = ['Push · Skills', 'Pull · Skills', 'Core / Legs', 'Full Body'];
-      const WORKOUT_EMOJIS = ['🔴', '🔵', '⚫', '🟡'];
+      /* ✏️ UPDATED: removed "Skills" from labels, renamed day C to "Legs + Core" */
+      const WORKOUT_LABELS = ['Push + Core', 'Pull + Core', 'Legs + Core', 'Full Body'];
+      const WORKOUT_EMOJIS = ['🔴', '🔵', '🦵', '🟡'];
       const WORKOUT_COLORS = ['var(--push)', 'var(--pull)', 'var(--legs)', 'var(--core)'];
 
       /* ─────────────────────────── WORKOUT DATA ────────────────────────────── */
       /*
-       * Structure: DAYS[i].phases[j].exercises[k]
-       * Each exercise: { name, sets, reps, rest, note, badge?, tempo?, superset?, supersetPos?, metric? }
-       *   - badge:        'skill' | 'hiit' | null
-       *   - tempo:        '3-1-2-0' | 'controlled' | 'explosive' | null  (shown as chip)
-       *   - superset:     'A' | 'B' | 'C' | null  (null = standalone row)
-       *   - supersetPos:  1 | 2 | null
-       *   - metric:       'reps' (default) | 'hold' | 'duration'  (pre-selects PR unit)
+       * CHANGES FROM PREVIOUS VERSION:
+       *   - Skill phases removed. Skills are now an optional pre-workout module
+       *     in the Live Tracker (live-workout.html). Use the "Start Workout" button.
+       *   - Core reduced to 4 dedicated sets per session (2 exercises × 2 sets).
+       *   - Day C renamed from "Core / Legs" to "Leg Day" with proper leg focus.
+       *   - Conditioning finishers removed — cleanly structured Push/Pull/Legs/Full.
        */
       const DAYS = [
         /* ═══════════════════════════════════════════════════════════════════════
-           DAY A  —  Push + Handstand / Planche  [Mon]
+           DAY A  —  Push + Core  [Mon]
         ═══════════════════════════════════════════════════════════════════════ */
         {
-          name: 'Push + Handstand / Planche', color: 'var(--push)', emoji: '🔴', duration: '70–80 min',
+          name: 'Push Day', color: 'var(--push)', emoji: '🔴', duration: '50–60 min',
           phases: [
             {
-              name: 'Warm-Up', type: 'warmup', duration: '10 min',
+              name: 'Warm-Up', type: 'warmup', duration: '8 min',
               exercises: [
-                { name: 'Wrist Circles', sets: '1', reps: '30s each direction', rest: '—', note: 'Non-negotiable before any wrist-loading — both directions', metric: 'duration' },
-                { name: 'Scapular Push-ups', sets: '1', reps: '15', rest: '—', note: 'Protract/retract blades only — zero arm bend' },
-                { name: 'Shoulder CARs', sets: '1', reps: '10 each side', rest: '—', note: 'Controlled Articular Rotations — full shoulder range of motion' },
-                { name: 'Pike Compression Hold', sets: '1', reps: '30s', rest: '—', note: 'Hip flexor activation — direct handstand and planche prep', metric: 'hold' },
+                { name: 'Wrist Circles', sets: '1', reps: '30s each direction', rest: '—', note: 'Both directions — non-negotiable before any wrist loading', metric: 'duration' },
+                { name: 'Scapular Push-Ups', sets: '1', reps: '15', rest: '—', note: 'Protract and retract blades only — zero arm bend' },
+                { name: 'Arm Swings + Shoulder CARs', sets: '1', reps: '10 each direction', rest: '—', note: 'Full shoulder range of motion prep — controlled articular rotations' },
               ]
             },
             {
-              name: 'Skill Block', type: 'skill', duration: '25 min',
+              name: 'Push Strength', type: 'strength', duration: '35 min',
               exercises: [
-                { name: '🤸 Handstand Practice', sets: '5', reps: 'Current tier', rest: '2–3 min', note: 'CNS-fresh priority. Stop the set the moment balance degrades. See Skills tab.', badge: 'skill', metric: 'hold' },
-                { name: '🎯 Planche Progression', sets: '4', reps: 'Current tier', rest: '2 min', note: 'Lean shoulders past wrists. Protract and depress hard. Quality > reps.', badge: 'skill', metric: 'hold' },
+                { name: 'Dips (Parallel Bars)', sets: '4', reps: '8–12', rest: '90s', note: 'Lean slightly forward for chest emphasis — full range of motion', tempo: '3-0-1-0' },
+                { name: 'Pike Push-Ups', sets: '3', reps: '10–15', rest: '60s', note: 'Hips high over wrists, elbows 45° from ribs — elevate feet to progress', tempo: '3-1-2-0' },
+                { name: 'Diamond Push-Ups', sets: '3', reps: '10–15', rest: '60s', note: 'Elbows track back — pure tricep isolation, chest to hands', tempo: '2-0-1-0' },
+                { name: 'Wide Push-Ups', sets: '3', reps: '12–20', rest: '60s', note: 'Weighted vest or feet elevated for progression', tempo: 'controlled' },
+                { name: 'Lateral Raise', sets: '3', reps: '15', rest: '45s', note: 'Bands or DBs — pinky up at top, no momentum, medial delt focus', tempo: 'controlled' },
               ]
             },
             {
-              name: 'Strength Block', type: 'strength', duration: '35 min',
+              name: 'Core Block', type: 'conditioning', duration: '10 min',
               exercises: [
-                { name: 'Pike Push-up', sets: '4', reps: '8–12', rest: '60s', note: 'Hips high over wrists — vertical push pattern. Elbows 45° from ribs.', tempo: '3-1-2-0', superset: 'A', supersetPos: 1 },
-                { name: 'Dips (Chair / Parallel)', sets: '4', reps: '8–12', rest: '60s', note: 'Slight forward lean — chest dip, not pure tricep. Full range.', tempo: '3-0-1-0', superset: 'A', supersetPos: 2 },
-                { name: 'Archer Push-up', sets: '3', reps: '8–10 each', rest: '60s', note: 'One arm extended — unilateral horizontal load. Hips square.', tempo: '3-1-2-0', superset: 'B', supersetPos: 1 },
-                { name: 'Diamond Push-up', sets: '3', reps: '10–15', rest: '60s', note: 'Elbows track back — pure tricep isolation. Chest to hands.', tempo: '2-0-1-0', superset: 'B', supersetPos: 2 },
-                { name: 'DB Lateral Raise (10 lbs)', sets: '3', reps: '15–20', rest: '45s', note: 'Pinky up at top — medial delt focus. No momentum.', tempo: 'controlled', superset: 'C', supersetPos: 1 },
-                { name: 'DB Overhead Tricep Ext (10 lbs)', sets: '3', reps: '12–15', rest: '45s', note: 'Elbows locked in tight, full stretch at bottom — long head activation.', tempo: 'controlled', superset: 'C', supersetPos: 2 },
-              ]
-            },
-            {
-              name: 'Finisher', type: 'conditioning', duration: '12 min',
-              exercises: [
-                { name: 'EMOM 10 — Push / Core', sets: '—', reps: 'Odd: max push-ups · Even: 10 hollow rocks', rest: '—', note: 'Every Minute on the Minute — no pacing. Go hard on every set. Week 1 format.', badge: 'hiit' },
+                { name: 'Hollow Body Hold', sets: '2', reps: '20–30s', rest: '45s', note: 'Arms extended, lower back pressed flat to floor — foundation of all skill work', metric: 'hold' },
+                { name: 'Ab Wheel Rollout', sets: '2', reps: '8–10', rest: '45s', note: 'Control the negative — do not let lower back arch at full extension' },
               ]
             },
           ]
         },
 
         /* ═══════════════════════════════════════════════════════════════════════
-           DAY B  —  Pull + Front Lever / Muscle-Up  [Tue]
+           DAY B  —  Pull + Core  [Tue]
         ═══════════════════════════════════════════════════════════════════════ */
         {
-          name: 'Pull + Front Lever / Muscle-Up', color: 'var(--pull)', emoji: '🔵', duration: '70–80 min',
+          name: 'Pull Day', color: 'var(--pull)', emoji: '🔵', duration: '50–60 min',
           phases: [
             {
-              name: 'Warm-Up', type: 'warmup', duration: '10 min',
+              name: 'Warm-Up', type: 'warmup', duration: '8 min',
               exercises: [
                 { name: 'Dead Hang', sets: '2', reps: '30–45s', rest: '30s', note: 'Passive hang — shoulder decompression and grip activation', metric: 'hold' },
-                { name: 'Scapular Pull-ups', sets: '2', reps: '10', rest: '45s', note: 'Retract blades only, zero arm bend — lat and lower trap activation' },
+                { name: 'Scapular Pull-Ups', sets: '2', reps: '10', rest: '45s', note: 'Retract blades only, zero arm bend — lat and lower trap activation' },
                 { name: 'Cross-Body Arm Swings', sets: '1', reps: '20 each direction', rest: '—', note: 'Posterior shoulder and rotator cuff prep' },
               ]
             },
             {
-              name: 'Skill Block', type: 'skill', duration: '25 min',
+              name: 'Pull Strength', type: 'strength', duration: '35 min',
               exercises: [
-                { name: '🏋️ Front Lever Progression', sets: '4', reps: 'Current tier', rest: '3 min', note: 'Depress + retract scapula HARD before initiating. Hollow position. See Skills tab.', badge: 'skill', metric: 'hold' },
-                { name: '💥 Muscle-Up Progression', sets: '4', reps: 'Current tier', rest: '2–3 min', note: 'Pull bar to chest → drive hips → transition. Stop before form breaks.', badge: 'skill' },
+                { name: 'Pull-Ups', sets: '4', reps: '6–10', rest: '90s', note: 'Dead hang to chin-over-bar every rep — add weight or use band as needed' },
+                { name: 'Chin-Ups', sets: '3', reps: '8–12', rest: '60s', note: 'Supinated grip — more bicep involvement, elbows tucked in', tempo: '2-1-2-0' },
+                { name: 'Australian Rows', sets: '3', reps: '12–15', rest: '60s', note: 'Inverted rows under bar or table — full scapular squeeze at top, rigid body', tempo: '2-1-2-0' },
+                { name: 'Face Pulls / Band Pull-Aparts', sets: '3', reps: '15–20', rest: '45s', note: 'External rotation focus — scapular and rotator cuff health, light load', tempo: 'controlled' },
+                { name: 'Hammer Curls', sets: '3', reps: '12', rest: '45s', note: 'Neutral grip, DB or band — brachialis and forearm development', tempo: '3-0-3-0' },
               ]
             },
             {
-              name: 'Strength Block', type: 'strength', duration: '35 min',
+              name: 'Core Block', type: 'conditioning', duration: '10 min',
               exercises: [
-                { name: 'Pull-ups (Max Reps)', sets: '4', reps: 'AMRAP', rest: '90s', note: 'Dead hang to chin-over-bar every rep. Log each set\'s count.' },
-                { name: 'Chin-ups', sets: '3', reps: '8–12', rest: '60s', note: 'Supinated grip — more bicep involvement. Elbows tucked.', tempo: '2-1-2-0', superset: 'A', supersetPos: 1 },
-                { name: 'Inverted Row (Feet Elevated)', sets: '3', reps: '10–15', rest: '60s', note: 'Rigid body — horizontal pull. Full scapular squeeze at top.', tempo: '2-1-2-0', superset: 'A', supersetPos: 2 },
-                { name: 'DB Bent-Over Row (10 lbs)', sets: '3', reps: '15–20', rest: '60s', note: 'Back flat, elbows tight to ribs, 1s hold at top.', tempo: '2-0-1-1', superset: 'B', supersetPos: 1 },
-                { name: 'DB Bicep Curl (10 lbs)', sets: '3', reps: '12–15', rest: '45s', note: '3s up, 3s down — control the eccentric. No swinging.', tempo: '3-0-3-0', superset: 'B', supersetPos: 2 },
-                { name: 'DB Rear Delt Fly (10 lbs)', sets: '3', reps: '15–20', rest: '45s', note: 'Bent over, pull to face height — scapular and rotator cuff health.', tempo: 'controlled', superset: 'C', supersetPos: 1 },
-                { name: 'Hollow Body Hold', sets: '3', reps: '30–40s', rest: '45s', note: 'Lower back pressed to floor, arms overhead. Core compression = skills foundation.', metric: 'hold', superset: 'C', supersetPos: 2 },
-              ]
-            },
-            {
-              name: 'Finisher', type: 'conditioning', duration: '12 min',
-              exercises: [
-                { name: 'AMRAP 10 — Pull Circuit', sets: '—', reps: '3 pull-ups → 6 rows → 9 hollow rocks', rest: '—', note: 'As Many Rounds As Possible. Pace the first 3 rounds, then push. Log total rounds.', badge: 'hiit' },
+                { name: 'Hanging Knee Raises', sets: '2', reps: '12–15', rest: '45s', note: 'Dead hang start — controlled tuck, no swinging or kipping' },
+                { name: 'Side Plank', sets: '2', reps: '25–30s each side', rest: '30s', note: 'Each side counts as one set — hips up, body rigid throughout', metric: 'hold' },
               ]
             },
           ]
         },
 
         /* ═══════════════════════════════════════════════════════════════════════
-           DAY C  —  Core / Legs + L-Sit / Back Lever  [Thu]
+           DAY C  —  Legs + Core  [Thu]   ← was "Core / Legs" with skill block
         ═══════════════════════════════════════════════════════════════════════ */
         {
-          name: 'Core / Legs + L-Sit / Back Lever', color: 'var(--legs)', emoji: '⚫', duration: '65–75 min',
+          name: 'Leg Day', color: 'var(--legs)', emoji: '🦵', duration: '55–65 min',
           phases: [
             {
-              name: 'Warm-Up', type: 'warmup', duration: '10 min',
+              name: 'Warm-Up', type: 'warmup', duration: '8 min',
               exercises: [
                 { name: 'Hip Circles + Leg Swings', sets: '1', reps: '20 each direction', rest: '—', note: 'Full hip joint mobility prep — forward/back and lateral swings' },
                 { name: 'Glute Bridge Walkout', sets: '1', reps: '10', rest: '—', note: 'Posterior chain activation before loading — feet walk out slowly' },
-                { name: 'Ankle CARs + Calf Raises', sets: '1', reps: '10 each + 20', rest: '—', note: 'Ankle prep for single-leg movements and calf work' },
+                { name: 'Ankle CARs + Calf Raises', sets: '1', reps: '10 each + 20', rest: '—', note: 'Ankle prep for single-leg movements' },
               ]
             },
             {
-              name: 'Skill Block', type: 'skill', duration: '20 min',
+              name: 'Leg Strength', type: 'strength', duration: '40 min',
               exercises: [
-                { name: '🪑 L-Sit Progression', sets: '5', reps: 'Current tier', rest: '90s', note: 'Arms locked, legs parallel. On floor or DBs. Hip flexor compression. See Skills tab.', badge: 'skill', metric: 'hold' },
-                { name: '🔙 Back Lever Progression', sets: '4', reps: 'Current tier', rest: '2 min', note: 'Tuck → straddle → full. Shoulder flexibility and scapular control are key.', badge: 'skill', metric: 'hold' },
+                { name: 'Bulgarian Split Squat', sets: '4', reps: '8–10 each leg', rest: '90s', note: 'Rear foot elevated — drive through front heel, work progressively toward pistol squat', tempo: '3-0-1-0' },
+                { name: 'Nordic Curl Negatives', sets: '3', reps: '5–8', rest: '90s', note: 'Anchor feet, lower as slowly as possible — highest ROI hamstring exercise', tempo: 'max eccentric' },
+                { name: 'Jump Squats', sets: '3', reps: '8–10', rest: '60s', note: 'Explosive output — land soft with full depth, track jump height', tempo: 'explosive' },
+                { name: 'Hip Thrust', sets: '3', reps: '15', rest: '60s', note: 'Add weight when bodyweight feels easy — full glute contraction at top', tempo: '1-1-1-1' },
+                { name: 'Single-Leg Calf Raise', sets: '3', reps: '15–20', rest: '30s', note: 'On a step for full range — deep stretch at bottom, full plantarflexion at top', tempo: '2-1-1-1' },
               ]
             },
             {
-              name: 'Strength Block', type: 'strength', duration: '35 min',
+              name: 'Core Block', type: 'conditioning', duration: '10 min',
               exercises: [
-                { name: 'Bulgarian Split Squat (10 lb DBs)', sets: '3', reps: '10–12 each', rest: '75s', note: 'Primary recomp movement. Rear foot elevated, drive through front heel. Track each leg.', tempo: '3-0-1-0' },
-                { name: 'Step-ups (10 lb DBs)', sets: '3', reps: '12 each', rest: '60s', note: 'Drive through heel — knee tracks over foot. Hip-dominant.', tempo: 'controlled', superset: 'A', supersetPos: 1 },
-                { name: 'Single-Leg RDL (10 lb DBs)', sets: '3', reps: '10 each', rest: '60s', note: 'Hip hinge — feel the full hamstring stretch. Core braced throughout.', tempo: '3-1-1-0', superset: 'A', supersetPos: 2 },
-                { name: 'Nordic Curl (Eccentric)', sets: '3', reps: '4–8', rest: '75s', note: 'Anchor feet, lower as slowly as possible — brutal hamstring eccentric. Highest ROI leg exercise.', tempo: 'max eccentric' },
-                { name: 'Single-Leg Calf Raise', sets: '3', reps: '20 each', rest: '30s', note: 'Full range — deep stretch at bottom, full plantarflexion at top.', tempo: '2-1-1-1', superset: 'B', supersetPos: 1 },
-                { name: 'Pike Ab Compression', sets: '3', reps: '20', rest: '45s', note: 'Seated, compress into pike position — hip flexor and L-sit direct carryover.', tempo: 'controlled', superset: 'B', supersetPos: 2 },
-              ]
-            },
-            {
-              name: 'Finisher', type: 'conditioning', duration: '10 min',
-              exercises: [
-                { name: 'Tabata — Jump Squats', sets: '8 rounds', reps: '20s on / 10s off', rest: '—', note: '4 minutes total — maximum explosive output. Track jump height.', badge: 'hiit' },
-                { name: 'Max Effort Plank', sets: '1', reps: 'Max hold', rest: '—', note: 'Hold until form breaks — log your time as a PR.', badge: 'hiit', metric: 'hold' },
+                { name: 'Dragon Flag Negatives', sets: '2', reps: '5–8', rest: '60s', note: 'Slow eccentric only — full body tension, do not let hips drop at any point' },
+                { name: 'Dead Bug', sets: '2', reps: '10 each side', rest: '45s', note: 'Opposite arm and leg — lower back flat the entire time, controlled breathing' },
               ]
             },
           ]
         },
 
         /* ═══════════════════════════════════════════════════════════════════════
-           DAY D  —  Full Body + Conditioning  [Fri]
+           DAY D  —  Full Body + Core  [Fri]
         ═══════════════════════════════════════════════════════════════════════ */
         {
-          name: 'Full Body + Conditioning', color: 'var(--core)', emoji: '🟡', duration: '60–70 min',
+          name: 'Full Body', color: 'var(--core)', emoji: '🟡', duration: '50–60 min',
           phases: [
             {
-              name: 'Warm-Up', type: 'warmup', duration: '10 min',
+              name: 'Warm-Up', type: 'warmup', duration: '8 min',
               exercises: [
-                { name: 'Full Body Joint Circuit', sets: '1', reps: '2 rounds', rest: '—', note: 'Wrists → shoulders → hips → ankles, 30s each joint. No skipping.', metric: 'duration' },
+                { name: 'Full Body Joint Circuit', sets: '1', reps: '2 rounds', rest: '—', note: 'Wrists → shoulders → hips → ankles, 30s per joint — do not skip this', metric: 'duration' },
               ]
             },
             {
-              name: 'Skill Polish', type: 'skill', duration: '15 min',
+              name: 'Athletic Strength', type: 'strength', duration: '35 min',
               exercises: [
-                { name: '⚡ Skill Polish — All Movements', sets: '2 per skill', reps: '70% volume', rest: '90s', note: 'Brief quality sets: HS, Planche, FL, MU. Motor pattern maintenance only — not new acquisition.', badge: 'skill' },
+                { name: 'Burpee Pull-Up', sets: '3', reps: '5–8', rest: '90s', note: 'Or muscle-up attempt on a good day — full power output, don\'t pace early' },
+                { name: 'Archer Push-Ups', sets: '3', reps: '10–15', rest: '60s', note: 'Decline or clap variation — unilateral horizontal push, hips stay square', tempo: '3-1-2-0' },
+                { name: 'Explosive Pull-Ups', sets: '3', reps: '6–10', rest: '60s', note: 'Wide, L-sit, or explosive style — vary each session for fresh stimulus', tempo: 'explosive' },
+                { name: 'Single-Leg RDL', sets: '3', reps: '10 each leg', rest: '60s', note: 'DB or bodyweight — hinge deep, feel full hamstring stretch, brace core', tempo: '3-1-1-0' },
+                { name: 'Dip-to-Row Superset', sets: '3', reps: '10 + 10', rest: '75s', note: 'Dips immediately into rows with no rest — 75s rest after each pair' },
               ]
             },
             {
-              name: 'Strength Block', type: 'strength', duration: '25 min',
+              name: 'Core Block', type: 'conditioning', duration: '10 min',
               exercises: [
-                { name: 'Pull-ups', sets: '3', reps: 'AMRAP', rest: '90s', note: 'Dead hang start — log every rep' },
-                { name: 'Push-ups (Max Reps)', sets: '3', reps: 'AMRAP', rest: '60s', note: 'Full range, chest to floor — no half reps', superset: 'A', supersetPos: 1 },
-                { name: 'Dips (Chair / Parallel)', sets: '3', reps: 'AMRAP', rest: '60s', note: 'Full range — track total reps', superset: 'A', supersetPos: 2 },
-                { name: 'Jump Squats', sets: '3', reps: '15–20', rest: '45s', note: 'Explosive — power and metabolic output', superset: 'B', supersetPos: 1 },
-                { name: 'DB Bent-Over Row (10 lbs)', sets: '3', reps: '15–20', rest: '45s', note: 'Horizontal pull — back width and posture', superset: 'B', supersetPos: 2 },
-              ]
-            },
-            {
-              name: 'Conditioning Finisher', type: 'conditioning', duration: '15 min',
-              exercises: [
-                { name: 'AMRAP 12 — Full Body Circuit', sets: '—', reps: '5 pull-ups → 10 push-ups → 15 air squats → 20 mountain climbers', rest: '—', note: 'Log total rounds completed. This is your main weekly fat-burner session — no holding back.', badge: 'hiit' },
+                { name: 'L-Sit Hold', sets: '2', reps: '15s holds', rest: '45s', note: 'Parallettes or floor — arms locked, legs parallel, compress hard into hip flexors', metric: 'hold' },
+                { name: 'Russian Twist', sets: '2', reps: '20 reps', rest: '30s', note: 'Weighted for progression — controlled rotation, feet off floor, full ROM' },
               ]
             },
           ]
@@ -2600,8 +2639,6 @@
       function escHtml(s) {
         return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
       }
-
-      // Fixed: handles "2–3 min", "90s", "45s", "—"
       function parseRestSecs(r) {
         if (!r || r === '—') return 0;
         const minMatch = r.match(/(\d+)\s*(?:[–\-]\d+)?\s*min/i);
@@ -2611,20 +2648,14 @@
         const numMatch = r.match(/(\d+)/);
         return numMatch ? parseInt(numMatch[1]) : 60;
       }
-
-      // Flatten all exercises across all phases into a single ordered array
       function getAllExercises(dayIdx) {
         const all = [];
-        DAYS[dayIdx].phases.forEach(phase => {
-          phase.exercises.forEach(ex => all.push(ex));
-        });
+        DAYS[dayIdx].phases.forEach(phase => phase.exercises.forEach(ex => all.push(ex)));
         return all;
       }
-
       function getPhaseIcon(type) {
         return { warmup: '⚡', skill: '🎯', strength: '💪', conditioning: '🔥', cooldown: '🧊' }[type] || '·';
       }
-
       function isWorkoutDay(date) { return getSchedule().includes(date.getDay()); }
       function getSlotForDate(date) { const s = getSchedule(); const i = s.indexOf(date.getDay()); return i >= 0 ? i : null; }
 
@@ -2635,19 +2666,15 @@
         renderSchedPicker();
         document.getElementById('schedModalBg').classList.add('show');
       };
-      window.closeScheduleModal = function () {
-        document.getElementById('schedModalBg').classList.remove('show');
-      };
+      window.closeScheduleModal = function () { document.getElementById('schedModalBg').classList.remove('show'); };
       function renderSchedPicker() {
         const picker = document.getElementById('schedDayPicker');
         picker.innerHTML = DOW_NAMES_SHORT.map((name, i) => {
           const selIdx = schedPendingDays.indexOf(i);
           const isSel = selIdx !== -1;
-          return `<button class="sched-day-btn${isSel ? ' selected' : ''}" onclick="toggleSchedDay(${i})">
-          ${name}<span class="sched-day-order">${isSel ? 'Day ' + 'ABCD'[selIdx] : ''}</span>
-        </button>`;
+          return `<button class="sched-day-btn${isSel ? ' selected' : ''}" onclick="toggleSchedDay(${i})">${name}<span class="sched-day-order">${isSel ? 'Day ' + 'ABCD'[selIdx] : ''}</span></button>`;
         }).join('');
-        const labels = ['Push·Skills', 'Pull·Skills', 'Core/Legs', 'Full Body'];
+        const labels = ['Push+Core', 'Pull+Core', 'Legs+Core', 'Full Body'];
         const preview = schedPendingDays.length === 4
           ? schedPendingDays.map((dow, i) => `<strong>${DOW_NAMES_SHORT[dow]}</strong>=<strong>${labels[i]}</strong>`).join(' · ')
           : '<em>Select ' + (4 - schedPendingDays.length) + ' more day' + (schedPendingDays.length === 3 ? '' : 's') + '</em>';
@@ -2678,12 +2705,9 @@
       /* ─────────────────────────── REST TIMER ─────────────────────────────── */
       const RT_CIRC = 157.1;
       let rtInterval = null, rtTotal = 60, rtRemaining = 60, rtEndTime = null;
-
       window.rtStart = function (secs) {
         if (rtInterval) clearInterval(rtInterval);
-        rtTotal = secs;
-        rtEndTime = Date.now() + secs * 1000;
-        rtRemaining = secs;
+        rtTotal = secs; rtEndTime = Date.now() + secs * 1000; rtRemaining = secs;
         const el = document.getElementById('restTimer');
         el.classList.remove('hidden', 'warning');
         document.querySelectorAll('.rest-preset').forEach(b => b.classList.toggle('active', +b.dataset.s === secs));
@@ -2715,8 +2739,7 @@
         arc.style.stroke = pct > 0.5 ? '#B026FF' : pct > 0.25 ? '#6B4FA0' : '#4A445E';
         document.getElementById('rtNum').textContent = Math.max(0, rtRemaining);
         const msgs = ['Go! 🔥', 'Almost! 💪', 'Rest 😤', 'Recover 💪'];
-        const msgIdx = pct > 0.66 ? 3 : pct > 0.33 ? 2 : pct > 0.1 ? 1 : 0;
-        document.getElementById('rtMsg').textContent = msgs[msgIdx];
+        document.getElementById('rtMsg').textContent = msgs[pct > 0.66 ? 3 : pct > 0.33 ? 2 : pct > 0.1 ? 1 : 0];
       }
       function rtPing() {
         try {
@@ -2752,9 +2775,7 @@
         document.getElementById('prModalExName').textContent = exName;
         document.getElementById('prVal').value = '';
         document.getElementById('prNote').value = '';
-        // Pre-select unit based on metric type
-        const unitSel = document.getElementById('prUnit');
-        unitSel.value = (metric === 'hold' || metric === 'duration') ? 'sec' : 'reps';
+        document.getElementById('prUnit').value = (metric === 'hold' || metric === 'duration') ? 'sec' : 'reps';
         renderPRModal(exName);
         document.getElementById('prModalBg').classList.add('show');
       };
@@ -2789,8 +2810,7 @@
         const area = line + ` L${pts[pts.length - 1][0]},${H} L${pts[0][0]},${H} Z`;
         return `<svg viewBox="0 0 200 36" style="width:100%;height:36px;margin-bottom:2px" preserveAspectRatio="none">
         <defs><linearGradient id="prGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#FF1493" stop-opacity="0.30"/>
-          <stop offset="100%" stop-color="#FF1493" stop-opacity="0"/>
+          <stop offset="0%" stop-color="#FF1493" stop-opacity="0.30"/><stop offset="100%" stop-color="#FF1493" stop-opacity="0"/>
         </linearGradient></defs>
         <path d="${area}" fill="url(#prGrad)"/>
         <path d="${line}" fill="none" stroke="#B026FF" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
@@ -2839,8 +2859,7 @@
       };
       function renderMeasurements() {
         const all = loadMeas().sort((a, b) => a.date.localeCompare(b.date));
-        const latest = all[all.length - 1];
-        const prev = all[all.length - 2];
+        const latest = all[all.length - 1], prev = all[all.length - 2];
         const fields = [{ id: 'arms', goodDir: 1 }, { id: 'chest', goodDir: 1 }, { id: 'waist', goodDir: -1 }];
         fields.forEach(f => {
           const val = latest ? latest[f.id] : null;
@@ -2925,8 +2944,7 @@
           ${ex.note ? `<div class="ex-note">${ex.note}</div>` : ''}
         </div>
         ${badgeHtml}
-        <button class="ex-pr-btn ${exPR.length ? 'has-pr' : ''}" data-ex="${escHtml(ex.name)}" title="Log PR">${exPR.length ? prLabel : 'PR'}</button>
-      `;
+        <button class="ex-pr-btn ${exPR.length ? 'has-pr' : ''}" data-ex="${escHtml(ex.name)}" title="Log PR">${exPR.length ? prLabel : 'PR'}</button>`;
 
         row.querySelector('.ex-pr-btn').addEventListener('click', e => {
           e.stopPropagation();
@@ -2967,11 +2985,9 @@
         let globalIndex = 0;
 
         day.phases.forEach(phase => {
-          // ── Phase section wrapper ──
           const phaseSection = document.createElement('div');
           phaseSection.className = 'phase-section';
 
-          // ── Phase header ──
           const phaseHeader = document.createElement('div');
           phaseHeader.className = 'phase-header phase-' + phase.type;
           phaseHeader.innerHTML = `
@@ -2979,47 +2995,33 @@
             <span class="phase-icon">${getPhaseIcon(phase.type)}</span>
             <span class="phase-name">${phase.name}</span>
           </div>
-          <span class="phase-duration">${phase.duration}</span>
-        `;
+          <span class="phase-duration">${phase.duration}</span>`;
           phaseSection.appendChild(phaseHeader);
 
-          // ── Phase exercises (with superset grouping) ──
           const exContainer = document.createElement('div');
           exContainer.className = 'phase-exercises';
 
           let i = 0;
           while (i < phase.exercises.length) {
             const ex = phase.exercises[i];
-
             if (ex.superset) {
-              // Collect consecutive exercises with same superset key
               const ssKey = ex.superset;
               const ssItems = [];
               while (i < phase.exercises.length && phase.exercises[i].superset === ssKey) {
                 ssItems.push({ ex: phase.exercises[i], gIdx: globalIndex });
-                globalIndex++;
-                i++;
+                globalIndex++; i++;
               }
-
-              // Build superset group container
               const ssDiv = document.createElement('div');
               ssDiv.className = 'superset-group';
-
               const ssBar = document.createElement('div');
               ssBar.className = 'superset-label-bar';
               ssBar.innerHTML = `<span class="ss-label">Superset ${ssKey}</span><span class="ss-hint">No rest between · rest ${ssItems[0].ex.rest} after pair</span>`;
               ssDiv.appendChild(ssBar);
-
-              ssItems.forEach(({ ex: ssEx, gIdx }) => {
-                ssDiv.appendChild(buildExRow(ssEx, gIdx, checked, prHist));
-              });
-
+              ssItems.forEach(({ ex: ssEx, gIdx }) => ssDiv.appendChild(buildExRow(ssEx, gIdx, checked, prHist)));
               exContainer.appendChild(ssDiv);
             } else {
-              // Standalone exercise
               exContainer.appendChild(buildExRow(ex, globalIndex, checked, prHist));
-              globalIndex++;
-              i++;
+              globalIndex++; i++;
             }
           }
 
@@ -3070,8 +3072,7 @@
       function writeHist(tk) {
         const histKey = 'hist_' + tk;
         const hist = gs(histKey, {});
-        hist.day = currentDay;
-        hist.dayName = DAYS[currentDay].name;
+        hist.day = currentDay; hist.dayName = DAYS[currentDay].name;
         hist.done = gs('done_' + currentDay + '_' + tk, false);
         hist.missed = gs('missed_' + currentDay + '_' + tk, false);
         ss(histKey, hist);
@@ -3128,8 +3129,7 @@
           weekStart.setDate(today.getDate() - today.getDay() - w * 7);
           let scheduled = 0, done = 0, missed = 0;
           for (let d = 0; d < 7; d++) {
-            const date = new Date(weekStart);
-            date.setDate(weekStart.getDate() + d);
+            const date = new Date(weekStart); date.setDate(weekStart.getDate() + d);
             if (date > today || !isWorkoutDay(date)) continue;
             scheduled++;
             const dateStr = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
@@ -3171,7 +3171,7 @@
           data: { labels: weeks, datasets: [{ data, backgroundColor: colors, borderRadius: 5, maxBarThickness: 28 }] },
           options: {
             responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y + '% of workouts completed' } } },
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y + '% completed' } } },
             scales: {
               y: { min: 0, max: 100, ticks: { stepSize: 25, color: 'rgba(138,43,226,0.55)', font: { size: 10, family: 'ui-monospace,monospace' }, callback: v => v + '%' }, grid: { color: 'rgba(138,43,226,0.12)' }, border: { display: false } },
               x: { ticks: { color: 'rgba(138,43,226,0.55)', font: { size: 10, family: 'ui-monospace,monospace' } }, grid: { display: false }, border: { display: false } }
@@ -3193,13 +3193,9 @@
         updateTargetPills(log);
       }
       function updateTargetPills(log) {
-        const cal = parseInt(log.cal) || 0;
-        const prot = parseInt(log.prot) || 0;
-        const steps = parseInt(log.steps) || 0;
-        const tCal = document.getElementById('tCalories');
-        const tProt = document.getElementById('tProtein');
-        const tWat = document.getElementById('tWater');
-        const tStep = document.getElementById('tSteps');
+        const cal = parseInt(log.cal) || 0, prot = parseInt(log.prot) || 0, steps = parseInt(log.steps) || 0;
+        const tCal = document.getElementById('tCalories'), tProt = document.getElementById('tProtein');
+        const tWat = document.getElementById('tWater'), tStep = document.getElementById('tSteps');
         if (cal) { tCal.textContent = '🔥 ' + cal + ' kcal'; tCal.className = 'log-target-pill ' + (cal >= 1900 && cal <= 2100 ? 'hit' : cal > 2100 ? 'miss' : ''); }
         else { tCal.textContent = '🔥 Target: 1900–2100 kcal'; tCal.className = 'log-target-pill'; }
         if (prot) { tProt.textContent = '💪 ' + prot + 'g protein'; tProt.className = 'log-target-pill ' + (prot >= 130 ? 'hit' : 'miss'); }
@@ -3211,17 +3207,12 @@
       window.saveLog = function () {
         const tk = todayKey();
         const log = {
-          cal: document.getElementById('logCal').value,
-          prot: document.getElementById('logProt').value,
-          steps: document.getElementById('logSteps').value,
-          energy: document.getElementById('logEnergy').value,
-          food: document.getElementById('logFood').value,
-          notes: document.getElementById('logNotes').value,
+          cal: document.getElementById('logCal').value, prot: document.getElementById('logProt').value,
+          steps: document.getElementById('logSteps').value, energy: document.getElementById('logEnergy').value,
+          food: document.getElementById('logFood').value, notes: document.getElementById('logNotes').value,
         };
         ss('log_' + tk, log);
-        const hist = gs('hist_' + tk, {});
-        Object.assign(hist, { cal: log.cal, prot: log.prot, steps: log.steps });
-        ss('hist_' + tk, hist);
+        const hist = gs('hist_' + tk, {}); Object.assign(hist, { cal: log.cal, prot: log.prot, steps: log.steps }); ss('hist_' + tk, hist);
         updateTargetPills(log);
         const btn = document.querySelector('[onclick="saveLog()"]');
         const orig = btn.textContent; btn.textContent = '✓ Saved'; setTimeout(() => btn.textContent = orig, 1200);
@@ -3231,10 +3222,8 @@
       function loadWeight() {
         const entries = gs('weights', []);
         const last = entries[entries.length - 1];
-        const numEl = document.getElementById('wNum');
-        const deltaEl = document.getElementById('wDelta');
-        const toGoEl = document.getElementById('wToGo');
-        const barEl = document.getElementById('wBarFill');
+        const numEl = document.getElementById('wNum'), deltaEl = document.getElementById('wDelta');
+        const toGoEl = document.getElementById('wToGo'), barEl = document.getElementById('wBarFill');
         if (!last) { numEl.textContent = '—'; toGoEl.textContent = '—'; return; }
         numEl.textContent = last.w.toFixed(1);
         const toGo = (last.w - 175).toFixed(1);
@@ -3294,8 +3283,7 @@
         const keys = Object.keys(S).filter(k => k.startsWith('hist_')).sort().reverse();
         if (!keys.length) { histCard.innerHTML = '<div style="text-align:center;font-size:12px;color:var(--text-secondary);padding:16px 0;font-style:italic">No sessions logged yet.</div>'; return; }
         histCard.innerHTML = keys.slice(0, 14).map(k => {
-          const dateStr = k.slice(5);
-          const h = S[k];
+          const dateStr = k.slice(5), h = S[k];
           const dayD = h.day != null ? DAYS[h.day] : null;
           const stats = [h.weight ? h.weight + ' lbs' : null, h.cal ? h.cal + ' kcal' : null, h.steps ? Number(h.steps).toLocaleString() + ' steps' : null].filter(Boolean).join(' · ');
           const pillCls = h.done ? 'done' : h.missed ? 'missed' : 'skip';
@@ -3350,7 +3338,6 @@
       function formatMetric(value, suffix) {
         return value == null || !Number.isFinite(Number(value)) ? '—' : Number(value).toLocaleString(undefined, { maximumFractionDigits: 0 }) + suffix;
       }
-
       function renderAppleHealth(rows, offline) {
         var date = window.appleHealth.today();
         var row = (rows || []).filter(function (item) { return item.workout_date === date; })[0] || null;
@@ -3362,8 +3349,7 @@
         if (!row) {
           status.textContent = offline ? 'OFFLINE' : 'NO DATA';
           sub.textContent = offline ? 'No cached Apple Watch workout for today' : 'No Apple Health workout synced for today';
-          calories.textContent = '—';
-          heartRate.textContent = '—';
+          calories.textContent = '—'; heartRate.textContent = '—';
           return;
         }
         status.textContent = offline ? 'CACHED' : 'SYNCED';
@@ -3371,7 +3357,6 @@
         calories.textContent = formatMetric(row.active_calories, '');
         heartRate.textContent = row.avg_heart_rate == null ? '—' : formatMetric(row.avg_heart_rate, '');
       }
-
       function loadAppleHealth() {
         if (!window.appleHealth) return;
         var cached = window.appleHealth.cached();
@@ -3383,7 +3368,6 @@
           renderAppleHealth(window.appleHealth.cached(), true);
         });
       }
-
       document.addEventListener('DOMContentLoaded', loadAppleHealth);
       window.addEventListener('online', loadAppleHealth);
     }());
@@ -3396,14 +3380,8 @@
         appKey: 'gym',
         syncedKeys: ['ibrahim_gym_v1', 'ibrahim_gym_done', 'gym_pr_v1', 'gym_measurements_v1', 'gym_schedule_v1'],
         onApplied: function () {
-          // Force-republish any new synced key the client has locally but the
-          // remote blob doesn't yet (e.g. PRs/measurements/schedule on a
-          // device that hasn't logged them yet under the new sync set).
           ['gym_pr_v1', 'gym_measurements_v1', 'gym_schedule_v1'].forEach(function (k) {
-            try {
-              var v = localStorage.getItem(k);
-              if (v != null) localStorage.setItem(k, v);
-            } catch (e) { }
+            try { var v = localStorage.getItem(k); if (v != null) localStorage.setItem(k, v); } catch (e) { }
           });
           window.dispatchEvent(new Event('storage'));
         }

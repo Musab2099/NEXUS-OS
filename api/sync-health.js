@@ -13,7 +13,9 @@ const {
   upsertHealthRecords,
 } = require('../lib/supabase');
 
-const MAX_BODY_BYTES = 64 * 1024;
+// Vercel supports request bodies up to 4.5 MB; leave headroom for the
+// function while allowing real Health Auto Export batches with metadata.
+const MAX_BODY_BYTES = 4 * 1024 * 1024;
 const ALLOWED_ORIGIN = '*';
 const ALLOWED_METHODS = 'GET, POST, PUT, PATCH, OPTIONS';
 
@@ -64,14 +66,11 @@ function sendDatabaseError(res, error) {
     ? error.statusCode
     : 502;
 
-  const details = error && error.details !== undefined
-    ? error.details
-    : (error && error.message) || 'Unknown database error';
-
   return sendJson(res, upstreamStatus, {
-    error: 'Database operation failed',
+    error: upstreamStatus === 504
+      ? 'Database operation timed out'
+      : 'Database operation failed',
     status: upstreamStatus,
-    details,
   });
 }
 

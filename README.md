@@ -151,7 +151,7 @@ Use the existing page helpers and sync-aware setters when changing storage behav
 `api/sync-health.js` is the Vercel function at `/api/sync-health`.
 
 - `lib/health-validation.js` handles Bearer extraction, constant-time token comparison, flat payload validation, v2 mapping, date handling, and numeric/text normalization.
-- `lib/supabase.js` resolves credentials, performs Supabase REST requests, reads date-filtered records, and upserts workouts.
+- `lib/supabase.js` requires the server-only service-role credential, performs Supabase REST requests, reads date-filtered records, and upserts workouts in bounded batches.
 
 | Method | Purpose | Authentication |
 |---|---|---|
@@ -198,7 +198,7 @@ Health Auto Export v2 payloads have the form:
 }
 ```
 
-For each nested workout, the endpoint maps `start`/`startDate` to `workout_date`, `name`/`workoutActivityType` to `workout_type`, `activeEnergy.qty`/`activeEnergy` to `active_calories`, `avgHeartRate.qty`/`heartRate.avg` to `avg_heart_rate`, `duration.qty` to `duration_minutes`, `id`/`uuid` to `external_id`, and sets `source` to `apple_health`. Missing values use the documented defaults. Records are upserted into `public.apple_health_logs` with `on_conflict=external_id`; stable IDs make retries idempotent. Apply [`supabase/apple_health_logs.sql`](supabase/apple_health_logs.sql) before using the endpoint.
+For each nested workout, the endpoint maps `start`/`startDate` to `workout_date`, `name`/`workoutActivityType` to `workout_type`, `activeEnergy.qty`/`activeEnergy` to `active_calories`, `avgHeartRate.qty`/`heartRate.avg` to `avg_heart_rate`, `duration.qty`/`duration` to `duration_minutes`, `id`/`uuid` to `external_id`, and sets `source` to `apple_health`. The original workout is recursively sanitized into JSON-safe primitives and stored in `metadata` (`jsonb`), so quantity-shaped fields such as elevation are not dropped. Missing values use the documented defaults. Arrays and nested workouts are accepted up to 500 records and written in batches of 50 with at most three Supabase requests in flight. If one batch fails after another has committed, the endpoint returns a database error; retry the complete payload. Stable `id`/`uuid` values make those retries idempotent through `on_conflict=external_id`, so already-committed batches are updated rather than duplicated. Apply [`supabase/apple_health_logs.sql`](supabase/apple_health_logs.sql) before using the endpoint.
 
 ## Setup and development
 
@@ -224,7 +224,7 @@ Server-only API variables:
 - `SUPABASE_SERVICE_ROLE_KEY` — service-role key; never expose it.
 - `APPLE_HEALTH_SYNC_TOKEN` — private Bearer token shared with the export client.
 
-The API also supports `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_KEY` as fallbacks. Never use the service-role key as the browser `SUPABASE_KEY`.
+The API requires `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` at runtime. `SUPABASE_KEY` remains a browser/build-time anon key and is never accepted by the ingestion route. Never use the service-role key as the browser `SUPABASE_KEY`.
 
 ### Commands
 
@@ -273,6 +273,7 @@ Set values under **Project → Settings → Environment Variables** for every re
 - [ ] Do not put `SUPABASE_SERVICE_ROLE_KEY` in `NEXT_PUBLIC_*`, HTML, client JavaScript, or Health Auto Export.
 - [ ] Confirm the project root, branch, and environment scope are correct.
 - [ ] Confirm `api/sync-health.js` deploys as `/api/sync-health` and root-level `lib/` dependencies are in the function bundle.
+- [ ] Confirm the `metadata` JSONB column exists and is `NOT NULL DEFAULT '{}'::jsonb` (apply the SQL migration; it repairs older installations too).
 - [ ] Redeploy after adding or rotating environment variables.
 
 ### Health Auto Export
