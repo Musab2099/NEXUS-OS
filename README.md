@@ -150,8 +150,8 @@ Use the existing page helpers and sync-aware setters when changing storage behav
 
 `api/sync-health.js` is the Vercel function at `/api/sync-health`.
 
-- `lib/health-validation.js` handles Bearer extraction, constant-time token comparison, flat payload validation, v2 mapping, date handling, and numeric/text normalization.
-- `lib/supabase.js` requires the server-only service-role credential, performs Supabase REST requests, reads date-filtered records, and upserts workouts in bounded batches.
+- `lib/health-validation.js` handles Bearer extraction, constant-time token comparison, flat payload validation, v2 mapping, date handling, numeric/text normalization, and recursive metadata sanitization.
+- `lib/supabase.js` requires the server-only service-role credential, performs Supabase REST requests, reads date-filtered records, and upserts workouts in bounded batches. Before every upsert is serialized and sent to Supabase, it defensively sanitizes each row's `metadata` again so direct callers cannot bypass the database safety boundary.
 
 | Method | Purpose | Authentication |
 |---|---|---|
@@ -198,7 +198,7 @@ Health Auto Export v2 payloads have the form:
 }
 ```
 
-For each nested workout, the endpoint maps `start`/`startDate` to `workout_date`, `name`/`workoutActivityType` to `workout_type`, `activeEnergy.qty`/`activeEnergy` to `active_calories`, `avgHeartRate.qty`/`heartRate.avg` to `avg_heart_rate`, `duration.qty`/`duration` to `duration_minutes`, `id`/`uuid` to `external_id`, and sets `source` to `apple_health`. The original workout is recursively sanitized into JSON-safe primitives and stored in `metadata` (`jsonb`), so quantity-shaped fields such as elevation are not dropped. Missing values use the documented defaults. Arrays and nested workouts are accepted up to 500 records and written in batches of 50 with at most three Supabase requests in flight. If one batch fails after another has committed, the endpoint returns a database error; retry the complete payload. Stable `id`/`uuid` values make those retries idempotent through `on_conflict=external_id`, so already-committed batches are updated rather than duplicated. Apply [`supabase/apple_health_logs.sql`](supabase/apple_health_logs.sql) before using the endpoint.
+For each nested workout, the endpoint maps `start`/`startDate` to `workout_date`, `name`/`workoutActivityType` to `workout_type`, `activeEnergy.qty`/`activeEnergy` to `active_calories`, `avgHeartRate.qty`/`heartRate.avg` to `avg_heart_rate`, `duration.qty`/`duration` to `duration_minutes`, `id`/`uuid` to `external_id`, and sets `source` to `apple_health`. The original workout is recursively sanitized into JSON-safe primitives and stored in `metadata` (`jsonb`). Quantity-shaped objects such as `{ "qty": 12.5, "units": "m" }` or `{ "value": 12.5 }` are reduced to their raw scalar value, while ordinary nested metadata objects and arrays are preserved. Sanitization runs during request normalization and is enforced again immediately before every Supabase upsert, so direct database-module callers cannot bypass it. Missing values use the documented defaults. Arrays and nested workouts are accepted up to 500 records and written in batches of 50 with at most three Supabase requests in flight. If one batch fails after another has committed, the endpoint returns a database error; retry the complete payload. Stable `id`/`uuid` values make those retries idempotent through `on_conflict=external_id`, so already-committed batches are updated rather than duplicated. Apply [`supabase/apple_health_logs.sql`](supabase/apple_health_logs.sql) before using the endpoint.
 
 ## Setup and development
 

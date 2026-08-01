@@ -4,6 +4,8 @@ const assert = require('node:assert/strict');
 const { afterEach, beforeEach, describe, test } = require('node:test');
 
 const handler = require('../api/sync-health');
+const { sanitizeMetadata } = require('../lib/health-validation');
+const { upsertHealthRecords } = require('../lib/supabase');
 
 const ENV_KEYS = [
   'APPLE_HEALTH_SYNC_TOKEN',
@@ -33,6 +35,45 @@ function invoke(method, body, headers = {}, url = '/') {
     Promise.resolve(handler(request, response)).catch(reject);
   });
 }
+
+describe('sanitizeMetadata', () => {
+  test('extracts quantity values and recursively preserves JSON-safe metadata', () => {
+    const circular = {};
+    circular.self = circular;
+
+    assert.deepEqual(sanitizeMetadata({
+      empty: null,
+      text: 'ok',
+      count: 3,
+      enabled: true,
+      valueObject: { value: 1.5, units: 'kg' },
+      qtyObject: { qty: 12.5, units: 'm' },
+      quantityObject: { quantity: 7, units: 'count' },
+      amountObject: { amount: 9, units: 'kcal' },
+      nested: { source: 'watch', values: [1, { value: 2 }] },
+      circular,
+    }), {
+      empty: null,
+      text: 'ok',
+      count: 3,
+      enabled: true,
+      valueObject: 1.5,
+      qtyObject: 12.5,
+      quantityObject: 7,
+      amountObject: 9,
+      nested: { source: 'watch', values: [1, 2] },
+      circular: { self: '[Circular]' },
+    });
+
+    assert.deepEqual(sanitizeMetadata(null), {});
+    assert.deepEqual(sanitizeMetadata('not metadata'), {});
+    assert.deepEqual(sanitizeMetadata([]), {});
+    assert.equal(
+      sanitizeMetadata({ unsupported: new Date('2026-07-31T00:00:00Z') }).unsupported,
+      String(new Date('2026-07-31T00:00:00Z'))
+    );
+  });
+});
 
 describe('api/sync-health', () => {
   let originalEnv;
@@ -74,6 +115,28 @@ describe('api/sync-health', () => {
     } else {
       global.fetch = originalFetch;
     }
+  });
+
+  test('sanitizes metadata again at the Supabase write boundary', async () => {
+    await upsertHealthRecords([
+      {
+        external_id: 'write-boundary-test',
+        metadata: {
+          HKElevationAscended: { qty: 12.5, units: 'm' },
+          nested: { value: 3 },
+        },
+      },
+    ], true);
+
+    assert.deepEqual(JSON.parse(fetchCalls[0].options.body), [
+      {
+        external_id: 'write-boundary-test',
+        metadata: {
+          HKElevationAscended: 12.5,
+          nested: 3,
+        },
+      },
+    ]);
   });
 
   test('handles OPTIONS preflight with the required CORS contract', async () => {
@@ -187,11 +250,11 @@ describe('api/sync-health', () => {
         metadata: {
           start: '2026-07-31T08:15:00Z',
           name: 'Traditional Strength Training',
-          activeEnergy: { qty: 420 },
-          avgHeartRate: { qty: 138 },
-          duration: { qty: 52 },
+          activeEnergy: 420,
+          avgHeartRate: 138,
+          duration: 52,
           id: 'apple-workout-123',
-          HKElevationAscended: { qty: 12.5, units: 'm' },
+          HKElevationAscended: 12.5,
           metadata: { source: 'watch', nested: { valid: true } },
         },
       },
@@ -238,7 +301,7 @@ describe('api/sync-health', () => {
         workoutActivityType: 'Cycling',
         activeEnergy: 125,
         heartRate: { avg: 144 },
-        duration: { qty: 30 },
+        duration: 30,
         uuid: 'fallback-workout-123',
       },
     });
@@ -262,7 +325,7 @@ describe('api/sync-health', () => {
     const saved = JSON.parse(fetchCalls[0].options.body);
     assert.deepEqual(
       saved.metadata,
-      JSON.parse('{"__proto__":{"safe":true},"normal":{"value":1}}')
+      JSON.parse('{"__proto__":{"safe":true},"normal":1}')
     );
     assert.equal(Object.getPrototypeOf(saved.metadata), Object.prototype);
   });
@@ -333,7 +396,7 @@ describe('api/sync-health', () => {
     assert.equal(fetchCalls.length, 2);
   });
 
-  test('writes batches in chunks while preserving raw HAE workout metadata', async () => {
+  test('writes batches in chunks while preserving sanitized HAE workout metadata', async () => {
     const workouts = Array.from({ length: 51 }, (_, index) => ({
       id: `batch-workout-${index}`,
       start: '2026-07-31T08:15:00Z',
@@ -353,10 +416,7 @@ describe('api/sync-health', () => {
     assert.equal(fetchCalls.length, 2);
     assert.equal(JSON.parse(fetchCalls[0].options.body).length, 50);
     assert.equal(JSON.parse(fetchCalls[1].options.body).length, 1);
-    assert.deepEqual(JSON.parse(fetchCalls[1].options.body)[0].metadata.HKElevationAscended, {
-      qty: 50,
-      units: 'm',
-    });
+    assert.equal(JSON.parse(fetchCalls[1].options.body)[0].metadata.HKElevationAscended, 50);
   });
 
   test('reads authenticated records for a requested date', async () => {
