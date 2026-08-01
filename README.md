@@ -87,7 +87,7 @@ NEXUS/
 - `src/scripts/sync.js` — `initCloudSync()` whitelists local keys, pulls/pushes Supabase state with debouncing, subscribes to Realtime changes, and dispatches storage updates after remote state is applied.
 - `src/scripts/topbar.js` — shared navigation/status UI, cross-app counts, responsive phone bottom bar, refresh hooks, and service-worker registration.
 - `src/scripts/theme.js` — theme preference handling.
-- `src/scripts/apple-health.js` — read-only Gym cache using `apple_health_metrics_v1` and authenticated `/api/sync-health` reads.
+- `src/scripts/apple-health.js` — read-only Gym cache using `apple_health_metrics_v1` and authenticated `/api/sync-health` reads. Its `runAutoSync()` sanitizes complex metadata before JSON caching and coalesces overlapping refresh triggers into one follow-up pass; it does not upload Apple Health data.
 - `src/scripts/event-horizon.js` — shared circadian tinting, tilt, and tactile interactions where included.
 - `sw.js` — service worker; bump `CACHE_VERSION` (`nexus-v7` currently) when changing cached assets or forcing a refresh.
 
@@ -148,7 +148,7 @@ Use the existing page helpers and sync-aware setters when changing storage behav
 
 ## Apple Health API
 
-`api/sync-health.js` is the Vercel function at `/api/sync-health`.
+`api/sync-health.js` is the Vercel function at `/api/sync-health`. The repository does not contain a persistent Apple Health uploader or cron worker: Health Auto Export pushes payloads to this endpoint, while `src/scripts/apple-health.js` only performs authenticated read-through refreshes for the Gym dashboard.
 
 - `lib/health-validation.js` handles Bearer extraction, constant-time token comparison, flat payload validation, v2 mapping, date handling, numeric/text normalization, and recursive metadata sanitization.
 - `lib/supabase.js` requires the server-only service-role credential, performs Supabase REST requests, reads date-filtered records, and upserts workouts in bounded batches. Before every upsert is serialized and sent to Supabase, it defensively sanitizes each row's `metadata` again so direct callers cannot bypass the database safety boundary.
