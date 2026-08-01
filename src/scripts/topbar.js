@@ -105,11 +105,43 @@
     });
   });
 
-  setActiveRoute(activeRoute());
-  initThemeMenu();
-  window.addEventListener('hashchange', function () { setActiveRoute(activeRoute()); });
+  function afterInitialLayout(callback) {
+    var frame = window.requestAnimationFrame || function (next) {
+      return window.setTimeout(next, 16);
+    };
+    var fontReady = document.fonts && document.fonts.ready
+      ? Promise.resolve(document.fonts.ready).catch(function () { return undefined; })
+      : Promise.resolve();
+    var fontTimeout = new Promise(function (resolve) {
+      window.setTimeout(resolve, 1200);
+    });
 
-  // ── Release critical-first-paint guardrails ──
-  // Only after active route & theme menu are fully initialised.
-  document.documentElement.classList.remove('js-loading');
+    Promise.race([fontReady, fontTimeout]).then(function () {
+      // Let the browser commit the font metrics before removing the critical
+      // first-paint layout guard. Two frames also covers standalone launches,
+      // where the safe-area/viewport geometry can settle one frame later.
+      frame(function () {
+        frame(callback);
+      });
+    });
+  }
+
+  function initializeNavigation() {
+    setActiveRoute(activeRoute());
+    initThemeMenu();
+    window.addEventListener('hashchange', function () { setActiveRoute(activeRoute()); });
+    afterInitialLayout(function () {
+      setActiveRoute(activeRoute());
+      document.documentElement.classList.remove('js-loading');
+    });
+  }
+
+  // Defer the final active-link/layout pass until the document is complete.
+  // The static HTML/data-initial-route styles still provide the correct
+  // highlight while this guarded initialization is pending.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeNavigation, { once: true });
+  } else {
+    initializeNavigation();
+  }
 })();

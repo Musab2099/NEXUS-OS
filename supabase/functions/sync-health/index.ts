@@ -8,8 +8,8 @@ type UnknownRecord = Record<string, unknown>
 const MAX_BODY_BYTES = 4 * 1024 * 1024
 const MAX_RECORDS = 500
 const MAX_TEXT_LENGTH = 180
-const QUANTITY_KEYS = ['value', 'qty', 'quantity', 'amount'] as const
-const UNIT_KEYS = ['unit', 'units'] as const
+const QUANTITY_KEYS = ['qty', 'value', 'quantity', 'amount'] as const
+const UNIT_KEYS = ['units', 'unit'] as const
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -67,22 +67,13 @@ function safeTag(value: object): string {
   }
 }
 
-/**
- * Convert HealthKit/Health Auto Export values into JSON-safe values.
- *
- * Quantity-shaped values are reduced to their scalar when no unit exists.
- * When a unit is available, the unit is retained beside the scalar so values
- * such as HKElevationAscended remain meaningful in the JSONB column.
- * Circular values, throwing getters, invalid dates, and unsupported native
- * objects become harmless strings or null rather than aborting the batch.
- */
+/** Convert Health Auto Export values into JSON-safe metadata. */
 function sanitizeMetadataValue(
   value: unknown,
   seen: WeakSet<object>,
   extractQuantity = true,
 ): JsonValue {
   if (value == null) return null
-
   if (typeof value === 'string' || typeof value === 'boolean') return value
   if (typeof value === 'number') return Number.isFinite(value) ? value : null
   if (typeof value === 'bigint') return value.toString()
@@ -105,9 +96,6 @@ function sanitizeMetadataValue(
     return safeString(value)
   }
 
-  // Cross-realm plain objects normally have the [object Object] tag. If a
-  // custom tag is present, still inspect enumerable fields first; this keeps
-  // useful data from wrapper objects while unsupported empty natives stringify.
   if (!isArray && tag !== '[object Object]' && safeKeys(object).length === 0) {
     return safeString(value)
   }
@@ -126,20 +114,14 @@ function sanitizeMetadataValue(
         result.push(sanitizeMetadataValue(item, seen, true))
       }
     } catch {
-      // Keep values already read; a hostile iterator must not drop the row.
+      // Preserve values already read if an input iterator is malformed.
     }
     seen.delete(value)
     return result
   }
 
   if (extractQuantity) {
-    let scalarKey: string | undefined
-    try {
-      scalarKey = QUANTITY_KEYS.find((key) => safeHas(object, key))
-    } catch {
-      scalarKey = undefined
-    }
-
+    const scalarKey = QUANTITY_KEYS.find((key) => safeHas(object, key))
     if (scalarKey) {
       const scalar = sanitizeMetadataValue(safeGet(object, scalarKey), seen, true)
       const unitKey = UNIT_KEYS.find((key) => safeHas(object, key))
@@ -151,7 +133,6 @@ function sanitizeMetadataValue(
 
   const result: JsonObject = {}
   for (const key of safeKeys(object)) {
-    // defineProperty keeps literal keys such as __proto__ as data properties.
     try {
       Object.defineProperty(result, key, {
         configurable: true,
@@ -160,7 +141,7 @@ function sanitizeMetadataValue(
         writable: true,
       })
     } catch {
-      // Ignore only the broken field; the rest of the record remains usable.
+      // Ignore one malformed field without dropping the complete record.
     }
   }
 
@@ -183,7 +164,7 @@ function asRecord(value: unknown): UnknownRecord | null {
     : null
 }
 
-function firstValue(object: UnknownRecord | null, keys: string[]): unknown {
+function firstValue(object: UnknownRecord | null, keys: readonly string[]): unknown {
   if (!object) return undefined
   for (const key of keys) {
     const value = safeGet(object, key)
@@ -192,39 +173,28 @@ function firstValue(object: UnknownRecord | null, keys: string[]): unknown {
   return undefined
 }
 
-function textValue(value: unknown, fallback: string, maxLength = MAX_TEXT_LENGTH): string {
+function textValue(value: unknown, maxLength = MAX_TEXT_LENGTH): string | null {
   const record = asRecord(value)
   const nested = record ? firstValue(record, ['name', 'value', 'label']) : value
   const text = safeString(nested)
-  return (text || fallback).slice(0, maxLength)
+  return text ? text.slice(0, maxLength) : null
 }
 
-function numberValue(value: unknown, fallback: number | null, min: number, max: number): number | null {
+function numericValue(value: unknown): number | null {
   const record = asRecord(value)
-  const raw = record ? firstValue(record, [...QUANTITY_KEYS]) : value
-  if (raw == null || raw === '') return fallback
-  const text = safeString(raw)
-  if (!text) return fallback
-  const number = typeof raw === 'number' ? raw : Number(text)
-  if (!Number.isFinite(number) || number < min || number > max) return fallback
-  return Math.round(number * 100) / 100
+  const raw = record ? firstValue(record, QUANTITY_KEYS) : value
+  if (raw == null || raw === '') return null
+
+  const number = typeof raw === 'number' ? raw : Number(safeString(raw))
+  return Number.isFinite(number) ? Math.round(number * 100) / 100 : null
 }
 
-function validDate(value: unknown): string | null {
+function timestampValue(value: unknown): string | null {
   const text = safeString(value)
   if (!text) return null
 
-  const match = text.match(/\d{4}-\d{2}-\d{2}/)
-  if (!match) return null
-  const candidate = match[0]
-  const parsed = new Date(`${candidate}T00:00:00Z`)
-  return Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== candidate
-    ? null
-    : candidate
-}
-
-function todayUtc(): string {
-  return new Date().toISOString().slice(0, 10)
+  const parsed = new Date(text)
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString()
 }
 
 function stableStringify(value: JsonValue): string {
@@ -242,293 +212,72 @@ async function sha256(value: string): Promise<string> {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 
-type GitHubArchive = {
-  path: string
-  url: string
-  timestamp: string
-  digest: string
+function recordCollection(body: unknown): unknown[] {
+  if (Array.isArray(body)) return body
+
+  const root = asRecord(body)
+  if (!root) return []
+
+  const directCollection = firstValue(root, ['samples', 'records', 'workouts'])
+  if (Array.isArray(directCollection)) return directCollection
+
+  const data = asRecord(safeGet(root, 'data'))
+  if (Array.isArray(safeGet(root, 'data'))) return safeGet(root, 'data') as unknown[]
+  if (data) {
+    const nestedCollection = firstValue(data, ['samples', 'records', 'workouts'])
+    if (Array.isArray(nestedCollection)) return nestedCollection
+    if (safeKeys(data).length > 0 && firstValue(data, [
+      'sample_id', 'sampleId', 'id', 'uuid', 'name', 'startDate', 'start', 'qty', 'value',
+    ]) != null) return [data]
+    return []
+  }
+
+  // A single flat sample is valid; an empty/envelope object is a no-op.
+  return safeKeys(root).length > 0 ? [root] : []
 }
 
-type ErrorWithStatus = Error & { statusCode?: number }
-
-function githubHeaders(token: string): HeadersInit {
-  return {
-    Authorization: `Bearer ${token}`,
-    Accept: 'application/vnd.github+json',
-    'Content-Type': 'application/json',
-    'User-Agent': 'NEXUS-Supabase-Edge-Function',
-    'X-GitHub-Api-Version': '2022-11-28',
-  }
-}
-
-function base64Encode(value: string): string {
-  const bytes = new TextEncoder().encode(value)
-  let binary = ''
-  const chunkSize = 0x8000
-  for (let start = 0; start < bytes.length; start += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(start, start + chunkSize))
-  }
-  return btoa(binary)
-}
-
-function githubArchiveError(message: string): ErrorWithStatus {
-  const error = new Error(message) as ErrorWithStatus
-  error.statusCode = 502
-  return error
-}
-
-function githubFileEndpoint(owner: string, repo: string, filePath: string): string {
-  const encodedPath = filePath.split('/').map(encodeURIComponent).join('/')
-  return `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodedPath}`
-}
-
-async function archiveRawExport(jsonString: string): Promise<GitHubArchive> {
-  const owner = Deno.env.get('GITHUB_OWNER')?.trim()
-  const repo = Deno.env.get('GITHUB_REPO')?.trim()
-  const token = Deno.env.get('GITHUB_PAT')?.trim()
-  const branch = Deno.env.get('GITHUB_BRANCH')?.trim() || 'main'
-
-  if (!owner || !repo || !token) {
-    throw new Error('GitHub archive configuration is incomplete')
-  }
-
-  const now = new Date()
-  const timestamp = now.toISOString().replace(/[:.]/g, '-')
-  const dateFolder = now.toISOString().split('T')[0]
-  // A content digest keeps retries idempotent while retaining the requested
-  // YYYY-MM-DD archive layout. The timestamp remains available in metadata.
-  const digest = await sha256(jsonString)
-  const filePath = `exports/${dateFolder}/export-${digest.slice(0, 32)}.json`
-  const endpoint = githubFileEndpoint(owner, repo, filePath)
-  const headers = githubHeaders(token)
-
-  let sha: string | undefined
-  let lookup: Response
-  try {
-    lookup = await fetch(`${endpoint}?ref=${encodeURIComponent(branch)}`, {
-      method: 'GET',
-      headers,
-    })
-  } catch (error) {
-    console.error('GitHub archive lookup failed:', error)
-    throw githubArchiveError('GitHub archival is unavailable')
-  }
-
-  if (lookup.ok) {
-    try {
-      const existing = await lookup.json() as { type?: unknown, html_url?: unknown }
-      // The path is derived from the full payload digest, so an existing file
-      // at this path is the successful result of an earlier identical retry.
-      if (existing.type !== 'file') {
-        throw githubArchiveError('GitHub archive path is not a file')
-      }
-      return {
-        path: filePath,
-        url: typeof existing.html_url === 'string' ? existing.html_url : filePath,
-        timestamp,
-        digest,
-      }
-    } catch (error) {
-      throw githubArchiveError('GitHub archive lookup returned invalid JSON')
-    }
-  } else if (lookup.status !== 404) {
-    console.error('GitHub archive lookup rejected:', lookup.status)
-    throw githubArchiveError(`GitHub archive lookup failed (${lookup.status})`)
-  }
-
-  let response: Response
-  try {
-    response = await fetch(endpoint, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify({
-        message: `Add health export: ${filePath}`,
-        content: base64Encode(jsonString),
-        branch,
-        ...(sha ? { sha } : {}),
-      }),
-    })
-  } catch (error) {
-    console.error('GitHub archive write failed:', error)
-    throw githubArchiveError('GitHub archival is unavailable')
-  }
-
-  if (!response.ok) {
-    // Another invocation may have created the same digest path between our
-    // lookup and PUT. Re-read it and treat that immutable archive as success.
-    if (response.status === 422) {
-      try {
-        const retryLookup = await fetch(`${endpoint}?ref=${encodeURIComponent(branch)}`, {
-          method: 'GET',
-          headers,
-        })
-        if (retryLookup.ok) {
-          const existing = await retryLookup.json() as { type?: unknown, html_url?: unknown }
-          if (existing.type !== 'file') {
-            throw githubArchiveError('GitHub archive conflict path is not a file')
-          }
-          return {
-            path: filePath,
-            url: typeof existing.html_url === 'string' ? existing.html_url : filePath,
-            timestamp,
-            digest,
-          }
-        }
-      } catch (error) {
-        console.error('GitHub archive conflict lookup failed:', error)
-      }
-    }
-    console.error('GitHub archive write rejected:', response.status)
-    throw githubArchiveError(`GitHub archive write failed (${response.status})`)
-  }
-
-  let result: { content?: { html_url?: unknown } } = {}
-  try {
-    result = await response.json() as { content?: { html_url?: unknown } }
-  } catch (error) {
-    // A successful GitHub write without a response body is still durable; use
-    // the path as the stable archive reference in the DB metadata.
-  }
-
-  return {
-    path: filePath,
-    url: typeof result.content?.html_url === 'string' ? result.content.html_url : filePath,
-    timestamp,
-    digest,
-  }
-}
-
-function isExportWorkout(record: UnknownRecord): boolean {
-  return [
-    'start',
-    'startDate',
-    'workoutActivityType',
-    'activeEnergy',
-    'duration',
-  ].some((key) => safeGet(record, key) != null)
-}
-
-function defineSafe(object: UnknownRecord, key: string, value: unknown): void {
-  try {
-    Object.defineProperty(object, key, {
-      configurable: true,
-      enumerable: true,
-      value,
-      writable: true,
-    })
-  } catch {
-    // Ignore one malformed field without dropping the rest of the envelope.
-  }
-}
-
-function exportEnvelope(body: UnknownRecord, nested: boolean): JsonObject {
-  const envelope: UnknownRecord = {}
-  for (const key of safeKeys(body)) {
-    if ((nested && key === 'data') || (!nested && key === 'workouts')) continue
-    defineSafe(envelope, key, safeGet(body, key))
-  }
-
-  if (nested) {
-    const data = asRecord(safeGet(body, 'data'))
-    if (data) {
-      const cleanData: UnknownRecord = {}
-      for (const key of safeKeys(data)) {
-        if (key !== 'workouts') defineSafe(cleanData, key, safeGet(data, key))
-      }
-      if (Object.keys(cleanData).length) defineSafe(envelope, 'data', cleanData)
-    }
-  }
-
-  return sanitizeMetadata(envelope)
-}
-
-async function normalizeRecord(
-  raw: unknown,
-  envelope: JsonObject | null,
-): Promise<JsonObject> {
+async function normalizeRecord(raw: unknown): Promise<JsonObject> {
   const record = asRecord(raw)
-  if (!record) throw new Error('Each Apple Health record must be a JSON object')
+  if (!record || safeKeys(record).length === 0) {
+    throw new Error('Each Health Auto Export record must be a non-empty JSON object')
+  }
 
-  // Accept records that do not include a workout payload; they are normalized with
-  // safe defaults rather than rejected outright. This keeps the edge function resilient
-  // to partial Apple Health exports and non-workout metadata objects.
-  const exportWorkout = isExportWorkout(record)
-  const hasWorkoutFields = exportWorkout || [
-    'workout_date',
-    'workoutDate',
-    'workout_type',
-    'active_calories',
-    'avg_heart_rate',
-    'duration_minutes',
-    'metadata',
-    'external_id',
-    'externalId',
-    'id',
-    'uuid',
-  ].some((key) => safeGet(record, key) != null)
-
-  const date = validDate(firstValue(record, ['workout_date', 'workoutDate']))
-    || (exportWorkout && (validDate(safeGet(record, 'start')) || validDate(safeGet(record, 'startDate'))))
-    || todayUtc()
-  const workoutType = exportWorkout
-    ? textValue(firstValue(record, ['name', 'workoutActivityType']), 'Workout', 120)
-    : textValue(safeGet(record, 'workout_type'), 'Workout', 120)
-  const calories = exportWorkout
-    ? numberValue(safeGet(record, 'activeEnergy'), 0, 0, 10000)
-    : numberValue(safeGet(record, 'active_calories'), 0, 0, 10000)
-  const heartRateSource = firstValue(record, ['avgHeartRate', 'heartRate'])
-  const heartRateRecord = asRecord(heartRateSource)
-  const heartRateValue = heartRateRecord
-    ? firstValue(heartRateRecord, ['avg', ...QUANTITY_KEYS])
-    : heartRateSource
-  const heartRate = exportWorkout
-    ? numberValue(heartRateValue, null, 0, 300)
-    : numberValue(safeGet(record, 'avg_heart_rate'), null, 0, 300)
-  const duration = exportWorkout
-    ? numberValue(safeGet(record, 'duration'), 0, 0, 1440)
-    : numberValue(safeGet(record, 'duration_minutes'), 0, 0, 1440)
-
-  const originalMetadata = exportWorkout
-    ? { ...record, ...(envelope && Object.keys(envelope).length ? { _export: envelope } : {}) }
-    : safeGet(record, 'metadata')
-  const metadata = sanitizeMetadata(originalMetadata)
-  const suppliedId = textValue(firstValue(record, ['external_id', 'externalId', 'id', 'uuid']), '', 180)
-  const source = textValue(safeGet(record, 'source'), 'apple_health', 80)
-  const stableInput = sanitizeMetadata(record)
-  const externalId = suppliedId || `apple-health:${await sha256(stableStringify(stableInput))}`
+  const metadata = sanitizeMetadata(record)
+  const suppliedId = textValue(firstValue(record, [
+    'sample_id', 'sampleId', 'id', 'uuid', 'external_id', 'externalId',
+  ]))
+  const sampleId = suppliedId || `health:${await sha256(stableStringify(metadata))}`
+  const units = textValue(firstValue(record, UNIT_KEYS))
+  const name = textValue(firstValue(record, [
+    'name', 'type', 'metric', 'workoutActivityType', 'quantityType',
+  ]), 180)
+  const startDate = timestampValue(firstValue(record, ['startDate', 'start_date', 'start']))
+  const endDate = timestampValue(firstValue(record, ['endDate', 'end_date', 'end']))
+  const quantitySource = firstValue(record, QUANTITY_KEYS)
+  const qty = numericValue(quantitySource)
 
   return {
-    user_id: textValue(safeGet(record, 'user_id'), '', 128) || null,
-    external_id: externalId,
-    workout_date: date,
-    workout_type: workoutType,
-    active_calories: calories ?? 0,
-    avg_heart_rate: heartRate,
-    duration_minutes: duration ?? 0,
-    source,
+    id: sampleId,
+    sample_id: sampleId,
+    name,
+    startDate,
+    endDate,
+    qty,
+    units,
     metadata,
   }
 }
 
 async function normalizePayload(body: unknown): Promise<JsonObject[]> {
-  const root = asRecord(body)
-  const nestedData = asRecord(root ? safeGet(root, 'data') : null)
-  const nestedWorkouts = nestedData && Array.isArray(safeGet(nestedData, 'workouts'))
-    ? safeGet(nestedData, 'workouts') as unknown[]
-    : root && Array.isArray(safeGet(root, 'workouts'))
-      ? safeGet(root, 'workouts') as unknown[]
-      : null
-  const records = Array.isArray(body) ? body : nestedWorkouts || [body]
-
-  if (!records.length) throw new Error('At least one Apple Health record is required')
+  const records = recordCollection(body)
+  if (records.length === 0) return []
   if (records.length > MAX_RECORDS) throw new Error(`A maximum of ${MAX_RECORDS} records is allowed`)
 
-  const envelope = nestedWorkouts && root
-    ? exportEnvelope(root, Boolean(nestedData))
-    : null
-  const normalized = await Promise.all(records.map((record) => normalizeRecord(record, envelope)))
+  const normalized = await Promise.all(records.map(normalizeRecord))
   const unique = new Map<string, JsonObject>()
-  for (const row of normalized) unique.set(String(row.external_id), row)
+  for (const row of normalized) {
+    unique.set(String(row.sample_id), row)
+  }
   return Array.from(unique.values())
 }
 
@@ -587,57 +336,32 @@ Deno.serve(async (request: Request): Promise<Response> => {
     }
 
     const rows = await normalizePayload(body)
-    // Validate server database configuration before creating an external
-    // archive, avoiding an archive that can never be recorded in Supabase.
-    const supabase = createAdminClient()
-    // Preserve the exact UTF-8 JSON text received from the sender. The digest
-    // and GitHub file therefore represent the original export, not a reformatted
-    // parse/re-serialize of it.
-    const archive = await archiveRawExport(rawBody)
-    const archivedRows = rows.map((row) => ({
-      ...row,
-      metadata: {
-        ...row.metadata,
-        _github_archive: {
-          path: archive.path,
-          url: archive.url,
-          export_timestamp: archive.timestamp,
-          digest: archive.digest,
-        },
-      },
-    }))
+    if (rows.length === 0) return jsonResponse({ success: true, count: 0 }, 200)
 
+    const supabase = createAdminClient()
     const { data, error } = await supabase
-      .from('apple_health_logs')
-      .upsert(archivedRows, { onConflict: 'external_id', ignoreDuplicates: false })
-      .select('id')
+      .from('health_data')
+      .upsert(rows, { onConflict: 'sample_id', ignoreDuplicates: true })
+      .select('sample_id')
 
     if (error) {
-      console.error('Apple Health Edge Function upsert failed:', error.message)
+      console.error('Health Auto Export database upsert failed:', error.message)
       return jsonResponse({ error: 'Database operation failed' }, 502)
     }
 
     return jsonResponse({
       success: true,
-      count: Array.isArray(data) ? data.length : archivedRows.length,
-      archive: { path: archive.path, url: archive.url },
-    }, 201)
+      count: Array.isArray(data) ? data.length : 0,
+    }, 200)
   } catch (error) {
-    console.error('Apple Health Edge Function request failed:', error)
+    console.error('Health Auto Export request failed:', error)
     const message = error instanceof Error ? error.message : ''
-    if (message === 'Supabase server configuration is incomplete'
-      || message === 'GitHub archive configuration is incomplete') {
+    if (message === 'Supabase server configuration is incomplete') {
       return jsonResponse({ error: message }, 500)
     }
-    if (error && typeof error === 'object' && 'statusCode' in error
-      && Number((error as ErrorWithStatus).statusCode) === 502) {
-      return jsonResponse({ error: 'GitHub archival failed' }, 502)
-    }
-    if (message === 'At least one Apple Health record is required'
-      || message.startsWith('A maximum of ')
-      || message.startsWith('Each Apple Health record')) {
+    if (message.startsWith('A maximum of ') || message.startsWith('Each Health Auto Export')) {
       return jsonResponse({ error: message }, 400)
     }
-    return jsonResponse({ error: 'Unable to process Apple Health payload' }, 400)
+    return jsonResponse({ error: 'Unable to process Health Auto Export payload' }, 400)
   }
 })

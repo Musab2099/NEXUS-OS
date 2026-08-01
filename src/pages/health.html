@@ -647,6 +647,18 @@
       border-radius: 50%;
     }
 
+    /* GITHUB HEALTH INTEL */
+    .gh-nav-button{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border-strong);border-radius:999px;background:rgba(176,38,255,.08);color:var(--text-secondary);padding:6px 10px;font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .18s;}
+    .gh-nav-button:hover{color:var(--text-primary);border-color:rgba(176,38,255,.55);background:rgba(176,38,255,.16);box-shadow:0 0 14px rgba(176,38,255,.22);}
+    .gh-config-card{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;padding:16px 18px;background:linear-gradient(135deg,rgba(124,58,237,.13),rgba(217,70,239,.08));border:1px solid rgba(167,139,250,.22);border-radius:16px;}
+    .gh-config-copy{min-width:0}.gh-config-copy .card-eyebrow{margin-bottom:5px}.gh-config-copy p{color:var(--text-secondary);font-size:12px;line-height:1.55;}
+    .gh-config-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+    .gh-status{margin-bottom:14px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--card-2);color:var(--text-secondary);font-size:12px;line-height:1.45;}
+    .gh-status.ok{color:#34D399;border-color:rgba(16,185,129,.32);background:rgba(16,185,129,.08)}.gh-status.error{color:#FCA5A5;border-color:rgba(239,68,68,.32);background:rgba(239,68,68,.08)}
+    .gh-intel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px}.gh-headline{font-family:var(--mono);font-size:46px;line-height:1;font-weight:800;letter-spacing:-.05em;color:var(--text-primary)}.gh-headline span{font-size:15px;color:var(--text-secondary);letter-spacing:0;margin-left:5px}.gh-subline{display:flex;align-items:center;gap:7px;margin-top:8px;color:var(--text-secondary);font-size:12px}.gh-subline i{width:7px;height:7px;border-radius:50%;display:inline-block;box-shadow:0 0 10px currentColor}.gh-head-actions{display:flex;align-items:center;gap:8px}.gh-cache{font:10px var(--mono);color:var(--text-secondary);white-space:nowrap}.gh-readiness{margin:0 0 16px;padding:10px 12px;border-left:3px solid var(--indigo);background:var(--card-2);color:var(--text-secondary);font-size:13px;line-height:1.5}.gh-metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.gh-metric{min-width:0;padding:14px 12px;background:var(--card-2);border:1px solid var(--border);border-radius:12px}.gh-metric-icon{font:700 18px var(--mono);margin-bottom:9px}.gh-metric-label{font:10px var(--mono);color:var(--text-secondary);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gh-metric strong{display:block;margin-top:8px;color:var(--text-primary);font:700 23px var(--mono);font-variant-numeric:tabular-nums}.gh-metric strong small{font:400 11px var(--font);color:var(--text-secondary);margin-left:3px}.gh-metric span{display:block;margin-top:5px;color:var(--text-secondary);font-size:10px;white-space:nowrap}.gh-section-label{display:flex;align-items:center;gap:10px;margin:22px 0 10px;font:700 10px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--text-secondary)}.gh-section-label span{height:1px;flex:1;background:var(--border)}.gh-trends{padding:4px 14px;background:var(--card-2);border:1px solid var(--border);border-radius:14px}.gh-trend{display:grid;grid-template-columns:80px 1fr 48px;align-items:center;gap:12px;min-height:48px;border-bottom:1px solid rgba(167,139,250,.08)}.gh-trend:last-child{border-bottom:0}.gh-trend>span{font-size:11px;color:var(--text-secondary)}.gh-trend>div{height:34px}.gh-trend canvas{display:block;width:100%;height:100%}.gh-trend strong{text-align:right;font:700 11px var(--mono);color:var(--text-primary)}
+    .gh-empty,.gh-loading{text-align:center;padding:34px 18px;border:1px dashed var(--border-strong);border-radius:16px;background:var(--card-2)}.gh-empty-icon{font:700 34px var(--mono);color:var(--indigo);margin-bottom:8px}.gh-empty h3{font-size:18px;color:var(--text-primary);margin-bottom:6px}.gh-empty p{max-width:420px;margin:0 auto 18px;color:var(--text-secondary);font-size:12px;line-height:1.6}.gh-loading span{display:inline-block;width:7px;height:7px;margin:0 3px;border-radius:50%;background:var(--indigo);animation:gh-pulse 1s infinite ease-in-out}.gh-loading span:nth-child(2){animation-delay:.15s}.gh-loading span:nth-child(3){animation-delay:.3s}.gh-loading p{margin-top:12px;color:var(--text-secondary);font-size:12px}@keyframes gh-pulse{0%,80%,100%{opacity:.25;transform:scale(.7)}40%{opacity:1;transform:scale(1)}}
+    .gh-modal{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(3,2,12,.74);backdrop-filter:blur(12px)}.gh-modal.open{display:flex}.gh-modal-card{width:min(100%,560px);max-height:min(92vh,760px);overflow:auto;padding:22px;background:var(--card);border:1px solid var(--border-strong);border-radius:18px;box-shadow:0 22px 70px rgba(0,0,0,.55)}.gh-modal-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:18px}.gh-modal-title{font-size:20px;color:var(--text-primary);font-weight:700}.gh-modal-sub{margin-top:5px;color:var(--text-secondary);font-size:12px;line-height:1.55}.gh-modal-sub a{color:var(--indigo)}.gh-close{border:0;background:transparent;color:var(--text-secondary);font-size:20px;cursor:pointer}.gh-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.gh-field{min-width:0}.gh-field.full{grid-column:1/-1}.gh-field .form-label{margin-bottom:5px}.gh-modal-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.gh-modal-actions .btn-primary{flex:1}.gh-danger{color:#FCA5A5;border-color:rgba(239,68,68,.32)!important}.gh-danger:hover{color:#FCA5A5;background:rgba(239,68,68,.10)!important;border-color:rgba(239,68,68,.55)!important}.gh-warning{margin-top:14px;color:var(--text-secondary);font-size:10px;line-height:1.55}
+    @media(max-width:600px){.gh-config-card,.gh-intel-head{align-items:stretch;flex-direction:column}.gh-config-actions{justify-content:flex-start}.gh-metrics{grid-template-columns:repeat(2,1fr)}.gh-metrics .gh-metric:last-child{grid-column:1/-1}.gh-form-grid{grid-template-columns:1fr}.gh-field.full{grid-column:auto}.gh-head-actions{justify-content:space-between}.gh-headline{font-size:40px}}
     .attr{text-align:center;margin-top:28px;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-secondary);}
     .empty{font-size:13px;color:var(--text-secondary);font-style:italic;text-align:center;padding:22px 0;}
     @media(max-width:600px){
@@ -683,6 +695,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="../scripts/sync.js" defer></script>
 <script src="../scripts/topbar.js" defer></script>
+<script src="../scripts/github-health.js" defer></script>
 </head>
 <body>
   <!-- PRIMARY HEADER: the single shared navigation on every page -->
@@ -691,7 +704,7 @@
     <nav class="nav-pill" aria-label="NEXUS navigation">
       <a href="/src/pages/index.html" class="nav-link" data-route="home">Home</a><a href="/src/pages/index.html#goals-section" class="nav-link" data-route="goals">Goals</a><a href="/src/pages/health.html" class="nav-link active" data-route="wellness" aria-current="page">Wellness</a><a href="/src/pages/gym.html" class="nav-link" data-route="gym">Gym</a><a href="/src/pages/progression-tab.html" class="nav-link" data-route="calisthenics">Calisthenics</a><a href="/src/pages/grind-log.html" class="nav-link" data-route="grind">Grind Log</a>
     </nav>
-    <div class="header-right"><span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span><div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button><div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button" data-theme-option="periwinkle" role="menuitemradio">Periwinkle</button><button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div></div></div>
+    <div class="header-right"><button class="gh-nav-button" id="ghNavRefresh" type="button" style="display:none">↻ Refresh</button><button class="gh-nav-button" id="ghNavConfigure" type="button">⌁ GitHub</button><span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span><div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button><div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button" data-theme-option="periwinkle" role="menuitemradio">Periwinkle</button><button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div></div></div>
   </header>
   <!-- Ambient orb layer -->
   <div class="orbs" aria-hidden="true">
@@ -711,7 +724,40 @@
     <button class="tab-btn" data-tab="recovery">⚡ Recovery</button>
     <button class="tab-btn" data-tab="dreams">🌙 Dreams</button>
     <button class="tab-btn" data-tab="journal">📓 Journal</button>
+    <button class="tab-btn" data-tab="intel">⌁ Intel</button>
   </nav>
+
+  <div class="gh-modal" id="ghModal" role="dialog" aria-modal="true" aria-labelledby="ghModalTitle">
+    <div class="gh-modal-card">
+      <div class="gh-modal-head"><div><div class="card-eyebrow">Private source</div><div class="gh-modal-title" id="ghModalTitle">GitHub Health Connection</div><p class="gh-modal-sub">Create a <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noreferrer">fine-grained PAT</a> with <strong>Contents: Read-only</strong> for one private repository. The token stays in this browser and is sent directly to GitHub.</p></div><button class="gh-close" id="ghClose" type="button" aria-label="Close GitHub settings">×</button></div>
+      <div class="gh-status" id="ghModalStatus" hidden></div>
+      <div class="gh-form-grid">
+        <div class="gh-field full"><div class="form-label">Personal access token</div><input class="input" id="ghPat" type="password" autocomplete="off" placeholder="github_pat_…"></div>
+        <div class="gh-field"><div class="form-label">Repository <span style="opacity:.65">owner/repo</span></div><input class="input" id="ghRepo" placeholder="Musab2099/health-data"></div>
+        <div class="gh-field"><div class="form-label">Branch</div><input class="input" id="ghBranch" placeholder="main"></div>
+        <div class="gh-field full"><div class="form-label">File path</div><input class="input" id="ghPath" placeholder="data/health.json"></div>
+      </div>
+      <div class="divider"></div><div class="card-eyebrow" style="margin-bottom:10px">Field mapping · dot paths supported</div>
+      <div class="gh-form-grid">
+        <div class="gh-field"><div class="form-label">Date</div><input class="input" id="ghFieldDate" placeholder="date"></div>
+        <div class="gh-field"><div class="form-label">Sleep hours</div><input class="input" id="ghFieldSleep" placeholder="sleep_hours"></div>
+        <div class="gh-field"><div class="form-label">HRV</div><input class="input" id="ghFieldHrv" placeholder="hrv"></div>
+        <div class="gh-field"><div class="form-label">Resting HR</div><input class="input" id="ghFieldRhr" placeholder="resting_heart_rate"></div>
+        <div class="gh-field"><div class="form-label">Active calories</div><input class="input" id="ghFieldCalories" placeholder="active_calories"></div>
+        <div class="gh-field"><div class="form-label">Steps</div><input class="input" id="ghFieldSteps" placeholder="steps"></div>
+        <div class="gh-field"><div class="form-label">Cache minutes</div><input class="input" id="ghCache" type="number" min="0" max="10080" placeholder="360"></div>
+      </div>
+      <div class="gh-modal-actions"><button class="btn-primary" id="ghSave" type="button">↗ Save & Connect</button><button class="btn-ghost" id="ghTest" type="button">Test</button><button class="btn-ghost gh-danger" id="ghDisconnect" type="button">Disconnect</button></div>
+      <p class="gh-warning">LocalStorage is readable by scripts running on this origin. Use only a least-privilege read-only token, and disconnect it before sharing this browser profile.</p>
+    </div>
+  </div>
+
+  <!-- GITHUB HEALTH INTEL -->
+  <div id="tab-intel" class="tab-panel">
+    <div class="gh-config-card"><div class="gh-config-copy"><div class="card-eyebrow">Health Intel · GitHub source</div><p id="ghConfiguredHint">Not connected · your PAT never goes through NEXUS servers.</p></div><div class="gh-config-actions"><button class="btn-primary" id="ghConfigure" type="button">⚙ Configure</button><button class="btn-ghost" id="ghDemo" type="button">✨ Demo</button><label class="btn-ghost" for="ghUpload">📂 Upload<input id="ghUpload" type="file" accept=".json,.csv,.xml" hidden></label></div></div>
+    <div id="ghStatus" class="gh-status" hidden></div>
+    <div id="ghDashboard"></div>
+  </div>
 
   <!-- SLEEP -->
   <div id="tab-sleep" class="tab-panel">
@@ -895,7 +941,7 @@
     <div class="card"><div class="card-eyebrow" style="margin-bottom:14px">Past entries</div><div class="j-hist" id="jHist"><div class="empty">No past entries yet.</div></div></div>
   </div>
 
-  <div class="attr">// wellness hub · data stays in your browser · synced via NEXUS</div>
+  <div class="attr">// wellness hub · local logs stay in your browser · GitHub health intel is read-only</div>
 </main>
 
 <script>
