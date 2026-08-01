@@ -25,6 +25,7 @@ const PASSTHROUGH_FILES = [
   'src/pages/progression-tab.html',
   'src/scripts/topbar.js',
   'src/scripts/apple-health.js',
+  'src/scripts/sync-service.js',
   'src/scripts/theme.js',
   'src/scripts/event-horizon.js',
   'src/styles/liquid-amethyst.css',

@@ -9,7 +9,7 @@ NEXUS is a local-first progressive web app for goals, wellness, calisthenics tra
 ## At a glance
 
 - **Frontend:** Vanilla JavaScript ES2020+, HTML5, CSS3
-- **Backend:** Vercel serverless function at `/api/sync-health`
+- **Backend:** Vercel serverless function at `/api/sync-health` plus an optional Supabase Edge Function at `/functions/v1/sync-health`
 - **Database:** Supabase Postgres and Realtime
 - **Runtime libraries:** Supabase JS 2 and Chart.js 4.4 loaded from jsDelivr
 - **Offline support:** Service worker with network-first HTML and stale-while-revalidate static assets
@@ -87,7 +87,8 @@ NEXUS/
 - `src/scripts/sync.js` — `initCloudSync()` whitelists local keys, pulls/pushes Supabase state with debouncing, subscribes to Realtime changes, and dispatches storage updates after remote state is applied.
 - `src/scripts/topbar.js` — shared navigation/status UI, cross-app counts, responsive phone bottom bar, refresh hooks, and service-worker registration.
 - `src/scripts/theme.js` — theme preference handling.
-- `src/scripts/apple-health.js` — read-only Gym cache using `apple_health_metrics_v1` and authenticated `/api/sync-health` reads. Its `runAutoSync()` sanitizes complex metadata before JSON caching and coalesces overlapping refresh triggers into one follow-up pass; it does not upload Apple Health data.
+- `src/scripts/apple-health.js` — read-only Gym cache using `apple_health_metrics_v1` and authenticated `/api/sync-health` reads. It does not run background automation or upload Apple Health data.
+- `src/scripts/sync-service.js` — modular browser client for POSTing sanitized Apple Health payloads to the private `sync-health` Edge Function. It never contains or transmits the service-role key; callers provide the Edge Function URL and private sync token.
 - `src/scripts/event-horizon.js` — shared circadian tinting, tilt, and tactile interactions where included.
 - `sw.js` — service worker; bump `CACHE_VERSION` (`nexus-v7` currently) when changing cached assets or forcing a refresh.
 
@@ -147,6 +148,22 @@ This permissive policy is suitable only for the current single-user design. Add 
 Use the existing page helpers and sync-aware setters when changing storage behavior.
 
 ## Apple Health API
+
+The optional Supabase Edge Function lives at `supabase/functions/sync-health/index.ts`. It requires the same private `APPLE_HEALTH_SYNC_TOKEN` contract as the Vercel route, recursively sanitizes and deduplicates normalized rows, and archives the exact accepted JSON request body in a private GitHub repository before upserting those rows through the service-role client with `onConflict: 'external_id'`. GitHub archive paths use a content digest under `exports/YYYY-MM-DD/`, so retries do not create timestamped duplicates. A GitHub failure stops the request before the database write. Deploy it with `supabase functions deploy sync-health` after setting `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `APPLE_HEALTH_SYNC_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO`, `GITHUB_BRANCH`, and `GITHUB_PAT` as Supabase function secrets. `GITHUB_PAT` must be a server-only fine-grained token with Contents: write access to the private repository. Run `supabase/apple_health_logs.sql` first. `supabase/config.toml` disables Supabase's automatic JWT check because the function performs its own private-token check.
+
+For browser ingestion, load `src/scripts/sync-service.js` and call:
+
+```js
+const result = await window.appleHealthSync.sync(payload, {
+  endpoint: 'https://YOUR-PROJECT.supabase.co/functions/v1/sync-health',
+  token: localStorage.getItem('apple_health_sync_token')
+});
+```
+
+The URL and token should come from deployment configuration or a protected app setting. Never place `SUPABASE_SERVICE_ROLE_KEY` or `GITHUB_PAT` in this call or in any browser bundle.
+
+**Privacy warning:** choosing exact raw JSON archival stores the complete accepted Apple Health export in Git history. GitHub commits can retain prior versions even after a file is deleted, so use a private repository, least-privilege token, repository access controls, and an explicit retention/rotation policy before enabling this path.
+
 
 `api/sync-health.js` is the Vercel function at `/api/sync-health`. The repository does not contain a persistent Apple Health uploader or cron worker: Health Auto Export pushes payloads to this endpoint, while `src/scripts/apple-health.js` only performs authenticated read-through refreshes for the Gym dashboard.
 
@@ -222,7 +239,14 @@ Browser build variables:
 Server-only API variables:
 
 - `SUPABASE_SERVICE_ROLE_KEY` — service-role key; never expose it.
-- `APPLE_HEALTH_SYNC_TOKEN` — private Bearer token shared with the export client.
+- `APPLE_HEALTH_SYNC_TOKEN` — private Bearer token shared with the export client and the Edge Function client.
+
+Supabase Edge Function archive secrets (server-only):
+
+- `GITHUB_OWNER` — private GitHub repository owner.
+- `GITHUB_REPO` — private GitHub repository name.
+- `GITHUB_BRANCH` — target branch, normally `main`.
+- `GITHUB_PAT` — fine-grained GitHub token with repository Contents: write permission; never expose it to the browser or commit it.
 
 The API requires `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` at runtime. `SUPABASE_KEY` remains a browser/build-time anon key and is never accepted by the ingestion route. Never use the service-role key as the browser `SUPABASE_KEY`.
 
@@ -247,8 +271,19 @@ Focused syntax checks:
 node --check api/sync-health.js
 node --check lib/health-validation.js
 node --check lib/supabase.js
+node --check src/scripts/sync-service.js
 node --check test/sync-health.test.js
+node --check test/sync-service.test.js
 ```
+
+Edge Function validation requires the Supabase CLI/Deno toolchain:
+
+```bash
+deno check supabase/functions/sync-health/index.ts
+supabase functions deploy sync-health
+```
+
+Deno is not required for the PWA build or Node test suite, but `deno check` should run in CI or before deploying the function.
 
 ## Vercel and Health Auto Export checklist
 
@@ -273,6 +308,8 @@ Set values under **Project → Settings → Environment Variables** for every re
 - [ ] Do not put `SUPABASE_SERVICE_ROLE_KEY` in `NEXT_PUBLIC_*`, HTML, client JavaScript, or Health Auto Export.
 - [ ] Confirm the project root, branch, and environment scope are correct.
 - [ ] Confirm `api/sync-health.js` deploys as `/api/sync-health` and root-level `lib/` dependencies are in the function bundle.
+- [ ] For the optional Edge Function, run `supabase functions deploy sync-health` and set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `APPLE_HEALTH_SYNC_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO`, `GITHUB_BRANCH`, and `GITHUB_PAT` as function secrets.
+- [ ] Give `GITHUB_PAT` only private-repository Contents: write permission and rotate/revoke it through GitHub if exposed.
 - [ ] Confirm the `metadata` JSONB column exists and is `NOT NULL DEFAULT '{}'::jsonb` (apply the SQL migration; it repairs older installations too).
 - [ ] Redeploy after adding or rotating environment variables.
 

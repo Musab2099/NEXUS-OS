@@ -68,24 +68,41 @@ body {
 /* ─── PRIMARY HEADER ─────────────────────────────────────────────────── */
 .navbar {
   position: sticky;
-  top: 8px;
+  top: 0;
   z-index: 200;
+  isolation: isolate;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: clamp(12px, 2vw, 28px);
   width: min(1240px, calc(100% - 32px));
   min-width: 0;
-  margin: 8px auto 0;
-  padding: max(1rem, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left));
+  margin: 0 auto;
+  padding: max(16px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left));
   box-sizing: border-box;
   background: var(--bg-header, var(--topbar-bg, #02020C));
   color: var(--text-nav, var(--text-primary, #F1F5F9));
   border: 1px solid var(--nav-border, var(--topbar-border, rgba(255,255,255,.08)));
-  border-radius: 18px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, .14);
+  border-radius: 0 0 18px 18px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .18);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
   backdrop-filter: blur(20px) saturate(140%);
+}
+
+.navbar > .logo,
+.navbar > .nav-pill,
+.navbar > .header-right {
+  min-width: 0;
+}
+
+.navbar a,
+.navbar button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.navbar button {
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .logo {
@@ -207,12 +224,17 @@ html[data-initial-route="grind"] .nav-link[data-route="home"] {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-height: 28px;
+  padding: 6px 9px;
   color: var(--green, #10B981);
   font-size: 9px;
   font-weight: 800;
-  letter-spacing: .13em;
+  letter-spacing: .11em;
   line-height: 1;
   white-space: nowrap;
+  background: color-mix(in srgb, currentColor 9%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 28%, transparent);
+  border-radius: 999px;
 }
 
 .status-pill-dot {
@@ -328,15 +350,37 @@ html[data-initial-route="grind"] .nav-link[data-route="home"] {
 }
 
 @media (max-width: 768px) {
+  html.js-loading .navbar,
   .navbar {
-    position: sticky;
-    top: 6px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "brand controls"
+      "navigation navigation";
     width: calc(100% - 16px);
-    margin-top: 6px;
-    padding-top: max(1rem, env(safe-area-inset-top));
+    margin: 0 auto;
+    padding-top: max(16px, env(safe-area-inset-top));
     padding-bottom: 9px;
     gap: 8px;
-    border-radius: 15px;
+    border-radius: 0 0 15px 15px;
+  }
+
+  html.js-loading .navbar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    grid-template-areas: "brand controls" "navigation navigation" !important;
+  }
+
+  .navbar > .logo {
+    grid-area: brand;
+  }
+
+  .navbar > .nav-pill {
+    grid-area: navigation;
+    width: 100%;
+  }
+
+  .navbar > .header-right {
+    grid-area: controls;
   }
 
   .logo {
@@ -365,7 +409,10 @@ html[data-initial-route="grind"] .nav-link[data-route="home"] {
   }
 
   .status-pill {
-    font-size: 0;
+    min-height: 30px;
+    padding: 7px 8px;
+    font-size: 8px;
+    letter-spacing: .08em;
   }
 
   .theme-toggle {
@@ -377,8 +424,7 @@ html[data-initial-route="grind"] .nav-link[data-route="home"] {
 
 @media (max-width: 520px) {
   .navbar {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
+    width: 100%;
   }
 
   .nav-pill a {
@@ -395,6 +441,23 @@ html[data-initial-route="grind"] .nav-link[data-route="home"] {
 /* Keep in-page destinations visible below the sticky header. */
 #goals-section {
   scroll-margin-top: 120px;
+}
+
+/* Give page content a deliberate visual pause after the fixed-safe header.
+   Page-specific shells can add their own larger rhythm without colliding with
+   the shared navigation. */
+.page,
+.shell,
+body > main {
+  scroll-margin-top: 120px;
+}
+
+@media (max-width: 768px) {
+  .page,
+  .shell,
+  body > main {
+    scroll-margin-top: 104px;
+  }
 }
 
 /* Shared page safety and theme surface guardrails. */

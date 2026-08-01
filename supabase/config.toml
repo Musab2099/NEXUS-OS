@@ -1,0 +1,5 @@
+# Supabase CLI project configuration.
+# The function verifies APPLE_HEALTH_SYNC_TOKEN itself because this PWA uses
+# one private ingestion token rather than Supabase user sessions.
+[functions.sync-health]
+verify_jwt = false

@@ -1,3 +1,7 @@
+# Dependencies
+node_modules/
+/jspm_packages/
+
 # OS / editor noise
 .DS_Store
 .vscode/
@@ -18,7 +22,6 @@ dist/
 *.py
 !scripts/build.js
 .cache/
-
 
 # Python Virtual Environments & Bytecode
 __pycache__/
