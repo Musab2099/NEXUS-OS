@@ -1956,6 +1956,11 @@
     }
 
     window.addEventListener('load', () => {
+      const urlDay = new URLSearchParams(window.location.search).get('day');
+      if (urlDay && WORKOUTS[urlDay]) {
+        selectDay(urlDay);
+      }
+
       const raw = localStorage.getItem('nx-session-snap');
       if (!raw) return;
       try {

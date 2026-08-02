@@ -2630,6 +2630,7 @@
         const map = ['monday', 'tuesday', 'thursday', 'friday'];
         return map[currentDay] || 'monday';
       }
+      window.getDayParamFromCurrentSelection = getDayParamFromCurrentSelection;
       function fmtDate(k) {
         const [y, m, d] = k.split('-').map(Number);
         const dt = new Date(y, m - 1, d);
