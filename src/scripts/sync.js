@@ -8,6 +8,59 @@
   // substitutes real values when producing dist/.
   const SUPABASE_URL = '__SUPABASE_URL__';
   const SUPABASE_KEY = '__SUPABASE_KEY__';
+  const CLOUD_TIMEOUT_MS = 10000;
+
+  // Bound both direct REST calls and Supabase client's internal requests.
+  // Preserve a caller-provided signal so Supabase can still cancel requests.
+  function fetchWithTimeout(input, options) {
+    const controller = new AbortController();
+    const requestOptions = options || {};
+    const externalSignal = requestOptions.signal;
+    let onAbort = null;
+    let settled = false;
+    let timeoutId;
+    function cleanup() {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeoutId);
+      if (onAbort) externalSignal.removeEventListener('abort', onAbort);
+    }
+    timeoutId = setTimeout(() => { controller.abort(); cleanup(); }, CLOUD_TIMEOUT_MS);
+
+    try {
+      if (externalSignal) {
+        if (externalSignal.aborted) {
+          controller.abort(externalSignal.reason);
+        } else {
+          onAbort = function () { controller.abort(externalSignal.reason); };
+          externalSignal.addEventListener('abort', onAbort, { once: true });
+        }
+      }
+
+      return fetch(input, { ...requestOptions, signal: controller.signal })
+        .then(async function (response) {
+          if (typeof response.arrayBuffer !== 'function' || typeof Response !== 'function') {
+            cleanup();
+            return response;
+          }
+          const body = await response.arrayBuffer();
+          const wrapped = new Response(body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: response.headers,
+          });
+          cleanup();
+          return wrapped;
+        })
+        .catch(function (error) {
+          cleanup();
+          throw error;
+        });
+    } catch (error) {
+      cleanup();
+      throw error;
+    }
+  }
 
   window.initCloudSync = function (config) {
     const appKey = config && config.appKey;
@@ -95,7 +148,7 @@
       const json = JSON.stringify(state);
       if (json === lastSyncedJson) return;
       try {
-        fetch(SUPABASE_URL + '/rest/v1/app_state?on_conflict=key', {
+        fetchWithTimeout(SUPABASE_URL + '/rest/v1/app_state?on_conflict=key', {
           method: 'POST',
           headers: {
             'apikey': SUPABASE_KEY,
@@ -110,7 +163,9 @@
       } catch (e) { }
     }
     (async function init() {
-      supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+        global: { fetch: fetchWithTimeout },
+      });
       try {
         const { data, error } = await supa.from('app_state').select('data').eq('key', appKey).maybeSingle();
         if (!error && data && data.data && Object.keys(data.data).length > 0) {

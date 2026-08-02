@@ -7,6 +7,7 @@ type UnknownRecord = Record<string, unknown>
 
 const MAX_BODY_BYTES = 4 * 1024 * 1024
 const MAX_RECORDS = 500
+const SUPABASE_TIMEOUT_MS = 10000
 const MAX_TEXT_LENGTH = 180
 const QUANTITY_KEYS = ['qty', 'value', 'quantity', 'amount'] as const
 const UNIT_KEYS = ['units', 'unit'] as const
@@ -264,6 +265,9 @@ async function normalizeRecord(raw: unknown): Promise<JsonObject> {
     endDate,
     qty,
     units,
+    // Preserve the sanitized Shortcuts/Health Auto Export record as the raw
+    // payload log while retaining normalized columns for querying.
+    data: metadata,
     metadata,
   }
 }
@@ -298,12 +302,50 @@ function tokensMatch(received: string, expected: string): boolean {
   return difference === 0 && a.length > 0
 }
 
+function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), SUPABASE_TIMEOUT_MS)
+  const externalSignal = init.signal
+  let onAbort: (() => void) | null = null
+
+  try {
+    if (externalSignal) {
+      if (externalSignal.aborted) {
+        controller.abort(externalSignal.reason)
+      } else {
+        onAbort = () => controller.abort(externalSignal.reason)
+        externalSignal.addEventListener('abort', onAbort, { once: true })
+      }
+    }
+
+    return globalThis.fetch(input, { ...init, signal: controller.signal })
+      .then(async (response) => {
+        if (typeof response.arrayBuffer !== 'function') return response
+        const body = await response.arrayBuffer()
+        return new Response(body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+        })
+      })
+      .finally(() => {
+        clearTimeout(timeoutId)
+        if (onAbort) externalSignal?.removeEventListener('abort', onAbort)
+      })
+  } catch (error) {
+    clearTimeout(timeoutId)
+    if (onAbort) externalSignal?.removeEventListener('abort', onAbort)
+    throw error
+  }
+}
+
 function createAdminClient() {
   const url = Deno.env.get('SUPABASE_URL')
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
   if (!url || !serviceRoleKey) throw new Error('Supabase server configuration is incomplete')
 
   return createClient(url, serviceRoleKey, {
+    global: { fetch: fetchWithTimeout },
     auth: { autoRefreshToken: false, detectSessionInUrl: false, persistSession: false },
   })
 }
@@ -340,7 +382,7 @@ Deno.serve(async (request: Request): Promise<Response> => {
 
     const supabase = createAdminClient()
     const { data, error } = await supabase
-      .from('health_data')
+      .from('health_logs')
       .upsert(rows, { onConflict: 'sample_id', ignoreDuplicates: true })
       .select('sample_id')
 

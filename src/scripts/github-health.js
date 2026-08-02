@@ -7,6 +7,7 @@
   const CONFIG_KEY = 'nexus_health_github_config_v1';
   const CACHE_KEY = 'nexus_health_github_cache_v1';
   const DEFAULT_CACHE_MINUTES = 360;
+  const GITHUB_TIMEOUT_MS = 10000;
   const DEFAULT_FIELDS = {
     date: 'date',
     sleep: 'sleep_hours',
@@ -45,6 +46,37 @@
   function clampCacheMinutes(value) {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? Math.max(0, Math.min(10080, parsed)) : DEFAULT_CACHE_MINUTES;
+  }
+
+  function requestWithTimeout(input, options, readBody) {
+    const controller = new root.AbortController();
+    const requestOptions = options || {};
+    const externalSignal = requestOptions.signal;
+    let onAbort = null;
+    const timeoutId = root.setTimeout(() => controller.abort(), GITHUB_TIMEOUT_MS);
+
+    function cleanup() {
+      root.clearTimeout(timeoutId);
+      if (onAbort) externalSignal.removeEventListener('abort', onAbort);
+    }
+
+    try {
+      if (externalSignal) {
+        if (externalSignal.aborted) {
+          controller.abort(externalSignal.reason);
+        } else {
+          onAbort = () => controller.abort(externalSignal.reason);
+          externalSignal.addEventListener('abort', onAbort, { once: true });
+        }
+      }
+
+      return root.fetch(input, { ...requestOptions, signal: controller.signal })
+        .then(response => Promise.resolve(readBody(response)).then(body => ({ response, body })))
+        .finally(cleanup);
+    } catch (error) {
+      cleanup();
+      throw error;
+    }
   }
 
   function getConfig() {
@@ -266,21 +298,22 @@
 
   async function fetchSource(config) {
     if (!config.pat) throw new Error('A GitHub PAT is required.');
-    const response = await root.fetch(repoUrl(config), {
+    const metadataRequest = await requestWithTimeout(repoUrl(config), {
       headers: {
         Authorization: `Bearer ${config.pat}`,
         Accept: 'application/vnd.github+json',
         'X-GitHub-Api-Version': '2022-11-28',
       },
-    });
+    }, response => response.json().catch(() => ({})));
+    const response = metadataRequest.response;
+    const metadata = metadataRequest.body;
     if (!response.ok) {
       let message = `GitHub returned ${response.status}`;
-      try { message = (await response.json()).message || message; } catch (error) { /* keep status */ }
+      message = metadata && metadata.message ? metadata.message : message;
       if (response.status === 401 || response.status === 403) message = 'GitHub rejected the PAT or repository permission.';
       if (response.status === 404) message = 'File or private repository not found. Check repo, branch, and PAT access.';
       throw new Error(message);
     }
-    const metadata = await response.json();
     if (metadata.content) return decodeBase64(metadata.content);
     if (!metadata.download_url) throw new Error('GitHub returned no readable file content.');
     let downloadUrl;
@@ -288,11 +321,11 @@
     const safeHost = downloadUrl.protocol === 'https:'
       && (downloadUrl.hostname === 'github.com' || downloadUrl.hostname === 'raw.githubusercontent.com' || downloadUrl.hostname.endsWith('.githubusercontent.com'));
     if (!safeHost) throw new Error('GitHub returned an unsafe download URL.');
-    const download = await root.fetch(downloadUrl.href, {
+    const downloadRequest = await requestWithTimeout(downloadUrl.href, {
       headers: { Authorization: `Bearer ${config.pat}`, Accept: 'application/octet-stream' },
-    });
-    if (!download.ok) throw new Error(`GitHub download failed (${download.status}).`);
-    return download.text();
+    }, response => response.text());
+    if (!downloadRequest.response.ok) throw new Error(`GitHub download failed (${downloadRequest.response.status}).`);
+    return downloadRequest.body;
   }
 
   function days(count) {

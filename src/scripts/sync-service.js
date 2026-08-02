@@ -7,6 +7,7 @@
 
   var TOKEN_KEY = 'apple_health_sync_token';
   var ENDPOINT_PROPERTY = 'appleHealthSyncEndpoint';
+  var SYNC_TIMEOUT_MS = 10000;
   var QUANTITY_KEYS = ['value', 'qty', 'quantity', 'amount'];
   var UNIT_KEYS = ['unit', 'units'];
 
@@ -135,6 +136,41 @@
     }
   }
 
+  function requestWithTimeout(input, options, readBody) {
+    var controller = new root.AbortController();
+    var requestOptions = options || {};
+    var externalSignal = requestOptions.signal;
+    var onAbort = null;
+    var timeoutId = root.setTimeout(function () { controller.abort(); }, SYNC_TIMEOUT_MS);
+
+    function cleanup() {
+      root.clearTimeout(timeoutId);
+      if (onAbort) externalSignal.removeEventListener('abort', onAbort);
+    }
+
+    try {
+      if (externalSignal) {
+        if (externalSignal.aborted) {
+          controller.abort(externalSignal.reason);
+        } else {
+          onAbort = function () { controller.abort(externalSignal.reason); };
+          externalSignal.addEventListener('abort', onAbort, { once: true });
+        }
+      }
+
+      return root.fetch(input, Object.assign({}, requestOptions, { signal: controller.signal }))
+        .then(function (response) {
+          return Promise.resolve(readBody(response)).then(function (body) {
+            return { response: response, body: body };
+          });
+        })
+        .finally(cleanup);
+    } catch (error) {
+      cleanup();
+      throw error;
+    }
+  }
+
   function responseBody(response) {
     return response.json().catch(function () { return {}; });
   }
@@ -149,7 +185,7 @@
     if (!safePayload) return { success: false, count: 0, error: 'Apple Health payload must be an object or array' };
 
     try {
-      var response = await root.fetch(endpoint, {
+      var request = await requestWithTimeout(endpoint, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -158,8 +194,9 @@
         },
         body: JSON.stringify(safePayload),
         credentials: 'omit',
-      });
-      var body = await responseBody(response);
+      }, responseBody);
+      var response = request.response;
+      var body = request.body;
       if (!response.ok) {
         return {
           success: false,

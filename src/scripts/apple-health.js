@@ -6,6 +6,42 @@
   'use strict';
 
   const CACHE_KEY = 'apple_health_metrics_v1';
+  const HEALTH_TIMEOUT_MS = 10000;
+
+  function requestJsonWithTimeout(input, options) {
+    const controller = new AbortController();
+    const requestOptions = options || {};
+    const externalSignal = requestOptions.signal;
+    let onAbort = null;
+    const timeoutId = setTimeout(function () { controller.abort(); }, HEALTH_TIMEOUT_MS);
+
+    function cleanup() {
+      clearTimeout(timeoutId);
+      if (onAbort) externalSignal.removeEventListener('abort', onAbort);
+    }
+
+    try {
+      if (externalSignal) {
+        if (externalSignal.aborted) {
+          controller.abort(externalSignal.reason);
+        } else {
+          onAbort = function () { controller.abort(externalSignal.reason); };
+          externalSignal.addEventListener('abort', onAbort, { once: true });
+        }
+      }
+
+      return fetch(input, { ...requestOptions, signal: controller.signal })
+        .then(function (response) {
+          return response.json().then(function (data) {
+            return { response: response, data: data };
+          });
+        })
+        .finally(cleanup);
+    } catch (error) {
+      cleanup();
+      throw error;
+    }
+  }
 
   function todayKey() {
     const now = new Date();
@@ -76,16 +112,15 @@
   async function refresh() {
     let token = '';
     try { token = localStorage.getItem('apple_health_sync_token') || ''; } catch (e) { }
-    const response = await fetch('/api/sync-health?date=' + encodeURIComponent(todayKey()), {
+    const request = await requestJsonWithTimeout('/api/sync-health?date=' + encodeURIComponent(todayKey()), {
       headers: {
         Accept: 'application/json',
         Authorization: token ? 'Bearer ' + token : '',
       },
       credentials: 'same-origin',
     });
-    if (!response.ok) throw new Error('Apple Health metrics unavailable');
-    const result = await response.json();
-    const rows = normalise(result.records || []);
+    if (!request.response.ok) throw new Error('Apple Health metrics unavailable');
+    const rows = normalise(request.data.records || []);
     saveRows(rows);
     return rows;
   }

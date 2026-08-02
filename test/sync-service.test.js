@@ -25,6 +25,7 @@ function loadClient(overrides = {}) {
     Promise,
     setTimeout,
     clearTimeout,
+    AbortController,
     localStorage: {
       getItem(key) { return storage.get(key) || null; },
       setItem(key, value) { storage.set(key, String(value)); },
@@ -69,6 +70,7 @@ describe('appleHealthSync', () => {
     assert.equal(calls[0].url, 'https://project.supabase.co/functions/v1/sync-health');
     assert.equal(calls[0].options.method, 'POST');
     assert.equal(calls[0].options.credentials, 'omit');
+    assert.ok(calls[0].options.signal instanceof AbortSignal);
     assert.equal(calls[0].options.headers.Authorization, 'Bearer private-token');
     assert.deepEqual(JSON.parse(calls[0].options.body), {
       id: 'workout-1',

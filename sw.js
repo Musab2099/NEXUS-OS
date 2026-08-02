@@ -1,6 +1,24 @@
 // NEXUS service worker
 // Bump CACHE_VERSION any time you change the cached file list or want to force-refresh clients.
-const CACHE_VERSION = 'nexus-v8';
+const CACHE_VERSION = 'nexus-v9';
+const NETWORK_TIMEOUT_MS = 10000;
+
+function fetchWithTimeout(request) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), NETWORK_TIMEOUT_MS);
+
+  return fetch(request, { signal: controller.signal })
+    .then(async (response) => {
+      if (typeof response.arrayBuffer !== 'function') return response;
+      const body = await response.arrayBuffer();
+      return new Response(body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+      });
+    })
+    .finally(() => clearTimeout(timeoutId));
+}
 
 const CACHE_FILES = [
   '/',
@@ -56,7 +74,7 @@ self.addEventListener('fetch', (event) => {
     // Network-first for HTML pages: always tries to get the freshest
     // version, falls back to the cached copy if offline.
     event.respondWith(
-      fetch(req)
+      fetchWithTimeout(req)
         .then((res) => {
           const copy = res.clone();
           caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
@@ -71,7 +89,7 @@ self.addEventListener('fetch', (event) => {
   // serve instantly from cache, then refresh the cache in the background.
   event.respondWith(
     caches.match(req).then((cached) => {
-      const fetchPromise = fetch(req)
+      const fetchPromise = fetchWithTimeout(req)
         .then((res) => {
           const copy = res.clone();
           caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
