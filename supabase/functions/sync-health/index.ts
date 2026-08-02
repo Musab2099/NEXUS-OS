@@ -213,7 +213,8 @@ async function sha256(value: string): Promise<string> {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 
-const FORM_PAYLOAD_KEYS = new Set(['payload', 'data', 'body', 'json', 'value', 'file'])
+const FORM_PAYLOAD_KEYS = new Set(['payload', 'body', 'json', 'file'])
+const FORM_OPTIONAL_JSON_KEYS = new Set(['data', 'value'])
 
 function parseJsonText(text: string, context = 'payload'): unknown {
   const trimmed = text.trim()
@@ -245,6 +246,19 @@ function formEntriesToPayload(entries: Array<[string, string]>): unknown {
 
   const payloadEntry = entries.find(([key]) => FORM_PAYLOAD_KEYS.has(key.trim().toLowerCase()))
   if (payloadEntry) return parseJsonText(payloadEntry[1], `in form field "${payloadEntry[0]}"`)
+
+  // `data` and `value` are also common ordinary form fields. Only treat one
+  // as a nested payload when it contains a JSON object/array; otherwise keep
+  // all form fields instead of silently discarding siblings.
+  const optionalPayloadEntry = entries.find(([key]) => FORM_OPTIONAL_JSON_KEYS.has(key.trim().toLowerCase()))
+  if (optionalPayloadEntry) {
+    try {
+      const parsed = parseJsonText(optionalPayloadEntry[1], `in form field "${optionalPayloadEntry[0]}"`)
+      if (parsed && typeof parsed === 'object') return parsed
+    } catch {
+      // Preserve the ordinary key/value form representation below.
+    }
+  }
 
   const payload: UnknownRecord = {}
   for (const [key, value] of entries) payload[key] = value
@@ -420,6 +434,10 @@ function createAdminClient() {
 }
 
 Deno.serve(async (request: Request): Promise<Response> => {
+  // Keep this before authentication/parsing so the function log confirms that
+  // Supabase delivered the request without exposing headers or credentials.
+  console.log('--> Request received! Method:', request.method)
+
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders })
   if (request.method !== 'POST') return jsonResponse({ error: 'Method not allowed' }, 405)
 
@@ -441,6 +459,12 @@ Deno.serve(async (request: Request): Promise<Response> => {
     }
 
     const body = await parseRequestPayload(request, contentType)
+    const payloadKeyCount = body && typeof body === 'object' && !Array.isArray(body)
+      ? Object.keys(body).length
+      : Array.isArray(body) ? body.length : 0
+    console.log('--> Parsed payload successfully. Key/record count:', payloadKeyCount)
+    console.log('--> Parsed payload JSON:', JSON.stringify(body))
+
     const rows = await normalizePayload(body)
     if (rows.length === 0) return jsonResponse({ success: true, count: 0 }, 200)
 
@@ -451,21 +475,36 @@ Deno.serve(async (request: Request): Promise<Response> => {
       .select('sample_id')
 
     if (error) {
-      console.error('Health Auto Export database upsert failed:', error.message)
+      console.error('--> Supabase DB Insert Error:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      })
       return jsonResponse({ error: 'Database operation failed' }, 502)
     }
 
+    console.log('--> Successfully upserted into health_logs table! Rows:', rows.length)
     return jsonResponse({
       success: true,
       count: Array.isArray(data) ? data.length : 0,
     }, 200)
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    console.error('--> Function Execution Error:', message)
     console.error('Health Auto Export request failed:', error)
-    const message = error instanceof Error ? error.message : ''
     if (message === 'Supabase server configuration is incomplete') {
       return jsonResponse({ error: message }, 500)
     }
-    if (message.startsWith('A maximum of ') || message.startsWith('Each Health Auto Export')) {
+    if (
+      message === 'Payload is empty'
+      || message === 'Form payload is empty'
+      || message === 'Invalid multipart form payload'
+      || message.startsWith('Invalid JSON ')
+      || message.startsWith('Invalid nested JSON ')
+      || message.startsWith('A maximum of ')
+      || message.startsWith('Each Health Auto Export')
+    ) {
       return jsonResponse({ error: message }, 400)
     }
     return jsonResponse({ error: 'Unable to process Health Auto Export payload' }, 400)
