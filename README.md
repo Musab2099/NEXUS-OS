@@ -149,7 +149,7 @@ Use the existing page helpers and sync-aware setters when changing storage behav
 
 ## Apple Health API
 
-The Supabase Edge Function lives at `supabase/functions/sync-health/index.ts`. It requires only `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and the private `APPLE_HEALTH_SYNC_TOKEN`; it recursively sanitizes Health Auto Export payloads and upserts directly into `public.health_data` using `onConflict: 'sample_id'` with duplicate ignoring enabled. Empty or duplicate-only batches return `200` with `{ "success": true, "count": 0 }`, and successful batches return `200` with the inserted row count. The function has no repository, commit, or third-party archival integration. Apply the `health_data` migrations under `supabase/migrations/` before deploying. `supabase/config.toml` disables Supabase's automatic JWT check because the function performs its own private-token check.
+The Supabase Edge Function lives at `supabase/functions/sync-health/index.ts`. It requires only `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and the private `APPLE_HEALTH_SYNC_TOKEN`; it recursively sanitizes Health Auto Export payloads and upserts directly into `public.health_logs` using `onConflict: 'sample_id'` with duplicate ignoring enabled. Empty or duplicate-only batches return `200` with `{ "success": true, "count": 0 }`, and successful batches return `200` with the inserted row count. The function has no repository, commit, or third-party archival integration. Apply the health-data migrations under `supabase/migrations/` before deploying. `supabase/config.toml` disables Supabase's automatic JWT check because the function performs its own private-token check.
 
 For browser ingestion, load `src/scripts/sync-service.js` and call:
 
@@ -213,7 +213,7 @@ Health Auto Export v2 payloads have the form:
 }
 ```
 
-For each Health Auto Export sample, the Edge Function maps `sample_id`/`sampleId` (falling back to `id`/`uuid` or a content hash) to both `sample_id` and the required primary-key `id`, maps `name`, `startDate`, `endDate`, `qty`, and `units`, and stores the recursively sanitized original sample in `metadata` (`jsonb`). Quantity-shaped objects such as `{ "qty": 12.5, "units": "m" }` or `{ "value": 12.5 }` are reduced to their scalar value while preserving units when present. Arrays and nested samples are accepted up to 500 records, empty batches are successful no-ops, and duplicate sample IDs are ignored through `on_conflict=sample_id`. Apply the migrations under [`supabase/migrations/`](supabase/migrations/) before deploying the function.
+For each Health Auto Export sample, the Edge Function maps `sample_id`/`sampleId` (falling back to `id`/`uuid` or a content hash) to both `sample_id` and the required primary-key `id`, maps `name`, `startDate`/`start_date`, `endDate`/`end_date`, `qty`, and `units` to the normalized snake_case database columns, and stores the recursively sanitized original sample in `metadata` (`jsonb`). Quantity-shaped objects such as `{ "qty": 12.5, "units": "m" }` or `{ "value": 12.5 }` are reduced to their scalar value while preserving units when present. Arrays and nested samples are accepted up to 500 records, empty batches are successful no-ops, and duplicate sample IDs are ignored through `on_conflict=sample_id`. Apply the migrations under [`supabase/migrations/`](supabase/migrations/) before deploying the function.
 
 ## Setup and development
 
@@ -300,7 +300,7 @@ Set values under **Project → Settings → Environment Variables** for every re
 - [ ] Confirm the project root, branch, and environment scope are correct.
 - [ ] Confirm `api/sync-health.js` deploys as `/api/sync-health` and root-level `lib/` dependencies are in the function bundle.
 - [ ] For the Supabase-only Edge Function, run `supabase functions deploy sync-health` with only `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `APPLE_HEALTH_SYNC_TOKEN` configured.
-- [ ] Confirm `public.health_data.sample_id` has a unique constraint and `metadata` is `NOT NULL DEFAULT '{}'::jsonb`.
+- [ ] Confirm `public.health_logs.sample_id` has a unique constraint and `metadata` is `NOT NULL DEFAULT '{}'::jsonb`.
 - [ ] Confirm no `GITHUB_OWNER`, `GITHUB_REPO`, `GITHUB_BRANCH`, or `GITHUB_PAT` secret is required by the function.
 - [ ] Redeploy after adding or rotating environment variables.
 
@@ -338,7 +338,7 @@ curl -i -X PUT "https://YOUR-DOMAIN/api/sync-health/" \
 
 - [ ] Invalid/missing tokens return `401`.
 - [ ] New, empty, and duplicate-only batches return `200` with `{ "success": true, "count": ... }`.
-- [ ] The row appears in `health_data`.
+- [ ] The row appears in `health_logs`.
 - [ ] Retrying the same `sample_id` does not create a duplicate.
 
 Troubleshooting:
@@ -346,7 +346,7 @@ Troubleshooting:
 - **405:** likely stale deployment or wrong URL; use exactly `/api/sync-health` and test `OPTIONS`.
 - **401:** verify the exact Bearer token, environment scope, and header format.
 - **500:** verify runtime Supabase credentials and redeploy.
-- **502:** verify the `health_data` schema, Supabase URL/key pair, and unique `sample_id` constraint.
+- **502:** verify the `health_logs` schema, Supabase URL/key pair, and unique `sample_id` constraint.
 
 ## Vercel configuration
 
