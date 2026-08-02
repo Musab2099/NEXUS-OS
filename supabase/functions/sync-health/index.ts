@@ -1,4 +1,4 @@
-import { createClient } from 'npm:@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 type JsonPrimitive = string | number | boolean | null
 type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue }
@@ -369,9 +369,17 @@ async function normalizePayload(body: unknown): Promise<JsonObject[]> {
 }
 
 function suppliedToken(request: Request): string {
+  const customToken = request.headers.get('x-health-sync-token')
+  if (customToken && customToken.trim() !== '') {
+    return customToken.trim()
+  }
+
   const authorization = request.headers.get('authorization') || ''
-  if (/^Bearer\s+/i.test(authorization)) return authorization.replace(/^Bearer\s+/i, '').trim()
-  return (request.headers.get('x-health-sync-token') || '').trim()
+  if (/^Bearer\s+/i.test(authorization)) {
+    return authorization.replace(/^Bearer\s+/i, '').trim()
+  }
+
+  return ''
 }
 
 function tokensMatch(received: string, expected: string): boolean {
