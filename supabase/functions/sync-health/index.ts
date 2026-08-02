@@ -213,6 +213,75 @@ async function sha256(value: string): Promise<string> {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 
+const FORM_PAYLOAD_KEYS = new Set(['payload', 'data', 'body', 'json', 'value', 'file'])
+
+function parseJsonText(text: string, context = 'payload'): unknown {
+  const trimmed = text.trim()
+  if (!trimmed) throw new Error('Payload is empty')
+
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(trimmed)
+  } catch {
+    throw new Error(`Invalid JSON ${context}`)
+  }
+
+  // Shortcuts may JSON-encode an already JSON-encoded object.
+  for (let depth = 0; depth < 2 && typeof parsed === 'string'; depth += 1) {
+    const nested = parsed.trim()
+    if (!nested.startsWith('{') && !nested.startsWith('[') && !nested.startsWith('"')) break
+    try {
+      parsed = JSON.parse(nested)
+    } catch {
+      throw new Error(`Invalid nested JSON ${context}`)
+    }
+  }
+
+  return parsed
+}
+
+function formEntriesToPayload(entries: Array<[string, string]>): unknown {
+  if (entries.length === 0) throw new Error('Form payload is empty')
+
+  const payloadEntry = entries.find(([key]) => FORM_PAYLOAD_KEYS.has(key.trim().toLowerCase()))
+  if (payloadEntry) return parseJsonText(payloadEntry[1], `in form field "${payloadEntry[0]}"`)
+
+  const payload: UnknownRecord = {}
+  for (const [key, value] of entries) payload[key] = value
+  return payload
+}
+
+async function parseRequestPayload(request: Request, contentType: string): Promise<unknown> {
+  if (contentType.includes('multipart/form-data')) {
+    let formData: FormData
+    try {
+      formData = await request.formData()
+    } catch {
+      throw new Error('Invalid multipart form payload')
+    }
+
+    const entries: Array<[string, string]> = []
+    for (const [key, value] of formData.entries()) {
+      if (typeof value === 'string') {
+        entries.push([key, value])
+      } else {
+        entries.push([key, await value.text()])
+      }
+    }
+    return formEntriesToPayload(entries)
+  }
+
+  const rawBody = await request.text()
+  if (contentType.includes('application/x-www-form-urlencoded')) {
+    return formEntriesToPayload(Array.from(new URLSearchParams(rawBody).entries()))
+  }
+
+  // JSON, text/plain, and Shortcuts requests without a content type are
+  // parsed identically. This accepts both a raw JSON object and a JSON string
+  // containing another JSON object.
+  return parseJsonText(rawBody)
+}
+
 function recordCollection(body: unknown): unknown[] {
   if (Array.isArray(body)) return body
 
@@ -365,18 +434,13 @@ Deno.serve(async (request: Request): Promise<Response> => {
       return jsonResponse({ error: 'Payload is too large' }, 413)
     }
 
-    const rawBody = await request.text()
-    if (new TextEncoder().encode(rawBody).byteLength > MAX_BODY_BYTES) {
+    const contentType = (request.headers.get('content-type') || '').toLowerCase()
+    const rawBody = await request.clone().arrayBuffer()
+    if (rawBody.byteLength > MAX_BODY_BYTES) {
       return jsonResponse({ error: 'Payload is too large' }, 413)
     }
 
-    let body: unknown
-    try {
-      body = JSON.parse(rawBody)
-    } catch {
-      return jsonResponse({ error: 'Invalid JSON payload' }, 400)
-    }
-
+    const body = await parseRequestPayload(request, contentType)
     const rows = await normalizePayload(body)
     if (rows.length === 0) return jsonResponse({ success: true, count: 0 }, 200)
 
