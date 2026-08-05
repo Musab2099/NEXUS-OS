@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="nexus-dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#07051A">
+  <link rel="stylesheet" href="../styles/themes.css">
+  <link rel="stylesheet" href="../styles/style.css">
+  <link rel="stylesheet" href="../styles/animations.css">
+  <link rel="manifest" href="/manifest.json">
+  <title>FaceScan AI — NEXUS</title>
+  <style>
+    :root { --face-max: 720px; }
+    .face-shell { position:relative; z-index:1; width:min(var(--face-max), calc(100% - 32px)); margin:0 auto; padding:42px 0 80px; }
+    .face-back { display:inline-flex; align-items:center; gap:7px; color:var(--text-secondary); text-decoration:none; font-size:12px; font-weight:700; margin-bottom:28px; }
+    .face-hero { display:grid; grid-template-columns:1fr 180px; gap:26px; align-items:center; margin-bottom:18px; }
+    .face-kicker { color:var(--amethyst); font:700 10px var(--mono); letter-spacing:.2em; text-transform:uppercase; }
+    .face-title { margin-top:8px; color:var(--text-primary); font-size:clamp(30px,6vw,48px); line-height:1; letter-spacing:-.05em; }
+    .face-copy { margin-top:12px; max-width:520px; color:var(--text-secondary); font-size:13px; line-height:1.65; }
+    .face-orb { position:relative; width:170px; height:170px; justify-self:end; border:1px solid color-mix(in srgb,var(--cyan) 38%,var(--glass-border)); border-radius:50%; background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--cyan) 22%,transparent),transparent 56%); box-shadow:0 0 0 18px color-mix(in srgb,var(--cyan) 4%,transparent),0 0 50px color-mix(in srgb,var(--cyan) 18%,transparent); }
+    .face-orb::before,.face-orb::after { content:''; position:absolute; inset:22px; border:1px solid color-mix(in srgb,var(--amethyst) 38%,transparent); border-radius:50%; }
+    .face-orb::after { inset:48px; border-color:color-mix(in srgb,var(--cyan) 54%,transparent); }
+    .face-card { padding:24px; }
+    .face-card h2 { color:var(--text-primary); font-size:18px; margin-bottom:7px; }
+    .face-card p { color:var(--text-secondary); font-size:12px; line-height:1.6; }
+    .face-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin:20px 0; }
+    .face-field label { display:block; color:var(--text-secondary); font:700 10px var(--mono); letter-spacing:.12em; text-transform:uppercase; margin-bottom:6px; }
+    .face-field input { width:100%; padding:11px 12px; border:1px solid var(--border); border-radius:10px; background:color-mix(in srgb,var(--bg) 40%,transparent); color:var(--text-primary); font:600 14px var(--font); outline:none; }
+    .face-field input:focus { border-color:var(--amethyst); box-shadow:0 0 0 3px color-mix(in srgb,var(--amethyst) 16%,transparent); }
+    .face-actions { display:flex; flex-wrap:wrap; gap:9px; margin-top:18px; }
+    .face-btn { padding:10px 15px; border:1px solid var(--border); border-radius:10px; background:var(--sbg); color:var(--text-primary); font:700 12px var(--font); }
+    .face-btn.primary { border-color:transparent; background:var(--ag); color:#fff; }
+    .face-note { margin-top:15px; color:var(--text-muted); font-size:10px; line-height:1.6; }
+    .face-result { margin-top:16px; padding:13px; border:1px solid var(--border); border-radius:11px; color:var(--text-secondary); font-size:12px; }
+    @media(max-width:600px){ .face-shell{width:min(100% - 24px, var(--face-max));padding-top:28px;} .face-hero{grid-template-columns:1fr;} .face-orb{width:120px;height:120px;justify-self:start;} .face-grid{grid-template-columns:1fr;} }
+  </style>
+  <script>
+    (function () {
+      var saved = 'nexus-dark';
+      try {
+        var value = localStorage.getItem('nexus-theme') || localStorage.getItem('nexus_theme');
+        if (value === 'peri') value = 'periwinkle';
+        if (value === 'amethyst') value = 'nexus-dark';
+        if (value === 'arctic' || value === 'ice') value = 'arctic-white';
+        if (['nexus-dark', 'periwinkle', 'arctic-white'].indexOf(value) !== -1) saved = value;
+      } catch (e) { }
+      document.documentElement.setAttribute('data-theme', saved);
+      document.documentElement.setAttribute('data-initial-route', 'home');
+      document.documentElement.classList.add('js-loading', 'nexus-ready');
+    }());
+  </script>
+  <script src="../scripts/theme.js" defer></script>
+  <script src="../scripts/topbar.js" defer></script>
+  <script src="../scripts/animations.js" defer></script>
+</head>
+<body>
+  <header class="navbar" data-navbar>
+    <a class="logo" href="/src/pages/index.html" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><polygon points="14,2 26,8 26,20 14,26 2,20 2,8" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity=".1"/><polygon points="14,7 21,11 21,17 14,21 7,17 7,11" stroke="currentColor" stroke-width="1" fill="none" opacity=".7"/><circle cx="14" cy="14" r="3" fill="currentColor"/></svg></span><span class="logo-text">NEXUS</span></a>
+    <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/src/pages/index.html" class="nav-link" data-route="home">Home</a><a href="/src/pages/index.html#goals-section" class="nav-link" data-route="goals">Goals</a><a href="/src/pages/health.html" class="nav-link" data-route="wellness">Wellness</a><a href="/src/pages/gym.html" class="nav-link" data-route="gym">Gym</a><a href="/src/pages/progression-tab.html" class="nav-link" data-route="calisthenics">Calisthenics</a><a href="/src/pages/grind-log.html" class="nav-link" data-route="grind">Grind Log</a></nav>
+    <div class="header-right"><span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span><div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button><div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button" data-theme-option="periwinkle" role="menuitemradio">Focus</button><button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div></div></div>
+  </header>
+  <main class="face-shell">
+    <a class="face-back" href="/src/pages/index.html">← Back to dashboard</a>
+    <section class="face-hero"><div><div class="face-kicker">Weekly check-in · FaceScan AI</div><h1 class="face-title">Read the signal.</h1><p class="face-copy">The local FaceScan surface is ready for your weekly reflection. Connect your approved Gemini/Groq workflow later, or record a manual rating now so the dashboard can track consistency without inventing a result.</p></div><div class="face-orb" aria-hidden="true"></div></section>
+    <section class="glass face-card nx-anim-card">
+      <h2>Record this week’s check-in</h2><p>Only the date and rating are stored in this browser. No image is uploaded by this placeholder page.</p>
+      <div class="face-grid"><div class="face-field"><label for="faceDate">Scan date</label><input id="faceDate" type="date"></div><div class="face-field"><label for="faceRating">Rating / 10</label><input id="faceRating" type="number" min="0" max="10" step="0.1" placeholder="8.5"></div></div>
+      <div class="face-actions"><button class="face-btn primary" id="faceSave" type="button">Save check-in</button><button class="face-btn" id="faceClear" type="button">Clear saved result</button></div>
+      <div class="face-result" id="faceResult" role="status">No check-in saved yet.</div>
+      <p class="face-note">When a production FaceScan integration is added, keep its keys server-side or in the project’s approved runtime configuration. This page intentionally does not call external AI services.</p>
+    </section>
+  </main>
+  <script>
+    (function () {
+      var key = 'facescan_last_scan';
+      var date = document.getElementById('faceDate');
+      var rating = document.getElementById('faceRating');
+      var result = document.getElementById('faceResult');
+      function today() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+      function read() { try { return JSON.parse(localStorage.getItem(key)); } catch (e) { return null; } }
+      function render() { var scan = read(); if (!scan) { result.textContent = 'No check-in saved yet.'; return; } date.value = scan.date || today(); rating.value = scan.rating == null ? '' : scan.rating; result.textContent = 'Saved ' + scan.date + (scan.rating == null ? '' : ' · ' + scan.rating + '/10'); }
+      date.value = today();
+      document.getElementById('faceSave').addEventListener('click', function () { var value = rating.value === '' ? null : Math.max(0, Math.min(10, Number(rating.value))); var scan = { date: date.value || today(), rating: Number.isFinite(value) ? value : null, timestamp: new Date().toISOString() }; try { localStorage.setItem(key, JSON.stringify(scan)); } catch (e) { } render(); });
+      document.getElementById('faceClear').addEventListener('click', function () { try { localStorage.removeItem(key); } catch (e) { } rating.value = ''; date.value = today(); render(); });
+      render();
+    }());
+  </script>
+</body>
+</html>

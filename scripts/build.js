@@ -23,6 +23,7 @@ const PASSTHROUGH_FILES = [
   'src/pages/live-workout.html',
   'src/pages/grind-log.html',
   'src/pages/progression-tab.html',
+  'src/pages/facescan.html',
   'src/scripts/topbar.js',
   'src/scripts/apple-health.js',
   'src/scripts/github-health.js',
@@ -33,6 +34,8 @@ const PASSTHROUGH_FILES = [
   'src/styles/event-horizon.css',
   'src/styles/themes.css',
   'src/styles/style.css',
+  'src/styles/animations.css',
+  'src/scripts/animations.js',
   'src/data/manifest.json',
 ];
 

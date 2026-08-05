@@ -15,7 +15,7 @@ NEXUS is a local-first progressive web app for goals, wellness, calisthenics tra
 - **Offline support:** Service worker with network-first HTML and stale-while-revalidate static assets
 - **Build:** Dependency-free Node script that creates `dist/` and injects browser sync credentials
 - **Tests:** Node's built-in `node:test` runner
-- **Visual system:** Deep Cyber Amethyst
+- **Visual system:** Deep Cyber Amethyst with a shared vanilla animation layer
 - **Hosting:** Vercel or another static host for the generated frontend bundle
 
 ## App suite
@@ -71,8 +71,8 @@ NEXUS/
 ├── src/
 │   ├── data/                    PWA manifest source
 │   ├── pages/                   HTML app pages
-│   ├── scripts/                 Browser JavaScript
-│   └── styles/                  Shared CSS files
+│   ├── scripts/                 Browser JavaScript, including shared animation runtime
+│   └── styles/                  Shared CSS files, including shared animation styles
 ├── supabase/                    SQL schema/migrations
 ├── test/                        Node test suite
 ├── sw.js                        Service worker source
@@ -90,7 +90,34 @@ NEXUS/
 - `src/scripts/apple-health.js` — read-only Gym cache using `apple_health_metrics_v1` and authenticated `/api/sync-health` reads. It does not run background automation or upload Apple Health data.
 - `src/scripts/sync-service.js` — modular browser client for POSTing sanitized Apple Health payloads to the private `sync-health` Edge Function. It never contains or transmits the service-role key; callers provide the Edge Function URL and private sync token.
 - `src/scripts/event-horizon.js` — shared circadian tinting, tilt, and tactile interactions where included.
-- `sw.js` — service worker; bump `CACHE_VERSION` (`nexus-v7` currently) when changing cached assets or forcing a refresh.
+- `src/scripts/animations.js` — shared vanilla animation runtime. It mounts ambient effects, staggered entrances, card hover/shimmer states, pointer ripples, cursor glow, progress/ring transitions, XP/rank effects, tab indicators, chart entrances, skill-node/sparkline effects, numeric transitions, rest-timer critical states, and same-origin page-exit transitions.
+- `src/styles/animations.css` — shared animation tokens, CSS keyframes, glass-card states, ambient layers, particle effects, reduced-motion fallbacks, and responsive animation rules. It uses existing theme variables rather than introducing a separate color system.
+- `sw.js` — service worker; bump `CACHE_VERSION` (`nexus-v10` currently) when changing cached assets or forcing a refresh. The animation CSS/JS assets and `live-workout.html` are included in the cache list.
+
+### Shared animation system
+
+All six app pages load the shared animation assets after their existing page scripts/styles where applicable:
+
+```html
+<link rel="stylesheet" href="../styles/animations.css">
+<script src="../scripts/animations.js" defer></script>
+```
+
+The animation system is pure CSS and vanilla JavaScript. It adds no external network requests, frameworks, animation libraries, canvas dependencies, or new runtime packages. The runtime progressively enhances existing markup by finding established selectors such as `.card`, `.tab-btn`, `.day-tab`, `.skill-tab`, progress fills, SVG rings, Chart.js containers, skill ladder nodes, and the live-workout rest overlay.
+
+The shared system provides:
+
+- **Mount motion:** topbar slide-down and staggered card entrance from `translateY(30px)` with approximately 60ms stagger increments.
+- **Ambient effects:** three slow blurred amethyst/indigo/magenta orbs, background breathing, subtle scanlines, and a desktop-only cursor glow.
+- **Glass interactions:** hover lift, border glow, diagonal sheen sweep, pressed scale state, and click-position ripples for buttons and links.
+- **Progress feedback:** animated progress/XP bars, SVG energy/readiness rings, completion glow, confetti particles, XP milestone particles, and rank unlock motion.
+- **Page-specific enhancement:** animated Wellness/Gym/Skills tabs, Chart.js/chart-container entrances, skill ladder nodes, SVG sparklines, number changes, and live-workout rest-timer critical/complete states.
+- **Navigation:** eligible same-origin page links fade the current page out before navigation; hash-only navigation and modified/new-tab clicks are left untouched.
+- **Accessibility:** all animation keyframes are scoped to `prefers-reduced-motion: no-preference`. Reduced-motion users receive static content with transitions, particles, cursor effects, scanlines, and ambient effects disabled.
+
+The runtime uses `requestAnimationFrame`, `MutationObserver`, `IntersectionObserver`, CSS custom properties, and native DOM APIs. Existing page data/rendering functions remain the source of truth; the animation layer observes and enhances their state rather than replacing application logic.
+
+When adding a new page, load both shared assets, reuse the existing theme tokens, and add page-specific selectors to `src/scripts/animations.js` only when generic selector-based enhancement is not enough. Run a build afterward so both assets are copied into `dist/`.
 
 ### Cloud synchronization
 
@@ -249,6 +276,13 @@ npm test            # node --test
 npm run dev         # build and serve dist/ at http://localhost:3000
 ```
 
+The build copies the shared animation files to:
+
+```text
+dist/src/styles/animations.css
+dist/src/scripts/animations.js
+```
+
 A dependency-free preview alternative is:
 
 ```bash
@@ -259,6 +293,7 @@ python3 -m http.server -d dist 8000
 Focused syntax checks:
 
 ```bash
+node --check src/scripts/animations.js
 node --check api/sync-health.js
 node --check lib/health-validation.js
 node --check lib/supabase.js
@@ -377,7 +412,7 @@ Use it for progress fills, rings, sparklines, and primary actions. Preserve the 
 - There is no user login; this is a single-user deployment.
 - Apple Health uses one shared Bearer token rather than per-user sessions.
 - The service-role key bypasses RLS and must remain server-only.
-- Visual regression remains manual across desktop/mobile, offline mode, and two-tab sync.
+- Visual regression remains manual across desktop/mobile, reduced-motion mode, offline mode, two-tab sync, and animation timing/state transitions.
 
 ## License
 

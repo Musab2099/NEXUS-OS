@@ -1,6 +1,6 @@
 // NEXUS service worker
 // Bump CACHE_VERSION any time you change the cached file list or want to force-refresh clients.
-const CACHE_VERSION = 'nexus-v9';
+const CACHE_VERSION = 'nexus-v11';
 const NETWORK_TIMEOUT_MS = 10000;
 
 function fetchWithTimeout(request) {
@@ -27,10 +27,14 @@ const CACHE_FILES = [
   '/src/pages/gym.html',
   '/src/pages/grind-log.html',
   '/src/pages/progression-tab.html',
+  '/src/pages/facescan.html',
+  '/src/pages/live-workout.html',
   '/src/scripts/topbar.js',
   '/src/scripts/sync.js',
   '/src/scripts/apple-health.js',
   '/src/scripts/sync-service.js',
+  '/src/scripts/animations.js',
+  '/src/styles/animations.css',
   '/src/data/manifest.json',
   '/manifest.json',
   '/icon-192.png',

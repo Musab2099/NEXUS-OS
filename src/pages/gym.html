@@ -2086,6 +2086,8 @@
   <script src="../scripts/apple-health.js" defer></script>
   <script src="../scripts/sync-service.js" defer></script>
   <script src="../scripts/topbar.js" defer></script>
+  <link rel="stylesheet" href="../styles/animations.css">
+  <script src="../scripts/animations.js" defer></script>
 </head>
 
 <body>
@@ -2111,7 +2113,7 @@
           aria-haspopup="menu" aria-expanded="false">THEME</button>
         <div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button"
             data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button"
-            data-theme-option="periwinkle" role="menuitemradio">Periwinkle</button><button type="button"
+            data-theme-option="periwinkle" role="menuitemradio">Focus</button><button type="button"
             data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div>
       </div>
     </div>
@@ -2204,7 +2206,7 @@
         <div class="ex-header-title" id="exHeaderTitle">—</div>
         <div class="ex-header-sub" id="exHeaderSub">50–60 min</div>
       </div>
-      <div id="exerciseList"></div>
+      <div id="exerciseList"><div class="nx-skeleton-stack" aria-hidden="true"><span class="nx-skeleton wide"></span><span class="nx-skeleton"></span><span class="nx-skeleton short"></span><span class="nx-skeleton block"></span></div></div>
     </div>
 
     <div class="divider"><span>Consistency</span></div>

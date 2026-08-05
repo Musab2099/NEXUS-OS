@@ -181,10 +181,32 @@ body{
 .c-goals       {grid-column:span 2}
 .c-grind       {grid-column:span 1}
 .c-wellness    {grid-column:span 1}
-.c-gym         {grid-column:span 2}
-.c-calisthenics{grid-column:span 1}
-.c-skills      {grid-column:span 1}
-.c-stat        {grid-column:span 1}
+.c-gym         {grid-column:span 2}  .c-calisthenics{grid-column:span 1}
+  .c-skills      {grid-column:span 1}  .c-stat      {grid-column:span 1}
+  .c-pulse, .c-facescan {grid-column:span 1}
+
+  .pulse-card, .facescan-card { min-height: 220px; }
+  .pulse-layout { display:flex; align-items:center; gap:18px; }
+  .pulse-ring { position:relative; width:118px; height:118px; flex:0 0 auto; }
+  .pulse-ring svg { width:100%; height:100%; transform:rotate(-90deg); overflow:visible; }
+  .pulse-ring circle { fill:none; stroke-linecap:round; }
+  .pulse-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .pulse-score { color:var(--text-primary); font-size:28px; font-weight:900; line-height:1; font-variant-numeric:tabular-nums; }
+  .pulse-unit { margin-top:5px; color:var(--text-secondary); font-size:9px; letter-spacing:.16em; text-transform:uppercase; }
+  .pulse-copy { min-width:0; }
+  .pulse-copy h2 { margin-bottom:5px; }
+  .pulse-copy p { color:var(--text-secondary); font-size:11px; line-height:1.55; }
+  .pulse-breakdown { display:grid; gap:7px; margin-top:13px; }
+  .pulse-line { display:flex; justify-content:space-between; gap:12px; color:var(--text-secondary); font-size:10px; }
+  .pulse-line strong { color:var(--text-primary); font-variant-numeric:tabular-nums; }
+  .facescan-card { position:relative; overflow:hidden; }
+  .facescan-card::after { content:''; position:absolute; right:-32px; bottom:-42px; width:150px; height:150px; border:1px solid color-mix(in srgb,var(--cyan) 28%,transparent); border-radius:50%; box-shadow:0 0 0 18px color-mix(in srgb,var(--cyan) 5%,transparent),0 0 40px color-mix(in srgb,var(--cyan) 16%,transparent); pointer-events:none; }
+  .facescan-status { display:flex; align-items:center; gap:7px; color:var(--text-secondary); font-size:11px; margin:12px 0 18px; }
+  .facescan-dot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 10px currentColor; }
+  .facescan-dot.is-overdue { background:var(--cyan); }
+  .facescan-action { position:relative; z-index:1; display:inline-flex; align-items:center; gap:7px; border:1px solid color-mix(in srgb,var(--cyan) 38%,var(--glass-border)); border-radius:10px; padding:9px 12px; background:color-mix(in srgb,var(--cyan) 9%,transparent); color:var(--text-primary); font-size:11px; font-weight:700; }
+  @media (max-width:520px){ .pulse-layout{align-items:flex-start; flex-direction:column;} .pulse-ring{width:104px;height:104px;} }
+
 
 /* ─── CARD SHELL ─────────────────────────────────────── */
 .card{padding:22px;cursor:pointer}
@@ -657,9 +679,12 @@ body{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../scripts/sync.js" defer></script>
 <script src="../scripts/topbar.js" defer></script>
+<link rel="stylesheet" href="../styles/animations.css">
+<script src="../scripts/animations.js" defer></script>
 </head>
 <body>
 
+<div class="page">
   <!-- PRIMARY HEADER: the single shared navigation on every page -->
   <header class="navbar" data-navbar>
     <a class="logo" href="/src/pages/index.html" aria-label="NEXUS home">
@@ -686,7 +711,7 @@ body{
         <button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button>
         <div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme">
           <button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button>
-          <button type="button" data-theme-option="periwinkle" role="menuitemradio">Periwinkle</button>
+          <button type="button" data-theme-option="periwinkle" role="menuitemradio">Focus</button>
           <button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button>
         </div>
       </div>
@@ -700,8 +725,6 @@ body{
   <div class="orb orb-2"></div>
   <div class="orb orb-3"></div>
 </div>
-
-<div class="page">
 
   <!-- ── GREETING ── -->
   <header class="greeting reveal d0">
@@ -856,6 +879,34 @@ body{
       <h2 class="card-h">Highlights</h2>
       <p class="card-sub">7-day snapshot</p>
       <div style="display:flex;flex-direction:column;gap:0" id="weeklyHighlights"></div>
+    </article>
+
+    <!-- NEXUS PULSE — 1 col -->
+    <article class="glass card pulse-card c-pulse reveal d7" aria-label="NEXUS Pulse consistency score">
+      <div class="card-top">
+        <span class="card-eyebrow">NEXUS Pulse</span>
+        <div class="card-icon" aria-hidden="true">◌</div>
+      </div>
+      <div class="pulse-layout">
+        <div class="pulse-ring">
+          <svg viewBox="0 0 120 120" role="img" aria-label="Weekly consistency score">
+            <defs><linearGradient id="pulseGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="var(--amethyst)"/><stop offset="100%" stop-color="var(--cyan)"/></linearGradient></defs>
+            <circle cx="60" cy="60" r="54" stroke="color-mix(in srgb,var(--text-primary) 9%,transparent)" stroke-width="7"/>
+            <circle id="pulseRingFill" cx="60" cy="60" r="54" stroke="url(#pulseGrad)" stroke-width="7" stroke-dasharray="339.3" stroke-dashoffset="339.3"/>
+          </svg>
+          <div class="pulse-center"><span class="pulse-score" id="pulseScore">0</span><span class="pulse-unit">score</span></div>
+        </div>
+        <div class="pulse-copy"><h2 class="card-h">Consistency</h2><p id="pulseSummary">Building your weekly signal…</p><div class="pulse-breakdown" id="pulseBreakdown"></div></div>
+      </div>
+    </article>
+
+    <!-- FACESCAN WEEKLY CHECK-IN — 1 col -->
+    <article class="glass card facescan-card c-facescan reveal d7" aria-label="FaceScan weekly check-in" onclick="window.location='facescan.html'">
+      <div class="card-top"><span class="card-eyebrow">Weekly Check-in</span><div class="card-icon" aria-hidden="true">◉</div></div>
+      <h2 class="card-h">FaceScan AI</h2>
+      <p class="card-sub" id="facescanSub">A quick weekly reflection</p>
+      <div class="facescan-status"><span class="facescan-dot" id="facescanDot" aria-hidden="true"></span><span id="facescanStatus">No scan logged yet</span></div>
+      <button class="facescan-action" type="button" onclick="event.stopPropagation(); window.location='facescan.html'">Open check-in <span aria-hidden="true">↗</span></button>
     </article>
 
     <!-- NEXUS STATS — 1 col -->
@@ -1169,6 +1220,83 @@ body{
         <span class="meta-k">${r[0]}</span>
         <span class="meta-v ${r[2]}">${r[1]}</span>
       </div>`).join('');
+  }
+
+  // ──────────────────────────────────────────────
+  // NEXUS STATS
+  // ──────────────────────────────────────────────
+  function updatePulse() {
+    const weekDates = [];
+    for (let i = 0; i < 7; i++) { const d = new Date(); d.setDate(d.getDate() - i); weekDates.push(dateToKey(d)); }
+    let gym = {}; try { gym = JSON.parse(localStorage.getItem('ibrahim_gym_v1')) || {}; } catch { }
+    let doneMap = {}; try { doneMap = JSON.parse(localStorage.getItem('ibrahim_gym_done')) || {}; } catch { }
+    const gymDays = new Set();
+    weekDates.forEach(key => { for (let s = 0; s < 4; s++) if (gym['done_' + s + '_' + key] || doneMap[key]) gymDays.add(key); });
+    const gymPts = Math.min(25, Math.round(gymDays.size / 4 * 25));
+
+    let cali = {}; try { cali = JSON.parse(localStorage.getItem('cali_skills_v1')) || {}; } catch { }
+    const caliDays = new Set();
+    Object.keys(cali).forEach(key => (cali[key] && Array.isArray(cali[key].sessions) ? cali[key].sessions : []).forEach(session => { if (weekDates.includes(session.date)) caliDays.add(session.date); }));
+    const caliPts = Math.min(25, Math.round(caliDays.size / 4 * 25));
+
+    let grind = {}; try { grind = JSON.parse(localStorage.getItem('grind_log_v1')) || {}; } catch { }
+    const grindDates = new Set(Array.isArray(grind.logs) ? grind.logs.map(log => log.date) : []);
+    const gymDates = new Set();
+    const caliDates = new Set();
+    const todayKey = dateToKey(new Date());
+    const gymCursor = new Date();
+    for (let i = 0; i < 365; i++) {
+      const key = dateToKey(gymCursor);
+      for (let slot = 0; slot < 4; slot++) if (gym['done_' + slot + '_' + key]) gymDates.add(key);
+      gymCursor.setDate(gymCursor.getDate() - 1);
+    }
+    Object.keys(cali).forEach(key => (cali[key] && Array.isArray(cali[key].sessions) ? cali[key].sessions : []).forEach(session => { if (session.date) caliDates.add(session.date); }));
+    const hasActivity = key => grindDates.has(key) || gymDates.has(key) || caliDates.has(key);
+    let streak = 0; const cursor = new Date();
+    if (!hasActivity(todayKey)) cursor.setDate(cursor.getDate() - 1);
+    for (let i = 0; i < 365; i++) {
+      const key = dateToKey(cursor);
+      if (!hasActivity(key)) break;
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    const streakPts = Math.min(50, Math.round(Math.min(streak, 14) / 14 * 50));
+    const score = Math.max(0, Math.min(100, gymPts + caliPts + streakPts));
+    const scoreEl = document.getElementById('pulseScore');
+    const ring = document.getElementById('pulseRingFill');
+    const breakdown = document.getElementById('pulseBreakdown');
+    if (!scoreEl || !ring || !breakdown) return;
+    const circumference = 339.3;
+    const targetOffset = circumference * (1 - score / 100);
+    const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) { scoreEl.textContent = score; ring.style.strokeDashoffset = targetOffset; }
+    else {
+      const start = performance.now();
+      const from = Number(scoreEl.textContent) || 0;
+      scoreEl.classList.add('is-counting');
+      function tick(now) { const p = Math.min(1, (now - start) / 800); const eased = 1 - Math.pow(1 - p, 3); scoreEl.textContent = Math.round(from + (score - from) * eased); ring.style.strokeDashoffset = circumference - circumference * ((score * eased) / 100); if (p < 1) requestAnimationFrame(tick); else scoreEl.classList.remove('is-counting'); }
+      requestAnimationFrame(tick);
+    }
+    document.getElementById('pulseSummary').textContent = score >= 80 ? 'Your systems are locked in.' : score >= 50 ? 'Good momentum — keep the signal alive.' : 'One focused action can move the score today.';
+    breakdown.innerHTML = '<div class="pulse-line"><span>Gym this week</span><strong>' + gymDays.size + ' / 4 · ' + gymPts + ' pts</strong></div><div class="pulse-line"><span>Skill sessions</span><strong>' + caliDays.size + ' / 4 · ' + caliPts + ' pts</strong></div><div class="pulse-line"><span>Daily streak <span class="streak-flame" aria-hidden="true">🔥</span></span><strong>' + streak + ' days · ' + streakPts + ' pts</strong></div>';
+  }
+
+  function updateFaceScanCard() {
+    let scan = null;
+    const keys = ['facescan_last_scan', 'facescan_last_result', 'faceScan_last_scan', 'facescan'];
+    for (const key of keys) { try { const value = JSON.parse(localStorage.getItem(key)); if (value) { scan = value; break; } } catch { } }
+    const rawDate = scan && (scan.date || scan.timestamp || scan.createdAt || scan.scannedAt);
+    const date = rawDate ? new Date(rawDate) : null;
+    const validDate = date && !Number.isNaN(date.getTime());
+    const overdue = !validDate || (Date.now() - date.getTime() > 7 * 86400000);
+    const rating = scan && (scan.rating ?? scan.score ?? scan.overallRating);
+    const status = document.getElementById('facescanStatus');
+    const dot = document.getElementById('facescanDot');
+    const sub = document.getElementById('facescanSub');
+    if (!status || !dot || !sub) return;
+    dot.classList.toggle('is-overdue', overdue);
+    if (validDate) { status.textContent = 'Last scan ' + date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + (rating != null ? ' · ' + rating + '/10' : ''); sub.textContent = overdue ? 'Your weekly reflection is due' : 'You are on schedule'; }
+    else { status.textContent = 'No scan logged yet'; sub.textContent = 'Start your first weekly reflection'; }
   }
 
   // ──────────────────────────────────────────────
@@ -1497,6 +1625,8 @@ body{
   updateCaliCard();
   updateHighlights();
   updateNexusStats();
+  updatePulse();
+  updateFaceScanCard();
   buildHeatmap();
   renderLongGoals();
 
@@ -1504,9 +1634,11 @@ body{
     updateHeader();
     updateDayRing();
     updateGrindCard();
-    updateWellnessCard();
-    updateGymCard();
-  }, 60 * 1000);
+    updateWellnessCard();    updateGymCard();
+    updatePulse();
+    updateFaceScanCard();
+   }, 60 * 1000);
+
 
   window.addEventListener('storage', () => {
     renderLongGoals();
@@ -1515,10 +1647,12 @@ body{
     updateWellnessCard();
     updateGymCard();
     updateCaliCard();
-    updateHighlights();
-    updateNexusStats();
-    updateHeader();
-  });
+    updateHighlights();     updateNexusStats();
+     updatePulse();
+     updateFaceScanCard();
+     updateHeader();
+   });
+
 })();
 </script>
 <script>

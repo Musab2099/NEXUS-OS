@@ -7,7 +7,7 @@
   var LEGACY_KEY = 'nexus_theme';
   var THEMES = {
     'nexus-dark': { label: 'NEXUS Dark', color: '#07051A' },
-    periwinkle: { label: 'Periwinkle', color: '#0D1030' },
+    periwinkle: { label: 'Focus', color: '#0D1030' },
     'arctic-white': { label: 'Arctic White', color: '#EEF5FF' }
   };
   var THEME_ALIASES = {

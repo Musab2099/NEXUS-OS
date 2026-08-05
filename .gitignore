@@ -29,3 +29,7 @@ __pycache__/
 .venv/
 venv/
 env/
+.codex
+.claude
+.agents
+.impeccable

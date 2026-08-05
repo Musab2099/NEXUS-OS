@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════
    NEXUS — Theme System
    ─────────────────────────────────────────────────────────────────────
-   3 themes: nexus-dark (default), arctic-white, periwinkle
+   3 themes: nexus-dark (default), arctic-white, Focus mode (periwinkle id)
    Uses data-theme attribute on <html> to switch.
 
    Load AFTER liquid-amethyst.css so these canonical tokens win the cascade.
@@ -526,7 +526,46 @@
   color: var(--text-primary) !important;
 }
 
-/* ─── 7. PERIWINKLE SPECIFIC OVERRIDES ──────────────────────────────── */
+/* ─── 7. FOCUS MODE OVERRIDES ───────────────────────────────────────── */
+/* The legacy periwinkle id remains stable for stored preferences, but the
+   user-facing theme is Focus: cooler accents, quieter surfaces, and less glow. */
+[data-theme="periwinkle"] {
+  --bg: #0D1030;
+  --card: rgba(20, 25, 68, 0.02);
+  --card-2: rgba(129, 140, 248, 0.03);
+  --border: rgba(129, 140, 248, 0.10);
+  --bdr-hov: rgba(165, 180, 252, 0.18);
+  --a1: #5B8BF5;
+  --a2: #7DD3FC;
+  --a3: #A5B4FC;
+  --ag: linear-gradient(135deg, #5B8BF5 0%, #7C8CF8 50%, #7DD3FC 100%);
+  --bar: linear-gradient(90deg, #5B8BF5, #7C8CF8, #7DD3FC);
+  --bar2: #7DD3FC;
+  --bar3: #7DD3FC;
+  --bar4: #64748B;
+  --sbg: rgba(91, 139, 245, 0.04);
+  --sbdr: rgba(125, 211, 252, 0.10);
+  --pill-on: #5B8BF5;
+  --logo-c: #7DD3FC;
+  --logo-g: linear-gradient(90deg, #5B8BF5, #7DD3FC);
+  --ring-s: #5B8BF5;
+  --o1o: .12;
+  --o2o: .08;
+  --o3o: .06;
+}
+
+[data-theme="periwinkle"] .card,
+[data-theme="periwinkle"] .ltg-card,
+[data-theme="periwinkle"] .level-card,
+[data-theme="periwinkle"] .xp-hero {
+  box-shadow: 0 8px 28px rgba(0,0,0,.22) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+[data-theme="periwinkle"] .nx-ambient-orb,
+[data-theme="periwinkle"] body::before { display: none !important; }
+
+/* Legacy class name retained for persisted preferences and old selectors. */
 /* Periwinkle uses softer indigo tones for component highlights */
 [data-theme="periwinkle"] .ex-row.done {
   background: rgba(129, 140, 248, 0.12) !important;

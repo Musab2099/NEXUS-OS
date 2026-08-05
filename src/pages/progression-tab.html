@@ -770,6 +770,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../scripts/sync.js" defer></script>
 <script src="../scripts/topbar.js" defer></script>
+<link rel="stylesheet" href="../styles/animations.css">
+<script src="../scripts/animations.js" defer></script>
 </head>
 
 <body>
@@ -777,7 +779,7 @@
   <header class="navbar" data-navbar>
     <a class="logo" href="/src/pages/index.html" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><polygon points="14,2 26,8 26,20 14,26 2,20 2,8" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity=".1"/><polygon points="14,7 21,11 21,17 14,21 7,17 7,11" stroke="currentColor" stroke-width="1" fill="none" opacity=".7"/><circle cx="14" cy="14" r="3" fill="currentColor"/></svg></span><span class="logo-text">NEXUS</span></a>
     <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/src/pages/index.html" class="nav-link" data-route="home">Home</a><a href="/src/pages/index.html#goals-section" class="nav-link" data-route="goals">Goals</a><a href="/src/pages/health.html" class="nav-link" data-route="wellness">Wellness</a><a href="/src/pages/gym.html" class="nav-link" data-route="gym">Gym</a><a href="/src/pages/progression-tab.html" class="nav-link active" data-route="calisthenics" aria-current="page">Calisthenics</a><a href="/src/pages/grind-log.html" class="nav-link" data-route="grind">Grind Log</a></nav>
-    <div class="header-right"><span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span><div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button><div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button" data-theme-option="periwinkle" role="menuitemradio">Periwinkle</button><button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div></div></div>
+    <div class="header-right"><span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span><div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button><div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button" data-theme-option="periwinkle" role="menuitemradio">Focus</button><button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div></div></div>
   </header>
   <!-- Ambient orb layer -->
   <div class="orbs" aria-hidden="true">
@@ -800,13 +802,13 @@
     </div>
 
     <!-- OVERVIEW GRID -->
-    <div class="overview-grid" id="overviewGrid"></div>
+    <div class="overview-grid" id="overviewGrid"><div class="nx-skeleton-stack" aria-hidden="true"><span class="nx-skeleton wide"></span><span class="nx-skeleton"></span><span class="nx-skeleton short"></span></div></div>
 
     <!-- SKILL TABS -->
-    <div class="skill-tabs" id="skillTabs"></div>
+    <div class="skill-tabs" id="skillTabs"><div class="nx-skeleton-stack" aria-hidden="true"><span class="nx-skeleton short"></span></div></div>
 
     <!-- ACTIVE SKILL PANEL -->
-    <div id="skillPanel"></div>
+    <div id="skillPanel"><div class="nx-skeleton-stack" aria-hidden="true"><span class="nx-skeleton wide"></span><span class="nx-skeleton"></span><span class="nx-skeleton block"></span></div></div>
   </div>
 
   <script>

@@ -277,6 +277,7 @@
    VIEW 1 — DAY SELECT
    ============================================================ */
     #v-day {
+      position: relative;
       display: flex;
       flex-direction: column;
       min-height: 100%;
@@ -1230,6 +1231,8 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="../styles/animations.css">
+  <script src="../scripts/animations.js" defer></script>
 </head>
 
 <body>
@@ -1238,6 +1241,22 @@
      VIEW 1 — DAY SELECT
      ============================================================ -->
   <div id="v-day" class="view active">
+    <button
+      onclick="window.location.href='/src/pages/gym.html'"
+      style="
+        position:absolute;
+        top:18px;
+        left:14px;
+        background:var(--glass);
+        border:1px solid var(--border);
+        color:var(--text);
+        border-radius:10px;
+        padding:8px 14px;
+        font-size:0.83rem;
+        font-weight:600;
+        cursor:pointer;
+      "
+    >← Back</button>
     <div class="ds-head">
       <div class="ds-eyebrow">Live Tracker</div>
       <h1 class="ds-title grad-text">What's today?</h1>
@@ -1250,28 +1269,28 @@
         <div class="dc-label">Monday</div>
         <div class="dc-name">Push Day</div>
         <div class="dc-focus">Chest · Shoulders · Triceps + Core</div>
-        <div class="dc-meta"><b>7</b> exercises · <b>20</b> sets</div>
+        <div class="dc-meta"><b>10</b> exercises · <b>23</b> sets</div>
       </div>
       <div class="day-card card" data-day="tuesday" onclick="selectDay('tuesday')">
         <span class="dc-emoji">🔄</span>
         <div class="dc-label">Tuesday</div>
         <div class="dc-name">Pull Day</div>
         <div class="dc-focus">Back · Lats · Biceps + Core</div>
-        <div class="dc-meta"><b>7</b> exercises · <b>20</b> sets</div>
+        <div class="dc-meta"><b>10</b> exercises · <b>23</b> sets</div>
       </div>
       <div class="day-card card" data-day="thursday" onclick="selectDay('thursday')">
         <span class="dc-emoji">🦵</span>
         <div class="dc-label">Thursday</div>
         <div class="dc-name">Leg Day</div>
         <div class="dc-focus">Quads · Hamstrings · Glutes + Core</div>
-        <div class="dc-meta"><b>7</b> exercises · <b>20</b> sets</div>
+        <div class="dc-meta"><b>10</b> exercises · <b>23</b> sets</div>
       </div>
       <div class="day-card card" data-day="friday" onclick="selectDay('friday')">
         <span class="dc-emoji">⚡</span>
         <div class="dc-label">Friday</div>
         <div class="dc-name">Full Body</div>
         <div class="dc-focus">Athletic Power · Push/Pull + Core</div>
-        <div class="dc-meta"><b>7</b> exercises · <b>19</b> sets</div>
+        <div class="dc-meta"><b>8</b> exercises · <b>20</b> sets</div>
       </div>
     </div>
 
@@ -1468,7 +1487,7 @@
   <div id="theme-picker">
     <div class="t-dot on" data-t="amethyst" title="NEXUS Dark" onclick="applyTheme('amethyst')"></div>
     <div class="t-dot" data-t="arctic" title="Arctic White" onclick="applyTheme('arctic')"></div>
-    <div class="t-dot" data-t="peri" title="Periwinkle" onclick="applyTheme('peri')"></div>
+    <div class="t-dot" data-t="peri" title="Focus" onclick="applyTheme('peri')"></div>
   </div>
 
 
@@ -1481,6 +1500,9 @@
       monday: {
         name: 'Push Day', label: 'Monday', emoji: '💪',
         exercises: [
+          { id: 'mw1', name: 'Wrist Circles', muscles: ['Wrists'], sets: 1, reps: '30s each direction', notes: 'Both directions — non-negotiable before wrist loading', isWarmup: true },
+          { id: 'mw2', name: 'Scapular Push-Ups', muscles: ['Scapula'], sets: 1, reps: '15', notes: 'Protract and retract blades only — zero arm bend', isWarmup: true },
+          { id: 'mw3', name: 'Arm Swings + Shoulder CARs', muscles: ['Shoulders'], sets: 1, reps: '10 each direction', notes: 'Full shoulder range of motion prep', isWarmup: true },
           { id: 'm1', name: 'Dips', muscles: ['Chest', 'Triceps'], sets: 4, reps: '8–12', notes: 'Parallel bars · lean forward for chest emphasis', isCore: false },
           { id: 'm2', name: 'Pike Push-Ups', muscles: ['Shoulders'], sets: 3, reps: '10–15', notes: 'Elevate feet for more difficulty' },
           { id: 'm3', name: 'Diamond Push-Ups', muscles: ['Triceps', 'Inner Chest'], sets: 3, reps: '10–15', notes: '' },
@@ -1493,6 +1515,9 @@
       tuesday: {
         name: 'Pull Day', label: 'Tuesday', emoji: '🔄',
         exercises: [
+          { id: 'tw1', name: 'Dead Hang', muscles: ['Shoulders', 'Grip'], sets: 2, reps: '30–45s', notes: 'Passive hang — shoulder decompression and grip activation', isWarmup: true },
+          { id: 'tw2', name: 'Scapular Pull-Ups', muscles: ['Lats'], sets: 2, reps: '10', notes: 'Retract blades only, zero arm bend', isWarmup: true },
+          { id: 'tw3', name: 'Cross-Body Arm Swings', muscles: ['Rear Delts'], sets: 1, reps: '20 each direction', notes: 'Posterior shoulder and rotator cuff prep', isWarmup: true },
           { id: 't1', name: 'Pull-Ups', muscles: ['Lats', 'Biceps'], sets: 4, reps: '6–10', notes: 'Add weight or band · full ROM' },
           { id: 't2', name: 'Chin-Ups', muscles: ['Biceps', 'Lower Lats'], sets: 3, reps: '8–12', notes: 'Supinated grip · squeeze at top' },
           { id: 't3', name: 'Australian Rows', muscles: ['Mid Back', 'Rhomboids'], sets: 3, reps: '12–15', notes: 'Inverted rows · chest to bar' },
@@ -1505,6 +1530,9 @@
       thursday: {
         name: 'Leg Day', label: 'Thursday', emoji: '🦵',
         exercises: [
+          { id: 'hw1', name: 'Hip Circles + Leg Swings', muscles: ['Hips'], sets: 1, reps: '20 each direction', notes: 'Full hip joint mobility prep', isWarmup: true },
+          { id: 'hw2', name: 'Glute Bridge Walkout', muscles: ['Glutes', 'Hamstrings'], sets: 1, reps: '10', notes: 'Posterior chain activation before loading', isWarmup: true },
+          { id: 'hw3', name: 'Ankle CARs + Calf Raises', muscles: ['Ankles', 'Calves'], sets: 1, reps: '10 each + 20', notes: 'Ankle prep for single-leg movements', isWarmup: true },
           { id: 'h1', name: 'Bulgarian Split Squat', muscles: ['Quads', 'Glutes'], sets: 4, reps: '8–10/leg', notes: 'Work toward pistol squat progressively' },
           { id: 'h2', name: 'Nordic Curl Negatives', muscles: ['Hamstrings'], sets: 3, reps: '5–8', notes: 'Lower slowly · push back up with hands' },
           { id: 'h3', name: 'Jump Squats', muscles: ['Power', 'Quads', 'Glutes'], sets: 3, reps: '8–10', notes: 'Land soft · full depth each rep' },
@@ -1517,6 +1545,7 @@
       friday: {
         name: 'Full Body', label: 'Friday', emoji: '⚡',
         exercises: [
+          { id: 'fw1', name: 'Full Body Joint Circuit', muscles: ['Full Body'], sets: 1, reps: '2 rounds', notes: 'Wrists → shoulders → hips → ankles, 30s per joint', isWarmup: true },
           { id: 'f1', name: 'Burpee Pull-Up', muscles: ['Full Body', 'Power'], sets: 3, reps: '5–8', notes: 'Or muscle-up attempt on good days' },
           { id: 'f2', name: 'Archer Push-Ups', muscles: ['Chest', 'Triceps'], sets: 3, reps: '10–15', notes: 'Decline or clap variation' },
           { id: 'f3', name: 'Explosive Pull-Ups', muscles: ['Back', 'Biceps'], sets: 3, reps: '6–10', notes: 'Wide / L-sit / explosive style' },
@@ -1661,12 +1690,16 @@
       if (ex.isSkill) {
         typeEl.className = 'ex-type skill';
         typeEl.textContent = '🤸 SKILL PRACTICE';
+      } else if (ex.isWarmup) {
+        typeEl.className = 'ex-type core';
+        typeEl.textContent = '⚡ WARM-UP';
       } else if (ex.isCore) {
         typeEl.className = 'ex-type core';
         typeEl.textContent = '🔥 CORE BLOCK';
       } else {
         typeEl.className = 'ex-type main';
-        typeEl.textContent = `EXERCISE ${S.exIdx + 1 - (S.exercises.length - WORKOUTS[S.day].exercises.length)}`;
+        const offsetIndex = S.exIdx + 1 - S.exercises.slice(0, S.exIdx).filter(e => e.isSkill || e.isWarmup).length;
+        typeEl.textContent = `EXERCISE ${offsetIndex}`;
       }
 
       // Exercise card — animate in
@@ -1766,7 +1799,7 @@
       }
 
       renderTracker();
-      openRest(nextLabel);
+      openRest(nextLabel, ex.isWarmup ? 30 : 90);
     }
 
     /* ── SKIP / FINISH ──────────────────────────────────────────── */
@@ -1782,11 +1815,16 @@
       doSummary();
     }
     function confirmBack() {
+      if (!S.startTs) {
+        // No session started yet, go back to day select
+        goTo('v-day');
+        return;
+      }
       if (!confirm('Leave session? Progress is auto-saved.')) return;
       snapshot();
       clearInterval(S.elapsedTick);
       closeRest();
-      goTo('v-day');
+      window.location.href = '/src/pages/gym.html';
     }
 
     /* ── ELAPSED TIMER ──────────────────────────────────────────── */
@@ -1800,9 +1838,9 @@
     /* ── REST TIMER ─────────────────────────────────────────────── */
     const CIRC = 565.49; // 2π × 90
 
-    function openRest(nextLabel) {
-      S.restTotal = 90;
-      S.restLeft = 90;
+    function openRest(nextLabel, duration = 90) {
+      S.restTotal = duration;
+      S.restLeft = duration;
       document.getElementById('rest-next').textContent = nextLabel || '—';
       refreshRing();
       document.getElementById('rest-overlay').classList.add('open');

@@ -29,6 +29,7 @@
     if (file === 'health.html') return 'wellness';
     if (file === 'gym.html') return 'gym';
     if (file === 'progression-tab.html') return 'calisthenics';
+    if (file === 'facescan.html') return 'home';
     if (file === 'grind-log.html') return 'grind';
     return 'home';
   }
