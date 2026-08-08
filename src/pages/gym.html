@@ -7,9 +7,9 @@
   <meta name="theme-color" content="#07051A">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="../styles/liquid-amethyst.css">
-  <link rel="stylesheet" href="../styles/themes.css">
-  <link rel="stylesheet" href="../styles/style.css">
+  <link rel="stylesheet" href="/styles/liquid-amethyst.css">
+  <link rel="stylesheet" href="/styles/themes.css">
+  <link rel="stylesheet" href="/styles/style.css">
 
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="/favicon-32.png" sizes="32x32">
@@ -62,6 +62,8 @@
     html,
     body {
       margin: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       padding: 0;
       background: var(--bg-main);
       color: var(--text-primary);
@@ -69,6 +71,8 @@
       -webkit-font-smoothing: antialiased;
       min-height: 100vh;
       overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     body::before {
@@ -107,6 +111,7 @@
 
     .shell {
       position: relative;
+      min-height: 100vh;
       z-index: 2;
       max-width: 720px;
       margin: 0 auto;
@@ -2069,7 +2074,7 @@
       } catch (e) { }
       document.documentElement.setAttribute('data-theme', savedTheme);
       document.documentElement.setAttribute('data-initial-route', 'gym');
-      document.documentElement.classList.add('js-loading', 'nexus-ready');
+      document.documentElement.classList.add('js-loading', 'nexus-ready', 'auth-pending');
     }());
   </script>
   <noscript>
@@ -2079,20 +2084,23 @@
       }
     </style>
   </noscript>
-  <script src="../scripts/theme.js" defer></script>
+  <script src="/scripts/theme.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/scripts/supabase-client.js" defer></script>
+  <script src="/scripts/auth.js" defer></script>
+  <script src="/scripts/workout-persistence.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="../scripts/sync.js" defer></script>
-  <script src="../scripts/apple-health.js" defer></script>
-  <script src="../scripts/sync-service.js" defer></script>
-  <script src="../scripts/topbar.js" defer></script>
-  <link rel="stylesheet" href="../styles/animations.css">
-  <script src="../scripts/animations.js" defer></script>
+  <script src="/scripts/sync.js" defer></script>
+  <script src="/scripts/apple-health.js" defer></script>
+  <script src="/scripts/sync-service.js" defer></script>
+  <script src="/scripts/topbar.js" defer></script>
+  <link rel="stylesheet" href="/styles/animations.css">
+  <script src="/scripts/animations.js" defer></script>
 </head>
 
 <body>
   <header class="navbar" data-navbar>
-    <a class="logo" href="/src/pages/index.html" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><svg
+    <a class="logo" href="/index.html" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><svg
           width="28" height="28" viewBox="0 0 28 28" fill="none">
           <polygon points="14,2 26,8 26,20 14,26 2,20 2,8" stroke="currentColor" stroke-width="1.5" fill="currentColor"
             fill-opacity=".1" />
@@ -2100,14 +2108,14 @@
             opacity=".7" />
           <circle cx="14" cy="14" r="3" fill="currentColor" />
         </svg></span><span class="logo-text">NEXUS</span></a>
-    <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/src/pages/index.html" class="nav-link"
-        data-route="home">Home</a><a href="/src/pages/index.html#goals-section" class="nav-link"
-        data-route="goals">Goals</a><a href="/src/pages/health.html" class="nav-link"
-        data-route="wellness">Wellness</a><a href="/src/pages/gym.html" class="nav-link active" data-route="gym"
-        aria-current="page">Gym</a><a href="/src/pages/progression-tab.html" class="nav-link"
-        data-route="calisthenics">Calisthenics</a><a href="/src/pages/grind-log.html" class="nav-link"
+    <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/index.html" class="nav-link"
+        data-route="home">Home</a><a href="/index.html#goals-section" class="nav-link"
+        data-route="goals">Goals</a><a href="/health.html" class="nav-link"
+        data-route="wellness">Wellness</a><a href="/gym.html" class="nav-link active" data-route="gym"
+        aria-current="page">Gym</a><a href="/progression-tab.html" class="nav-link"
+        data-route="calisthenics">Calisthenics</a><a href="/grind-log.html" class="nav-link"
         data-route="grind">Grind Log</a></nav>
-    <div class="header-right"><span class="status-pill"><span class="status-pill-dot"
+    <div class="header-right"><button class="sign-out-btn" type="button" data-sign-out>SIGN OUT</button><span class="status-pill"><span class="status-pill-dot"
           aria-hidden="true"></span>ONLINE</span>
       <div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button
           aria-haspopup="menu" aria-expanded="false">THEME</button>
@@ -2126,7 +2134,7 @@
   </div>
 
   <div class="shell">
-    <a href="/src/pages/index.html" class="back-btn">
+    <a href="/index.html" class="back-btn">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
         stroke-linecap="round" stroke-linejoin="round">
         <polyline points="15 18 9 12 15 6"></polyline>
@@ -2197,7 +2205,7 @@
       <!-- Start Workout button routes to live tracker with current day pre-selected -->
       <div style="margin-top:10px; display:flex; justify-content:flex-end;">
         <button class="start-workout-btn" type="button"
-          onclick="window.location.href='/src/pages/live-workout.html?day=' + getDayParamFromCurrentSelection()">
+          onclick="window.location.href='/live-workout.html?day=' + getDayParamFromCurrentSelection()">
           ▶ Start Workout
         </button>
       </div>
@@ -2362,7 +2370,7 @@
     </div>
 
     <div class="divider"><span>Skill Progressions</span></div>
-    <a href="/src/pages/progression-tab.html" class="skills-cta">
+    <a href="/progression-tab.html" class="skills-cta">
       <div class="skills-cta-emoji">🤸</div>
       <div class="skills-cta-body">
         <div class="skills-cta-title">Calisthenics Skill Tracker</div>
@@ -2538,8 +2546,8 @@
               exercises: [
                 { name: 'Pull-Ups', sets: '4', reps: '6–10', rest: '90s', note: 'Dead hang to chin-over-bar every rep — add weight or use band as needed' },
                 { name: 'Chin-Ups', sets: '3', reps: '8–12', rest: '60s', note: 'Supinated grip — more bicep involvement, elbows tucked in', tempo: '2-1-2-0' },
-                { name: 'Australian Rows', sets: '3', reps: '12–15', rest: '60s', note: 'Inverted rows under bar or table — full scapular squeeze at top, rigid body', tempo: '2-1-2-0' },
-                { name: 'Face Pulls / Band Pull-Aparts', sets: '3', reps: '15–20', rest: '45s', note: 'External rotation focus — scapular and rotator cuff health, light load', tempo: 'controlled' },
+                { name: 'Hollow Body Hold', sets: '3', reps: '20–30s hold', rest: '45s', note: 'Focus on lower back pressed to floor, legs straight and low' },
+                { name: 'Scapular Push-ups', sets: '3', reps: '12–15', rest: '45s', note: 'In plank position, protract and retract shoulder blades without bending elbows — pure scapular control, zero equipment' },
                 { name: 'Hammer Curls', sets: '3', reps: '12', rest: '45s', note: 'Neutral grip, DB or band — brachialis and forearm development', tempo: '3-0-3-0' },
               ]
             },
@@ -3041,9 +3049,9 @@
         const checked = gs(exKey, []);
         const idx = checked.indexOf(globalIdx);
         const wasUnchecked = idx < 0;
-        if (idx >= 0) checked.splice(idx, 1); else checked.push(globalIdx);
-        ss(exKey, checked);
-        renderWorkout();
+        if (idx >= 0) checked.splice(idx, 1); else checked.push(globalIdx);         ss(exKey, checked);
+         persistGymWorkoutState();
+         renderWorkout();
         if (wasUnchecked) {
           const allEx = getAllExercises(currentDay);
           const ex = allEx[globalIdx];
@@ -3058,9 +3066,9 @@
         const doneKey = 'done_' + currentDay + '_' + tk;
         const missedKey = 'missed_' + currentDay + '_' + tk;
         const isDone = gs(doneKey, false);
-        if (!isDone) ss(missedKey, false);
-        ss(doneKey, !isDone);
-        writeHist(tk);
+        if (!isDone) ss(missedKey, false);         ss(doneKey, !isDone);
+         persistGymWorkoutState();
+         writeHist(tk);
         renderWorkout(); renderHistory(); renderHeatmap(); renderConsistencyChart(); syncGymDone();
       };
       window.toggleWorkoutMissed = function () {
@@ -3068,9 +3076,9 @@
         const doneKey = 'done_' + currentDay + '_' + tk;
         const missedKey = 'missed_' + currentDay + '_' + tk;
         const isMissed = gs(missedKey, false);
-        if (!isMissed) ss(doneKey, false);
-        ss(missedKey, !isMissed);
-        writeHist(tk);
+        if (!isMissed) ss(doneKey, false);         ss(missedKey, !isMissed);
+         persistGymWorkoutState();
+         writeHist(tk);
         renderWorkout(); renderHistory(); renderHeatmap(); renderConsistencyChart(); syncGymDone();
       };
       function writeHist(tk) {
@@ -3218,6 +3226,7 @@
         ss('log_' + tk, log);
         const hist = gs('hist_' + tk, {}); Object.assign(hist, { cal: log.cal, prot: log.prot, steps: log.steps }); ss('hist_' + tk, hist);
         updateTargetPills(log);
+        persistGymWorkoutState();
         const btn = document.querySelector('[onclick="saveLog()"]');
         const orig = btn.textContent; btn.textContent = '✓ Saved'; setTimeout(() => btn.textContent = orig, 1200);
       };
@@ -3303,8 +3312,22 @@
         }).join('');
       }
 
-      /* ─────────────────────────── SYNC ───────────────────────────────────── */
-      function syncGymDone() {
+      /* ─────────────────────────── SYNC ───────────────────────────────────── */       function persistGymWorkoutState() {
+         if (!window.NexusWorkoutStore) return;
+         const tk = todayKey();
+         const checked = gs('ex_' + currentDay + '_' + tk, []);
+         window.NexusWorkoutStore.save(tk, {
+           source: 'gym',
+           dayIndex: currentDay,
+           dayName: DAYS[currentDay] && DAYS[currentDay].name,
+           checked: Array.isArray(checked) ? checked : [],
+           done: !!gs('done_' + currentDay + '_' + tk, false),
+           missed: !!gs('missed_' + currentDay + '_' + tk, false),
+           updatedAt: new Date().toISOString()
+         }).catch(function (error) { console.error('[NEXUS gym] workout log save failed', error); });
+       }
+
+       function syncGymDone() {
         const tk = todayKey(); let doneCount = 0;
         for (let d = 0; d < 4; d++) { if (gs('done_' + d + '_' + tk, false)) doneCount++; }
         try {
@@ -3325,6 +3348,33 @@
       });
 
       /* ─────────────────────────── INIT ───────────────────────────────────── */
+      async function hydrateGymFromCloud() {
+        if (!window.NexusWorkoutStore) return;
+        try {
+          const tk = todayKey();
+          const remote = await window.NexusWorkoutStore.load(tk);
+          if (remote && remote.data) {
+            const d = remote.data;
+            if (Array.isArray(d.checked)) {
+              const exKey = 'ex_' + currentDay + '_' + tk;
+              const existing = gs(exKey, []);
+              if (!existing.length && d.checked.length) ss(exKey, d.checked);
+            }
+            if (d.done != null) {
+              const doneKey = 'done_' + currentDay + '_' + tk;
+              if (!gs(doneKey, false) && d.done) ss(doneKey, true);
+            }
+            if (d.missed != null) {
+              const missedKey = 'missed_' + currentDay + '_' + tk;
+              if (!gs(missedKey, false) && d.missed) ss(missedKey, true);
+            }
+            renderWorkout(); renderHistory(); renderHeatmap(); renderConsistencyChart(); syncGymDone();
+          }
+        } catch (error) {
+          console.warn('[NEXUS gym] cloud hydration failed', error);
+        }
+      }
+
       function init() {
         updateDayTabLabels();
         const todayDow = detectToday();
@@ -3332,6 +3382,7 @@
         loadLog(); loadWeight();
         renderHistory(); renderHeatmap(); renderConsistencyChart(); renderMeasurements();
         syncGymDone();
+        hydrateGymFromCloud();
       }
       init();
     })();

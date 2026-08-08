@@ -12,6 +12,10 @@ html.nexus-ready body {
   visibility: visible;
 }
 
+html.auth-pending body {
+  visibility: hidden !important;
+}
+
 /* JavaScript-disabled fallback: retain the readable static document. */
 @media (scripting: none) {
   html:not(.nexus-ready) body {
@@ -57,6 +61,7 @@ html.js-loading .theme-dropdown .dropdown-menu {
 html,
 body {
   overscroll-behavior-y: none;
+  overflow-y: auto;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -218,6 +223,31 @@ html[data-initial-route="grind"] .nav-link[data-route="home"] {
   justify-content: flex-end;
   gap: 10px;
   min-width: max-content;
+}
+
+.sign-out-btn {
+  min-height: 30px;
+  padding: 7px 10px;
+  border: 1px solid color-mix(in srgb, var(--a3, #D946EF) 32%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--a3, #D946EF) 8%, transparent);
+  color: var(--text-secondary, #CBD5E1);
+  font: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
+}
+
+.sign-out-btn:hover,
+.sign-out-btn:focus-visible {
+  color: var(--text-primary, #F1F5F9);
+  background: color-mix(in srgb, var(--a3, #D946EF) 18%, transparent);
+  border-color: color-mix(in srgb, var(--a3, #D946EF) 55%, transparent);
+  outline: none;
+  transform: translateY(-1px);
 }
 
 .status-pill {
@@ -408,6 +438,12 @@ html[data-initial-route="grind"] .nav-link[data-route="home"] {
     gap: 6px;
   }
 
+  .sign-out-btn {
+    min-height: 30px;
+    padding: 7px 8px;
+    font-size: 8px;
+  }
+
   .status-pill {
     min-height: 30px;
     padding: 7px 8px;
@@ -457,6 +493,38 @@ body > main {
   .shell,
   body > main {
     scroll-margin-top: 104px;
+  }
+}
+
+/* Cross-page scrolling contract. Decorative layers never become touch targets. */
+html,
+body {
+  min-height: 100%;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.page,
+.shell,
+body > main {
+  min-height: 100vh;
+}
+
+.orbs,
+.nx-ambient,
+.nx-focus-vignette,
+.nx-cursor-glow,
+body::before,
+body::after {
+  pointer-events: none !important;
+}
+
+@media (hover: none) {
+  .nx-anim-card,
+  [data-tiltable] {
+    transform: none !important;
+    will-change: auto !important;
   }
 }
 

@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#07051A">
-  <link rel="stylesheet" href="../styles/themes.css">
-  <link rel="stylesheet" href="../styles/style.css">
-  <link rel="stylesheet" href="../styles/animations.css">
+  <link rel="stylesheet" href="/styles/themes.css">
+  <link rel="stylesheet" href="/styles/style.css">
+  <link rel="stylesheet" href="/styles/animations.css">
   <link rel="manifest" href="/manifest.json">
   <title>FaceScan AI — NEXUS</title>
   <style>
     :root { --face-max: 720px; }
-    .face-shell { position:relative; z-index:1; width:min(var(--face-max), calc(100% - 32px)); margin:0 auto; padding:42px 0 80px; }
+    .face-shell { position:relative; z-index:1; width:min(var(--face-max), calc(100% - 32px)); min-height:100vh; margin:0 auto; padding:42px 0 80px; -webkit-overflow-scrolling:touch; }
     .face-back { display:inline-flex; align-items:center; gap:7px; color:var(--text-secondary); text-decoration:none; font-size:12px; font-weight:700; margin-bottom:28px; }
     .face-hero { display:grid; grid-template-columns:1fr 180px; gap:26px; align-items:center; margin-bottom:18px; }
     .face-kicker { color:var(--amethyst); font:700 10px var(--mono); letter-spacing:.2em; text-transform:uppercase; }
@@ -46,21 +46,24 @@
       } catch (e) { }
       document.documentElement.setAttribute('data-theme', saved);
       document.documentElement.setAttribute('data-initial-route', 'home');
-      document.documentElement.classList.add('js-loading', 'nexus-ready');
+      document.documentElement.classList.add('js-loading', 'nexus-ready', 'auth-pending');
     }());
   </script>
-  <script src="../scripts/theme.js" defer></script>
-  <script src="../scripts/topbar.js" defer></script>
-  <script src="../scripts/animations.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/scripts/supabase-client.js" defer></script>
+  <script src="/scripts/auth.js" defer></script>
+  <script src="/scripts/theme.js" defer></script>
+  <script src="/scripts/topbar.js" defer></script>
+  <script src="/scripts/animations.js" defer></script>
 </head>
 <body>
   <header class="navbar" data-navbar>
-    <a class="logo" href="/src/pages/index.html" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><polygon points="14,2 26,8 26,20 14,26 2,20 2,8" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity=".1"/><polygon points="14,7 21,11 21,17 14,21 7,17 7,11" stroke="currentColor" stroke-width="1" fill="none" opacity=".7"/><circle cx="14" cy="14" r="3" fill="currentColor"/></svg></span><span class="logo-text">NEXUS</span></a>
-    <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/src/pages/index.html" class="nav-link" data-route="home">Home</a><a href="/src/pages/index.html#goals-section" class="nav-link" data-route="goals">Goals</a><a href="/src/pages/health.html" class="nav-link" data-route="wellness">Wellness</a><a href="/src/pages/gym.html" class="nav-link" data-route="gym">Gym</a><a href="/src/pages/progression-tab.html" class="nav-link" data-route="calisthenics">Calisthenics</a><a href="/src/pages/grind-log.html" class="nav-link" data-route="grind">Grind Log</a></nav>
-    <div class="header-right"><span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span><div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button><div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button" data-theme-option="periwinkle" role="menuitemradio">Focus</button><button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div></div></div>
+    <a class="logo" href="/index.html" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><polygon points="14,2 26,8 26,20 14,26 2,20 2,8" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity=".1"/><polygon points="14,7 21,11 21,17 14,21 7,17 7,11" stroke="currentColor" stroke-width="1" fill="none" opacity=".7"/><circle cx="14" cy="14" r="3" fill="currentColor"/></svg></span><span class="logo-text">NEXUS</span></a>
+    <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/index.html" class="nav-link" data-route="home">Home</a><a href="/index.html#goals-section" class="nav-link" data-route="goals">Goals</a><a href="/health.html" class="nav-link" data-route="wellness">Wellness</a><a href="/gym.html" class="nav-link" data-route="gym">Gym</a><a href="/progression-tab.html" class="nav-link" data-route="calisthenics">Calisthenics</a><a href="/grind-log.html" class="nav-link" data-route="grind">Grind Log</a></nav>
+    <div class="header-right"><button class="sign-out-btn" type="button" data-sign-out>SIGN OUT</button><span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span><div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button><div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button" data-theme-option="periwinkle" role="menuitemradio">Focus</button><button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div></div></div>
   </header>
   <main class="face-shell">
-    <a class="face-back" href="/src/pages/index.html">← Back to dashboard</a>
+    <a class="face-back" href="/index.html">← Back to dashboard</a>
     <section class="face-hero"><div><div class="face-kicker">Weekly check-in · FaceScan AI</div><h1 class="face-title">Read the signal.</h1><p class="face-copy">The local FaceScan surface is ready for your weekly reflection. Connect your approved Gemini/Groq workflow later, or record a manual rating now so the dashboard can track consistency without inventing a result.</p></div><div class="face-orb" aria-hidden="true"></div></section>
     <section class="glass face-card nx-anim-card">
       <h2>Record this week’s check-in</h2><p>Only the date and rating are stored in this browser. No image is uploaded by this placeholder page.</p>

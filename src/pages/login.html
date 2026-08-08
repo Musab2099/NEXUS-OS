@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="nexus-dark" class="nexus-ready">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#07051A">
+  <title>Access NEXUS</title>
+  <link rel="stylesheet" href="/styles/themes.css">
+  <link rel="stylesheet" href="/styles/style.css">
+  <style>
+    :root { color-scheme: dark; }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      overflow-y: auto;
+      overflow-x: hidden;
+      font-family: var(--font, Inter, system-ui, sans-serif);
+      background: #07051A;
+      color: var(--text-primary, #EDE9FE);
+    }
+    body::before, body::after { content: ''; position: fixed; inset: 0; pointer-events: none; }
+    body::before {
+      background:
+        radial-gradient(ellipse 52% 48% at 12% 12%, rgba(124,58,237,.42), transparent 68%),
+        radial-gradient(ellipse 46% 42% at 88% 86%, rgba(217,70,239,.28), transparent 68%),
+        radial-gradient(ellipse 38% 36% at 64% 18%, rgba(34,211,238,.14), transparent 70%);
+      filter: blur(26px);
+      animation: loginAurora 18s ease-in-out infinite alternate;
+    }
+    body::after {
+      opacity: .34;
+      background-image: radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px);
+      background-size: 4px 4px;
+      mask-image: linear-gradient(to bottom, transparent, black 22%, black 78%, transparent);
+    }
+    @keyframes loginAurora { to { transform: scale(1.12) translate(-2%, 2%); } }
+    .login-shell { position: relative; z-index: 1; width: min(100% - 32px, 430px); }
+    .login-card {
+      padding: clamp(26px, 6vw, 42px);
+      border: 1px solid rgba(167,139,250,.24);
+      border-radius: 26px;
+      background: linear-gradient(145deg, rgba(20,14,54,.78), rgba(8,6,24,.68));
+      box-shadow: 0 30px 90px rgba(0,0,0,.46), 0 0 70px rgba(124,58,237,.16), inset 0 1px 0 rgba(255,255,255,.08);
+      backdrop-filter: blur(28px) saturate(145%);
+      -webkit-backdrop-filter: blur(28px) saturate(145%);
+    }
+    .login-brand { display: inline-flex; align-items: center; gap: 10px; color: #C4B5FD; font-size: 16px; font-weight: 900; letter-spacing: .2em; }
+    .login-brand-mark { display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid rgba(167,139,250,.42); border-radius: 10px; color: #D946EF; box-shadow: 0 0 20px rgba(217,70,239,.28); }
+    .login-kicker { margin-top: 34px; color: #A78BFA; font: 700 10px var(--mono, monospace); letter-spacing: .2em; text-transform: uppercase; }
+    h1 { margin: 9px 0 10px; font-size: clamp(30px, 8vw, 43px); line-height: 1.02; letter-spacing: -.055em; }
+    .login-subtitle { margin: 0 0 26px; color: var(--text-secondary, rgba(212,205,255,.8)); font-size: 13px; line-height: 1.6; }
+    .login-form { display: grid; gap: 14px; }
+    .login-field { display: grid; gap: 7px; }
+    .login-field label { color: var(--text-secondary, #D4CFFF); font: 700 10px var(--mono, monospace); letter-spacing: .13em; text-transform: uppercase; }
+    .login-field input { width: 100%; padding: 13px 14px; border: 1px solid rgba(167,139,250,.2); border-radius: 12px; outline: none; background: rgba(3,2,14,.42); color: var(--text-primary, #EDE9FE); font: 500 14px var(--font, system-ui); transition: border-color .18s, box-shadow .18s, background .18s; }
+    .login-field input:focus { border-color: #A78BFA; background: rgba(3,2,14,.62); box-shadow: 0 0 0 4px rgba(124,58,237,.16), 0 0 24px rgba(124,58,237,.14); }
+    .login-field input::placeholder { color: rgba(212,205,255,.38); }
+    .login-error, .login-success { display: none; margin: 2px 0 0; padding: 10px 12px; border-radius: 10px; font-size: 12px; line-height: 1.45; }
+    .login-error { color: #FCA5A5; border: 1px solid rgba(239,68,68,.34); background: rgba(239,68,68,.11); }
+    .login-success { color: #C4B5FD; border: 1px solid rgba(167,139,250,.34); background: rgba(124,58,237,.12); }
+    .login-primary { width: 100%; margin-top: 4px; padding: 13px 16px; border: 0; border-radius: 12px; background: linear-gradient(135deg, #7C3AED, #A855F7 48%, #D946EF); color: #fff; font: 800 12px var(--font, system-ui); letter-spacing: .1em; text-transform: uppercase; box-shadow: 0 8px 24px rgba(124,58,237,.34); cursor: pointer; transition: transform .16s, filter .16s, box-shadow .16s; }
+    .login-primary:hover { filter: brightness(1.12); transform: translateY(-1px); box-shadow: 0 12px 30px rgba(124,58,237,.48); }
+    .login-primary:disabled { opacity: .55; cursor: wait; transform: none; }
+    .login-toggle { width: 100%; margin-top: 10px; padding: 10px; border: 0; background: transparent; color: #C4B5FD; font: 600 12px var(--font, system-ui); cursor: pointer; }
+    .login-toggle:hover { color: #F0ABFC; }
+    .login-note { margin: 22px 0 0; color: rgba(212,205,255,.48); font-size: 10px; line-height: 1.55; text-align: center; }
+    @media (prefers-reduced-motion: reduce) { body::before { animation: none; } }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/scripts/supabase-client.js" defer></script>
+  <script src="/scripts/auth.js" defer></script>
+</head>
+<body>
+  <main class="login-shell">
+    <section class="login-card" aria-labelledby="loginTitle">
+      <div class="login-brand"><span class="login-brand-mark" aria-hidden="true">◈</span><span>NEXUS</span></div>
+      <div class="login-kicker">Personal operating system</div>
+      <h1 id="loginTitle">Welcome back.</h1>
+      <p class="login-subtitle" id="loginSubtitle">Sign in to continue to your private workspace.</p>
+      <form class="login-form" id="authForm">
+        <div class="login-field"><label for="authEmail">Email</label><input id="authEmail" name="email" type="email" autocomplete="email" required placeholder="you@example.com"></div>
+        <div class="login-field"><label for="authPassword">Password</label><input id="authPassword" name="password" type="password" autocomplete="current-password" minlength="6" required placeholder="••••••••"></div>
+        <div class="login-error" id="authError" role="alert"></div>
+        <div class="login-success" id="authSuccess" role="status"></div>
+        <button class="login-primary" id="authSubmit" type="submit">Sign in</button>
+      </form>
+      <button class="login-toggle" id="authToggle" type="button">Need an account? Sign up</button>
+      <p class="login-note">Your session is secured by Supabase Auth and persists automatically on this device.</p>
+    </section>
+  </main>
+  <script>
+    (function () {
+      var form = document.getElementById('authForm');
+      var submit = document.getElementById('authSubmit');
+      var toggle = document.getElementById('authToggle');
+      var title = document.getElementById('loginTitle');
+      var subtitle = document.getElementById('loginSubtitle');
+      var error = document.getElementById('authError');
+      var success = document.getElementById('authSuccess');
+      var password = document.getElementById('authPassword');
+      var signUpMode = false;
+
+      function show(target, message) { target.textContent = message; target.style.display = message ? 'block' : 'none'; }
+      function setMode(next) {
+        signUpMode = next;
+        title.textContent = signUpMode ? 'Create your space.' : 'Welcome back.';
+        subtitle.textContent = signUpMode ? 'Set up your private NEXUS workspace in seconds.' : 'Sign in to continue to your private workspace.';
+        submit.textContent = signUpMode ? 'Sign up' : 'Sign in';
+        toggle.textContent = signUpMode ? 'Already have an account? Sign in' : 'Need an account? Sign up';
+        password.setAttribute('autocomplete', signUpMode ? 'new-password' : 'current-password');
+        show(error, ''); show(success, '');
+      }
+      toggle.addEventListener('click', function () { setMode(!signUpMode); });
+      form.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        show(error, ''); show(success, '');
+        submit.disabled = true;
+        submit.textContent = signUpMode ? 'Creating…' : 'Signing in…';
+        var email = document.getElementById('authEmail').value.trim();
+        var result;
+        try { result = signUpMode ? await window.nexusAuth.signUp(email, password.value) : await window.nexusAuth.signIn(email, password.value); }
+        catch (e) { result = { error: e }; }
+        submit.disabled = false;
+        submit.textContent = signUpMode ? 'Sign up' : 'Sign in';
+        if (result && result.error) { show(error, result.error.message || 'Authentication failed. Please try again.'); return; }
+        if (signUpMode && result && result.data && !result.data.session) { show(success, 'Account created. Check your email to confirm, then sign in.'); return; }
+        window.location.replace('/index.html');
+      });
+    }());
+  </script>
+</body>
+</html>

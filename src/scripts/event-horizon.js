@@ -4,8 +4,8 @@
 // Handles: Circadian tinting, 3D tilt tracker, tactile buttons,
 //          sync flash signals.
 // Drop on any page with:
-//     <script src="../scripts/event-horizon.js" defer></script>
-//     <link rel="stylesheet" href="../styles/event-horizon.css">
+//     <script src="/scripts/event-horizon.js" defer></script>
+//     <link rel="stylesheet" href="/styles/event-horizon.css">
 // =============================================================
 (function () {
   'use strict';
@@ -102,7 +102,7 @@
   var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   function initTiltTracker() {
-    if (prefersReducedMotion.matches) return;
+    if (prefersReducedMotion.matches || window.matchMedia('(hover: none)').matches || !window.matchMedia('(pointer: fine)').matches) return;
 
     document.addEventListener('pointermove', function (e) {
       var target = e.target;

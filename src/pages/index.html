@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#07051A">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../styles/themes.css">
-<link rel="stylesheet" href="../styles/style.css">
+<link rel="stylesheet" href="/styles/themes.css">
+<link rel="stylesheet" href="/styles/style.css">
 
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/favicon-32.png" sizes="32x32">
@@ -66,6 +66,8 @@ body{
   color:var(--text-primary);
   font-family:'Inter',system-ui,sans-serif;
   overflow-x:hidden;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
   -webkit-font-smoothing:antialiased;
 }
 
@@ -130,6 +132,7 @@ body{
   position:relative;
   z-index:1;
   min-height:100vh;
+  -webkit-overflow-scrolling:touch;
   max-width:1100px;
   margin:0 auto;
   padding:0 24px 60px;
@@ -672,22 +675,24 @@ body{
     } catch (e) {}
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.documentElement.setAttribute('data-initial-route', window.location.hash === '#goals-section' ? 'goals' : 'home');
-    document.documentElement.classList.add('js-loading', 'nexus-ready');
+    document.documentElement.classList.add('js-loading', 'nexus-ready', 'auth-pending');
   }());</script>
 <noscript><style>html:not(.nexus-ready) body{visibility:visible!important}</style></noscript>
-<script src="../scripts/theme.js" defer></script>
+<script src="/scripts/theme.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../scripts/sync.js" defer></script>
-<script src="../scripts/topbar.js" defer></script>
-<link rel="stylesheet" href="../styles/animations.css">
-<script src="../scripts/animations.js" defer></script>
+<script src="/scripts/supabase-client.js" defer></script>
+<script src="/scripts/auth.js" defer></script>
+<script src="/scripts/sync.js" defer></script>
+<script src="/scripts/topbar.js" defer></script>
+<link rel="stylesheet" href="/styles/animations.css">
+<script src="/scripts/animations.js" defer></script>
 </head>
 <body>
 
 <div class="page">
   <!-- PRIMARY HEADER: the single shared navigation on every page -->
   <header class="navbar" data-navbar>
-    <a class="logo" href="/src/pages/index.html" aria-label="NEXUS home">
+    <a class="logo" href="/index.html" aria-label="NEXUS home">
       <span class="logo-icon" aria-hidden="true">
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
           <polygon points="14,2 26,8 26,20 14,26 2,20 2,8" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity=".1"/>
@@ -698,15 +703,15 @@ body{
       <span class="logo-text">NEXUS</span>
     </a>
     <nav class="nav-pill" aria-label="NEXUS navigation">
-      <a href="/src/pages/index.html" class="nav-link" data-route="home">Home</a>
-      <a href="/src/pages/index.html#goals-section" class="nav-link" data-route="goals">Goals</a>
-      <a href="/src/pages/health.html" class="nav-link" data-route="wellness">Wellness</a>
-      <a href="/src/pages/gym.html" class="nav-link" data-route="gym">Gym</a>
-      <a href="/src/pages/progression-tab.html" class="nav-link" data-route="calisthenics">Calisthenics</a>
-      <a href="/src/pages/grind-log.html" class="nav-link" data-route="grind">Grind Log</a>
+      <a href="/index.html" class="nav-link" data-route="home">Home</a>
+      <a href="/index.html#goals-section" class="nav-link" data-route="goals">Goals</a>
+      <a href="/health.html" class="nav-link" data-route="wellness">Wellness</a>
+      <a href="/gym.html" class="nav-link" data-route="gym">Gym</a>
+      <a href="/progression-tab.html" class="nav-link" data-route="calisthenics">Calisthenics</a>
+      <a href="/grind-log.html" class="nav-link" data-route="grind">Grind Log</a>
     </nav>
     <div class="header-right">
-      <span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span>
+      <button class="sign-out-btn" type="button" data-sign-out>SIGN OUT</button><span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span>
       <div class="theme-dropdown" data-theme-control>
         <button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button>
         <div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme">
@@ -1012,6 +1017,76 @@ body{
   }
 
   // ──────────────────────────────────────────────
+  // CLOUD WORKOUT HYDRATION
+  // ──────────────────────────────────────────────
+  let cloudWorkoutLogs = [];
+  let dashboardRefreshInFlight = null;
+  function dashboardDateKey(value) {
+    const d = value instanceof Date ? value : new Date(value || Date.now());
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function normalizeCloudWorkout(row) {
+    if (!row || !row.date) return null;
+    const wrapped = row.workout_data && row.workout_data.data ? row.workout_data.data : row.workout_data;
+    return { date: String(row.date).slice(0, 10), data: wrapped || {} };
+  }
+  async function refreshDashboardFromSupabase() {
+    if (!window.supabaseClient || !window.nexusAuthReady) return;
+    if (dashboardRefreshInFlight) return dashboardRefreshInFlight;
+    dashboardRefreshInFlight = (async function () {
+      try {
+        const session = await window.nexusAuthReady;
+        if (!session || !session.user) return;
+        const stateResult = await window.supabaseClient.from('app_state').select('key,data').eq('user_id', session.user.id).in('key', ['goals', 'gym', 'grind', 'calisthenics']);
+        console.info('[NEXUS dashboard] app_state load response', stateResult);
+        if (!stateResult.error && Array.isArray(stateResult.data)) {
+          stateResult.data.forEach(function (row) {
+            const state = row && row.data && typeof row.data === 'object' ? row.data : {};
+            Object.keys(state).forEach(function (key) {
+              try { localStorage.setItem(key, JSON.stringify(state[key])); } catch (e) { }
+            });
+          });
+        }
+        const result = await window.supabaseClient.from('workout_logs').select('date,workout_data,updated_at').eq('user_id', session.user.id).order('date', { ascending: false }).limit(365);
+        console.info('[NEXUS dashboard] workout_logs load response', result);
+        if (!result.error && Array.isArray(result.data)) {
+          cloudWorkoutLogs = result.data.map(normalizeCloudWorkout).filter(Boolean);
+          const finished = cloudWorkoutLogs.filter(row => row.data && (row.data.finished || (row.data.session && row.data.session.log)));
+          if (finished.length) {
+            const compact = finished.map(row => ({ date: row.date, workout: row.data }));
+            try { localStorage.setItem('nexus_workout_cloud_cache', JSON.stringify(compact)); } catch (e) { }
+          }
+          renderDashboardWidgets();
+        } else if (result.error) {
+          console.warn('[NEXUS dashboard] workout_logs unavailable; using local fallback', result.error);
+        }
+      } catch (error) {
+        console.warn('[NEXUS dashboard] cloud refresh failed; using local fallback', error);
+      } finally {
+        dashboardRefreshInFlight = null;
+      }
+    }());
+    return dashboardRefreshInFlight;
+  }
+  function getWorkoutActivity() {
+    const dates = new Set();
+    const xpByDate = {};
+    cloudWorkoutLogs.forEach(row => {
+      if (!row || !row.date) return;
+      const data = row.data || {};
+      if (data.finished || data.done || (data.session && Array.isArray(data.session.log) && data.session.log.length)) dates.add(row.date);
+    });
+    try {
+      const cached = JSON.parse(localStorage.getItem('nexus_workout_cloud_cache') || '[]');
+      cached.forEach(row => { if (row && row.date) dates.add(row.date); });
+    } catch (e) { }
+    return { dates, xpByDate };
+  }
+  function renderDashboardWidgets() {
+    updateHeader(); updateGoalsCard(); updateGrindCard(); updateGymCard(); updateHighlights(); updateNexusStats(); updatePulse(); buildHeatmap();
+  }
+
+  // ──────────────────────────────────────────────
   // GREETING
   // ──────────────────────────────────────────────
   function updateHeader() {
@@ -1082,12 +1157,35 @@ body{
       }
     }
 
-    document.getElementById('grindDay').textContent = 'Day ' + (streak || '—');
+    const workoutActivity = getWorkoutActivity();
+    if (workoutActivity.dates.size) {
+      const workoutDates = Array.from(workoutActivity.dates).sort().reverse();
+      let workoutStreak = 0;
+      const cursor = new Date();
+      for (let i = 0; i < 365; i++) {
+        const key = dashboardDateKey(cursor);
+        if (workoutDates.includes(key)) { workoutStreak++; cursor.setDate(cursor.getDate() - 1); }
+        else if (i === 0) cursor.setDate(cursor.getDate() - 1);
+        else break;
+      }
+      streak = Math.max(streak, workoutStreak);
+    }
+    document.getElementById('grindDay').textContent = 'Day ' + (streak || 0);
     document.getElementById('grindBadge').textContent = streak >= 7 ? '🔥 On fire' : streak >= 3 ? '⚡ Rolling' : '💪 Keep going';
-    document.getElementById('grindTotalXP').textContent = total.toLocaleString();
-    document.getElementById('grindTodayXP').innerHTML = 'Today: <b>+' + todayXP + ' XP</b>';
+    const cloudWorkoutXP = cloudWorkoutLogs.reduce((sum, row) => {
+      const log = row.data && row.data.session && Array.isArray(row.data.session.log) ? row.data.session.log : row.data && Array.isArray(row.data.log) ? row.data.log : [];
+      return sum + log.reduce((inner, item) => inner + (Number(item.xp) || 0), 0);
+    }, 0);
+    const cloudTotalXP = cloudWorkoutXP + total;
+    document.getElementById('grindTotalXP').textContent = cloudTotalXP.toLocaleString();
+    const todayKey = dashboardDateKey(new Date());
+    const cloudTodayXP = cloudWorkoutLogs.filter(row => row.date === todayKey).reduce((sum, row) => {
+      const log = row.data && row.data.session && Array.isArray(row.data.session.log) ? row.data.session.log : row.data && Array.isArray(row.data.log) ? row.data.log : [];
+      return sum + log.reduce((inner, item) => inner + (Number(item.xp) || 0), 0);
+    }, 0);
+    document.getElementById('grindTodayXP').innerHTML = 'Today: <b>+' + (todayXP + cloudTodayXP) + ' XP</b>';
     const pct = Math.min(100, (todayXP / 500) * 100);
-    document.getElementById('grindXPLim').textContent = todayXP + ' / 500';
+    document.getElementById('grindXPLim').textContent = (todayXP + cloudTodayXP) + ' / 500';
     document.getElementById('grindXPFill').style.width = pct + '%';
   }
 
@@ -1099,22 +1197,30 @@ body{
     let sleep = null;
     try { sleep = JSON.parse(localStorage.getItem('sleep:entry:' + today)); } catch { }
 
+    const ringVal = document.getElementById('wellnessRingVal');
+    const ringFill = document.getElementById('wellnessRingFill');
+    const sleepTime = document.getElementById('wellnessSleepTime');
+    const sleepQuality = document.getElementById('wellnessSleepQuality');
+    const title = document.getElementById('wellnessTitle');
+    const sub = document.getElementById('wellnessSub');
+    const badgesEl = document.getElementById('wellnessBadges');
+
     if (sleep && sleep.hours) {
       const hrs = parseFloat(sleep.hours) || 0;
-      document.getElementById('wellnessRingVal').textContent = hrs.toFixed(1);
+      if (ringVal) ringVal.textContent = (hrs ?? 0).toFixed(1);
       const maxHrs = 9;
       const offset = 182.2 * (1 - Math.min(hrs / maxHrs, 1));
-      document.getElementById('wellnessRingFill').setAttribute('stroke-dashoffset', offset);
-      document.getElementById('wellnessSleepTime').textContent = (sleep.bedtime || '—') + ' – ' + (sleep.waketime || '—');
+      if (ringFill) ringFill.setAttribute('stroke-dashoffset', offset);
+      if (sleepTime) sleepTime.textContent = (sleep.bedtime || '—') + ' – ' + (sleep.waketime || '—');
       const quality = sleep.quality || Math.round((hrs / 8) * 100);
-      document.getElementById('wellnessSleepQuality').textContent = 'Quality score: ' + Math.min(100, quality) + '%';
-      document.getElementById('wellnessTitle').textContent = 'Recovery: ' + (quality >= 80 ? 'Great' : quality >= 60 ? 'Good' : 'Low');
+      if (sleepQuality) sleepQuality.textContent = 'Quality score: ' + Math.min(100, quality ?? 0) + '%';
+      if (title) title.textContent = 'Recovery: ' + (quality >= 80 ? 'Great' : quality >= 60 ? 'Good' : 'Low');
     } else {
-      document.getElementById('wellnessTitle').textContent = 'Recovery';
-      document.getElementById('wellnessRingVal').textContent = '—';
+      if (title) title.textContent = 'Recovery';
+      if (ringVal) ringVal.textContent = '—';
     }
 
-    document.getElementById('wellnessSub').textContent = sleep ? 'Last logged today' : 'Not logged yet';
+    if (sub) sub.textContent = sleep ? 'Last logged today' : 'Not logged yet';
 
     // Badges
     const badges = [];
@@ -1122,8 +1228,7 @@ body{
     try { journal = JSON.parse(localStorage.getItem('journal:entry:' + today)); } catch { }
     if (journal && (journal.text || journal.mood)) badges.push({ text: 'Journaled', cls: 'badge-v' });
 
-    const badgesEl = document.getElementById('wellnessBadges');
-    badgesEl.innerHTML = badges.map(b => `<span class="badge ${b.cls}">${b.text}</span>`).join('');
+    if (badgesEl) badgesEl.innerHTML = badges.map(b => `<span class="badge ${b.cls}">${b.text}</span>`).join('');
   }
 
   // ──────────────────────────────────────────────
@@ -1131,21 +1236,25 @@ body{
   // ──────────────────────────────────────────────
   function updateGymCard() {
     const dow = new Date().getDay();
-    let sched = [1, 2, 3, 4];
+    let sched = [1, 2, 4, 5];
     try { const s = JSON.parse(localStorage.getItem('gym_schedule_v1')); if (Array.isArray(s) && s.length === 4) sched = s; } catch { }
-    const NAMES = ['Push', 'Pull', 'HS+Core', 'Legs'];
+    const NAMES = ['Push', 'Pull', 'Legs', 'Full Body'];
     const schedIdx = sched.indexOf(dow);
     const isTrainDay = schedIdx !== -1;
     const label = isTrainDay ? NAMES[schedIdx] + ' Day' : 'Rest Day';
 
-    document.getElementById('gymDayName').textContent = label;
+    const nameEl = document.getElementById('gymDayName');
+    const subEl = document.getElementById('gymDaySub');
+    const statsEl = document.getElementById('gymStats');
+    if (!nameEl || !subEl || !statsEl) return;
+
+    nameEl.textContent = label ?? 'N/A';
 
     let gymS = {}; try { gymS = JSON.parse(localStorage.getItem('ibrahim_gym_v1')) || {}; } catch { }
     const td = dateToKey(new Date());
     const isDone = isTrainDay && gymS['done_' + schedIdx + '_' + td];
-    document.getElementById('gymDaySub').textContent = isDone ? 'Completed ✓' : isTrainDay ? 'Today' : 'No workout today';
+    subEl.textContent = isDone ? 'Completed ✓' : isTrainDay ? 'Today' : 'No workout today';
 
-    const statsEl = document.getElementById('gymStats');
     statsEl.innerHTML = `
       <div class="stat"><span class="stat-n" style="font-size:20px">—</span><span class="stat-k">Volume</span></div>
       <div class="stat"><span class="stat-n a" style="font-size:20px">—</span><span class="stat-k">Sets</span></div>
@@ -1166,9 +1275,11 @@ body{
     ];
 
     const started = SKILLS.filter(s => S[s.key] && ((S[s.key].level || 0) > 0)).length;
-    document.getElementById('caliSub').textContent = started + ' progressions active';
+    const subEl = document.getElementById('caliSub');
+    if (subEl) subEl.textContent = (started ?? 0) + ' progressions active';
 
     const listEl = document.getElementById('caliSkills');
+    if (!listEl) return;
     listEl.innerHTML = '';
     const colors = ['on-v', 'on-c'];
     SKILLS.forEach((sk, si) => {
@@ -1197,7 +1308,6 @@ body{
     let S = {}; try { S = JSON.parse(localStorage.getItem('grind_log_v1')) || {}; } catch { }
     const logs = Array.isArray(S.logs) ? S.logs : [];
 
-    // Last 7 days
     const weekDates = [];
     for (let i = 0; i < 7; i++) {
       const d = new Date(); d.setDate(d.getDate() - i);
@@ -1211,9 +1321,10 @@ body{
     const avgPct = Math.round(totalPct / SKILL_KEYS.length);
 
     const el = document.getElementById('weeklyHighlights');
+    if (!el) return;
     const rows = [
-      ['XP earned', weekXP.toLocaleString(), 'v-v'],
-      ['Skill avg', avgPct + '%', 'v-c'],
+      ['XP earned', (weekXP ?? 0).toLocaleString(), 'v-v'],
+      ['Skill avg', (avgPct ?? 0) + '%', 'v-c'],
     ];
     el.innerHTML = rows.map(r => `
       <div class="meta-row">
@@ -1277,7 +1388,8 @@ body{
       function tick(now) { const p = Math.min(1, (now - start) / 800); const eased = 1 - Math.pow(1 - p, 3); scoreEl.textContent = Math.round(from + (score - from) * eased); ring.style.strokeDashoffset = circumference - circumference * ((score * eased) / 100); if (p < 1) requestAnimationFrame(tick); else scoreEl.classList.remove('is-counting'); }
       requestAnimationFrame(tick);
     }
-    document.getElementById('pulseSummary').textContent = score >= 80 ? 'Your systems are locked in.' : score >= 50 ? 'Good momentum — keep the signal alive.' : 'One focused action can move the score today.';
+    var pulseSummaryEl = document.getElementById('pulseSummary');
+    if (pulseSummaryEl) pulseSummaryEl.textContent = score >= 80 ? 'Your systems are locked in.' : score >= 50 ? 'Good momentum — keep the signal alive.' : 'One focused action can move the score today.';
     breakdown.innerHTML = '<div class="pulse-line"><span>Gym this week</span><strong>' + gymDays.size + ' / 4 · ' + gymPts + ' pts</strong></div><div class="pulse-line"><span>Skill sessions</span><strong>' + caliDays.size + ' / 4 · ' + caliPts + ' pts</strong></div><div class="pulse-line"><span>Daily streak <span class="streak-flame" aria-hidden="true">🔥</span></span><strong>' + streak + ' days · ' + streakPts + ' pts</strong></div>';
   }
 
@@ -1318,12 +1430,25 @@ body{
       else { checkDate.setDate(checkDate.getDate() - 1); }
     }
 
-    document.getElementById('nexusStreak').textContent = streak || '—';
+    const workoutActivity = getWorkoutActivity();
+    if (workoutActivity.dates.size) {
+      const cursor = new Date();
+      let workoutStreak = 0;
+      for (let i = 0; i < 365; i++) {
+        const key = dashboardDateKey(cursor);
+        if (workoutActivity.dates.has(key)) { workoutStreak++; cursor.setDate(cursor.getDate() - 1); }
+        else if (i === 0) cursor.setDate(cursor.getDate() - 1);
+        else break;
+      }
+      streak = Math.max(streak, workoutStreak);
+    }
+    document.getElementById('nexusStreak').textContent = (streak ?? 0) + ' day streak';
 
     const goals = getLongGoals();
     const done = goals.filter(g => goalProgress(g).pct >= 100).length;
 
     const el = document.getElementById('nexusStats');
+    if (!el) return;
     const rows = [
       ['Modules active', '6 / 6', 'v-v'],
       ['Goals on track', (goals.length - done) + ' / ' + goals.length, 'v-g'],
@@ -1342,6 +1467,7 @@ body{
   function buildHeatmap() {
     let gymS = {}; try { gymS = JSON.parse(localStorage.getItem('ibrahim_gym_v1')) || {}; } catch { }
     const el = document.getElementById('heatmap');
+    if (!el) return;
     el.innerHTML = '';
     const cols = 16, rows = 7;
     for (let c = 0; c < cols; c++) {
@@ -1640,6 +1766,10 @@ body{
    }, 60 * 1000);
 
 
+  window.addEventListener('pageshow', function () { renderDashboardWidgets(); refreshDashboardFromSupabase(); });
+  window.addEventListener('focus', function () { renderDashboardWidgets(); refreshDashboardFromSupabase(); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) { renderDashboardWidgets(); refreshDashboardFromSupabase(); } });
+
   window.addEventListener('storage', () => {
     renderLongGoals();
     updateGoalsCard();
@@ -1652,6 +1782,19 @@ body{
      updateFaceScanCard();
      updateHeader();
    });
+
+  refreshDashboardFromSupabase();
+
+  // Dashboard refresh on nav Home click (no page reload)
+  var homeLink = document.querySelector('a[data-route="home"]');
+  if (homeLink) {
+    homeLink.addEventListener('click', function (e) {
+      if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+        e.preventDefault();
+        refreshDashboardFromSupabase();
+      }
+    });
+  }
 
 })();
 </script>

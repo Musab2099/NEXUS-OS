@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="amethyst">
+<html lang="en" data-theme="amethyst" class="auth-pending">
 
 <head>
   <meta charset="UTF-8">
@@ -111,16 +111,20 @@
    ============================================================ */
     html,
     body {
-      height: 100%;
+      min-height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
       background: var(--bg);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
       -webkit-font-smoothing: antialiased;
-      overflow: hidden;
       transition: var(--transition-theme);
     }
 
     body {
+      position: relative;
+      min-height: 100vh;
+      -webkit-overflow-scrolling: touch;
       background:
         radial-gradient(ellipse 60% 50% at 15% 10%, var(--glow1) 0%, transparent 70%),
         radial-gradient(ellipse 50% 40% at 85% 90%, var(--glow2) 0%, transparent 70%),
@@ -132,9 +136,10 @@
    VIEWS
    ============================================================ */
     .view {
-      position: fixed;
+      position: absolute;
       inset: 0;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       overflow-x: hidden;
       opacity: 0;
       pointer-events: none;
@@ -144,6 +149,9 @@
     }
 
     .view.active {
+      position: relative;
+      min-height: 100vh;
+      -webkit-overflow-scrolling: touch;
       opacity: 1;
       pointer-events: all;
       transform: translateY(0);
@@ -278,6 +286,7 @@
    ============================================================ */
     #v-day {
       position: relative;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       min-height: 100%;
@@ -1218,9 +1227,36 @@
       background: linear-gradient(135deg, #818CF8, #C7D2FE);
     }
 
+    .live-sign-out {
+      position: fixed;
+      top: 16px;
+      left: 14px;
+      z-index: 250;
+      padding: 8px 11px;
+      border: 1px solid rgba(217,70,239,.32);
+      border-radius: 999px;
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      font: 800 .62rem inherit;
+      letter-spacing: .08em;
+      cursor: pointer;
+    }
+    .live-sign-out:hover { color: var(--text); border-color: rgba(217,70,239,.58); background: rgba(217,70,239,.12); }
+
     /* ============================================================
    MISC UTILITIES
    ============================================================ */
+    /* Decorative and generated layers never capture touch or pointer input. */
+    .day-card::before,
+    .btn-grad::after,
+    .nx-ambient,
+    body::before,
+    body::after { pointer-events: none; }
+
+    @media (hover: none) {
+      [data-tiltable], .nx-anim-card { transform: none !important; will-change: auto !important; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
 
       *,
@@ -1231,18 +1267,24 @@
       }
     }
   </style>
-  <link rel="stylesheet" href="../styles/animations.css">
-  <script src="../scripts/animations.js" defer></script>
+  <link rel="stylesheet" href="/styles/animations.css">
+  <style>html.auth-pending body { visibility: hidden !important; }</style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/scripts/supabase-client.js" defer></script>
+  <script src="/scripts/auth.js" defer></script>
+  <script src="/scripts/workout-persistence.js" defer></script>
+  <script src="/scripts/animations.js" defer></script>
 </head>
 
 <body>
+  <button class="live-sign-out" type="button" data-sign-out>SIGN OUT</button>
 
   <!-- ============================================================
      VIEW 1 — DAY SELECT
      ============================================================ -->
   <div id="v-day" class="view active">
     <button
-      onclick="window.location.href='/src/pages/gym.html'"
+      onclick="window.location.href='/gym.html'"
       style="
         position:absolute;
         top:18px;
@@ -1520,8 +1562,8 @@
           { id: 'tw3', name: 'Cross-Body Arm Swings', muscles: ['Rear Delts'], sets: 1, reps: '20 each direction', notes: 'Posterior shoulder and rotator cuff prep', isWarmup: true },
           { id: 't1', name: 'Pull-Ups', muscles: ['Lats', 'Biceps'], sets: 4, reps: '6–10', notes: 'Add weight or band · full ROM' },
           { id: 't2', name: 'Chin-Ups', muscles: ['Biceps', 'Lower Lats'], sets: 3, reps: '8–12', notes: 'Supinated grip · squeeze at top' },
-          { id: 't3', name: 'Australian Rows', muscles: ['Mid Back', 'Rhomboids'], sets: 3, reps: '12–15', notes: 'Inverted rows · chest to bar' },
-          { id: 't4', name: 'Face Pulls', muscles: ['Rear Delts', 'Rotators'], sets: 3, reps: '15–20', notes: 'External rotation focus · light weight' },
+          { id: 't3', name: 'Hollow Body Hold', muscles: ['Deep Core'], sets: 3, reps: '20–30s hold', rest: 45, notes: 'Focus on lower back pressed to floor, legs straight and low', isCore: true },
+          { id: 't4', name: 'Scapular Push-ups', muscles: ['Scapula'], sets: 3, reps: '12–15', rest: 45, notes: 'In plank position, protract and retract shoulder blades without bending elbows — pure scapular control, zero equipment' },
           { id: 't5', name: 'Hammer Curls', muscles: ['Brachialis', 'Forearms'], sets: 3, reps: '12', notes: 'Neutral grip · DB or band' },
           { id: 't6', name: 'Hanging Knee Raises', muscles: ['Lower Core', 'Hip Flexors'], sets: 2, reps: '12–15', notes: 'Dead hang · tuck knees to chest', isCore: true },
           { id: 't7', name: 'Side Plank', muscles: ['Obliques', 'QL'], sets: 2, reps: '25–30s/side', notes: 'Each side = one set · stay rigid', isCore: true },
@@ -1568,7 +1610,7 @@
 
     /* ── STATE ─────────────────────────────────────────────────── */
     const S = {
-      theme: localStorage.getItem('nx-theme') || 'amethyst',
+      theme: (function () { var t = localStorage.getItem('nexus-theme') || localStorage.getItem('nx-theme') || 'nexus-dark'; return t === 'periwinkle' || t === 'peri' ? 'peri' : t === 'arctic-white' || t === 'arctic' || t === 'ice' ? 'arctic' : 'amethyst'; }()),
       day: null,
       skillOn: false,
       pickedSkills: [],
@@ -1590,6 +1632,8 @@
       S.theme = t;
       document.documentElement.setAttribute('data-theme', t);
       localStorage.setItem('nx-theme', t);
+      localStorage.setItem('nexus-theme', t === 'amethyst' ? 'nexus-dark' : t === 'peri' ? 'periwinkle' : 'arctic-white');
+      localStorage.setItem('nexus-theme-index', String(t === 'amethyst' ? 0 : t === 'peri' ? 1 : 2));
       document.querySelectorAll('.t-dot').forEach(d => d.classList.toggle('on', d.dataset.t === t));
       // Update SVG gradient stops (CSS vars don't work in SVG stop-color in all browsers)
       const map = { amethyst: ['#7C3AED', '#D946EF'], arctic: ['#2563EB', '#38BDF8'], peri: ['#818CF8', '#C7D2FE'] };
@@ -1661,6 +1705,7 @@
       S.log = [];
       S.notes = {};
       S.startTs = Date.now();
+      persistWorkoutState();
 
       clearInterval(S.elapsedTick);
       S.elapsedTick = setInterval(tickElapsed, 1000);
@@ -1755,12 +1800,14 @@
     function nudgeReps(d) {
       S.curReps = Math.max(0, S.curReps + d);
       document.getElementById('rep-val').textContent = S.curReps;
+      persistWorkoutState();
     }
     function editReps() {
       const v = prompt('Reps completed:', S.curReps);
       if (v !== null && /^\d+$/.test(v.trim())) {
         S.curReps = parseInt(v.trim());
         document.getElementById('rep-val').textContent = S.curReps;
+        persistWorkoutState();
       }
     }
     function editSets() {
@@ -1769,6 +1816,7 @@
       if (v !== null && /^\d+$/.test(v.trim()) && parseInt(v) >= S.curSet) {
         ex.sets = parseInt(v.trim());
         document.getElementById('set-tot').textContent = ex.sets;
+        persistWorkoutState();
       }
     }
 
@@ -1779,7 +1827,7 @@
       S.notes[noteKey] = document.getElementById('set-note').value;
 
       S.log.push({ exId: ex.id, exName: ex.name, set: S.curSet, reps: S.curReps, note: S.notes[noteKey], ts: Date.now() });
-      snapshot();
+      persistWorkoutState();
 
       // Flash feedback
       const btn = document.getElementById('complete-btn');
@@ -1799,7 +1847,7 @@
       }
 
       renderTracker();
-      openRest(nextLabel, ex.isWarmup ? 30 : 90);
+      openRest(nextLabel, ex.isWarmup ? 30 : (ex.rest || 90));
     }
 
     /* ── SKIP / FINISH ──────────────────────────────────────────── */
@@ -1807,6 +1855,7 @@
       if (!confirm('Skip this exercise?')) return;
       S.exIdx++;
       S.curSet = 1;
+      persistWorkoutState();
       if (S.exIdx >= S.exercises.length) { doSummary(); return; }
       renderTracker();
     }
@@ -1821,10 +1870,10 @@
         return;
       }
       if (!confirm('Leave session? Progress is auto-saved.')) return;
-      snapshot();
+      persistWorkoutState();
       clearInterval(S.elapsedTick);
       closeRest();
-      window.location.href = '/src/pages/gym.html';
+      window.location.href = '/gym.html';
     }
 
     /* ── ELAPSED TIMER ──────────────────────────────────────────── */
@@ -1893,6 +1942,17 @@
     }
 
     /* ── SUMMARY ─────────────────────────────────────────────────── */
+    function buildFinishedSession() {
+      return {
+        day: S.day,
+        dayName: WORKOUTS[S.day].name,
+        date: new Date().toISOString(),
+        duration: Math.floor((Date.now() - S.startTs) / 1000),
+        skills: S.pickedSkills,
+        log: S.log,
+      };
+    }
+
     function doSummary() {
       clearInterval(S.elapsedTick);
       closeRest();
@@ -1929,6 +1989,10 @@
     </div>`
       ).join('');
 
+      S.finishedSession = buildFinishedSession();
+      persistWorkoutState({ finished: true, session: S.finishedSession }, localWorkoutDateKey());
+      try { localStorage.removeItem('nx-session-snap'); } catch (e) { }
+
       const saveBtn = document.getElementById('save-btn');
       saveBtn.disabled = false;
       saveBtn.textContent = '💾 \u00a0Save Session';
@@ -1937,32 +2001,19 @@
     }
 
     async function saveSession() {
-      const session = {
-        day: S.day,
-        dayName: WORKOUTS[S.day].name,
-        date: new Date().toISOString(),
-        duration: Math.floor((Date.now() - S.startTs) / 1000),
-        skills: S.pickedSkills,
-        log: S.log,
-      };
+      const session = S.finishedSession || buildFinishedSession();
+      const date = localWorkoutDateKey();
+      await persistWorkoutState({ finished: true, session: session }, date);
 
       // Always save locally
-      const hist = JSON.parse(localStorage.getItem('nx-workout-hist') || '[]');
+      let hist = [];
+      try { hist = JSON.parse(localStorage.getItem('nx-workout-hist') || '[]'); } catch (e) { hist = []; }
       hist.unshift(session);
       localStorage.setItem('nx-workout-hist', JSON.stringify(hist.slice(0, 100)));
       localStorage.removeItem('nx-session-snap');
 
-      // Supabase (if the main OS has already init'd window.supabase)
-      if (window.supabase) {
-        try {
-          await window.supabase.from('workout_sessions').insert(session);
-          confirmSave('Saved to cloud ☁️');
-        } catch (e) {
-          confirmSave('Saved locally ✓ (offline)');
-        }
-      } else {
-        confirmSave('Saved locally ✓');
-      }
+      const currentSession = window.nexusSession || (window.nexusAuth && await window.nexusAuth.getSession());
+      confirmSave(window.supabaseClient && currentSession && currentSession.user ? 'Saved to cloud ☁️' : 'Saved locally ✓');
     }
 
     function confirmSave(msg) {
@@ -1985,18 +2036,69 @@
     }
 
     /* ── PERSISTENCE ─────────────────────────────────────────────── */
-    function snapshot() {
-      localStorage.setItem('nx-session-snap', JSON.stringify({
-        day: S.day, exIdx: S.exIdx, curSet: S.curSet,
-        log: S.log, notes: S.notes, startTs: S.startTs,
-        exercises: S.exercises,
-      }));
+    function localWorkoutDateKey() {
+      const now = new Date();
+      return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
     }
 
-    window.addEventListener('load', () => {
+    function workoutPayload() {
+      return {
+        day: S.day,
+        dayName: S.day && WORKOUTS[S.day] ? WORKOUTS[S.day].name : null,
+        exIdx: S.exIdx,
+        curSet: S.curSet,
+        curReps: S.curReps,
+        log: S.log,
+        notes: S.notes,
+        startTs: S.startTs,
+        exercises: S.exercises,
+        pickedSkills: S.pickedSkills,
+        finished: false
+      };
+    }
+
+    function persistWorkoutState(override, date) {
+      var payload = Object.assign(workoutPayload(), override || {});
+      var keyDate = date || localWorkoutDateKey();
+      try { localStorage.setItem('nexus_workout_' + keyDate, JSON.stringify({ version: 1, date: keyDate, savedAt: new Date().toISOString(), data: payload })); } catch (e) { console.warn('[NEXUS workout] local state save failed', e); }
+      if (window.NexusWorkoutStore && typeof window.NexusWorkoutStore.save === 'function') {
+        window.NexusWorkoutStore.save(keyDate, payload).catch(function (error) { console.error('[NEXUS workout] cloud state save failed', error); });
+      }
+      snapshot();
+    }
+
+    function snapshot() {
+      try {
+        localStorage.setItem('nx-session-snap', JSON.stringify({
+          day: S.day, exIdx: S.exIdx, curSet: S.curSet, curReps: S.curReps,
+          log: S.log, notes: S.notes, startTs: S.startTs,
+          exercises: S.exercises, pickedSkills: S.pickedSkills,
+        }));
+      } catch (e) { console.warn('[NEXUS workout] snapshot failed', e); }
+    }
+
+    async function hydrateWorkoutFromCloud() {
+      if (!window.NexusWorkoutStore) return null;
+      const remote = await window.NexusWorkoutStore.load(localWorkoutDateKey());
+      const rootPayload = remote && remote.data ? remote.data : remote;
+      const payload = rootPayload && rootPayload.sources && rootPayload.sources.live ? rootPayload.sources.live : rootPayload;
+      if (!payload || payload.finished || !payload.day || !Array.isArray(payload.exercises)) return null;
+      Object.assign(S, payload);
+      return payload;
+    }
+
+    window.addEventListener('load', async () => {
       const urlDay = new URLSearchParams(window.location.search).get('day');
       if (urlDay && WORKOUTS[urlDay]) {
         selectDay(urlDay);
+      }
+
+      const cloudPayload = await hydrateWorkoutFromCloud();
+      if (cloudPayload) {
+        S.elapsedTick = setInterval(tickElapsed, 1000);
+        goTo('v-tracker');
+        renderTracker();
+        return;
       }
 
       const raw = localStorage.getItem('nx-session-snap');

@@ -6,8 +6,6 @@
   // Supabase credentials are injected at build time from .env.
   // In the committed source these are placeholders; scripts/build.js
   // substitutes real values when producing dist/.
-  const SUPABASE_URL = '__SUPABASE_URL__';
-  const SUPABASE_KEY = '__SUPABASE_KEY__';
   const CLOUD_TIMEOUT_MS = 10000;
 
   // Bound both direct REST calls and Supabase client's internal requests.
@@ -67,14 +65,17 @@
     const syncedKeys = (config && config.syncedKeys) || [];
     const syncedPrefixes = (config && config.syncedPrefixes) || [];
     const onApplied = config && config.onApplied;
-    if (!appKey || !window.supabase) return;
+    const supabaseConfig = window.nexusSupabaseConfig || {};
+    const SUPABASE_URL = supabaseConfig.url;
+    const SUPABASE_KEY = supabaseConfig.key;
+    if (!appKey || !window.supabaseClient) return;
     if (!SUPABASE_URL || !SUPABASE_KEY) return;
     // Bail if values are still placeholders (i.e. someone ran the source
     // files directly without running `npm run build`).
     if (SUPABASE_URL.indexOf('__SUPABASE_') === 0) return;
     if (SUPABASE_KEY.indexOf('__SUPABASE_') === 0) return;
 
-    let supa = null, pushTimer = null, suppressSync = false, lastSyncedJson = null;
+    let supa = null, userId = null, accessToken = null, pushTimer = null, suppressSync = false, lastSyncedJson = null;
 
     function matches(k) {
       if (!k) return false;
@@ -130,44 +131,57 @@
       return changed;
     }
     async function pushNow() {
-      if (!supa) return;
+      if (!supa || !userId) return;
+      if (!userId) return;
       const state = collect();
       const json = JSON.stringify(state);
       if (json === lastSyncedJson) return;
       try {
         const { error } = await supa.from('app_state').upsert(
-          { key: appKey, data: state, updated_at: new Date().toISOString() },
-          { onConflict: 'key' }
+          { user_id: userId, key: appKey, data: state, updated_at: new Date().toISOString() },
+          { onConflict: 'user_id,key' }
         );
         if (!error) lastSyncedJson = json;
       } catch (e) { }
     }
     function schedulePush() { clearTimeout(pushTimer); pushTimer = setTimeout(pushNow, 250); }
     function flushOnUnload() {
+      if (!userId) return;
       const state = collect();
       const json = JSON.stringify(state);
       if (json === lastSyncedJson) return;
       try {
-        fetchWithTimeout(SUPABASE_URL + '/rest/v1/app_state?on_conflict=key', {
+        fetchWithTimeout(SUPABASE_URL + '/rest/v1/app_state?on_conflict=user_id%2Ckey&user_id=eq.' + encodeURIComponent(userId), {
           method: 'POST',
           headers: {
             'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY,
+            'Authorization': 'Bearer ' + accessToken,
             'Content-Type': 'application/json',
             'Prefer': 'resolution=merge-duplicates',
           },
-          body: JSON.stringify({ key: appKey, data: state, updated_at: new Date().toISOString() }),
+          body: JSON.stringify({ user_id: userId, key: appKey, data: state, updated_at: new Date().toISOString() }),
           keepalive: true,
         }).catch(() => { });
         lastSyncedJson = json;
       } catch (e) { }
     }
     (async function init() {
-      supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-        global: { fetch: fetchWithTimeout },
+      const session = window.nexusAuthReady ? await window.nexusAuthReady : await window.nexusAuth.getSession();
+      if (!session || !session.user || !session.user.id) return;
+      userId = session.user.id;
+      accessToken = session.access_token;
+      if (!accessToken) return;
+      supa = window.supabaseClient;
+      supa.auth.onAuthStateChange(function (event, nextSession) {
+        if (nextSession && nextSession.user && nextSession.user.id === userId) {
+          accessToken = nextSession.access_token;
+        } else if (event === 'SIGNED_OUT') {
+          userId = null;
+          accessToken = null;
+        }
       });
       try {
-        const { data, error } = await supa.from('app_state').select('data').eq('key', appKey).maybeSingle();
+        const { data, error } = await supa.from('app_state').select('data').eq('user_id', userId).eq('key', appKey).maybeSingle();
         if (!error && data && data.data && Object.keys(data.data).length > 0) {
           lastSyncedJson = JSON.stringify(data.data);
           applyRemote(data.data);
@@ -177,9 +191,9 @@
       } catch (e) { }
       supa.channel('app_state_' + appKey)
         .on('postgres_changes', {
-          event: '*', schema: 'public', table: 'app_state', filter: 'key=eq.' + appKey,
+          event: '*', schema: 'public', table: 'app_state', filter: 'user_id=eq.' + userId,
         }, (payload) => {
-          if (!payload.new || !payload.new.data) return;
+          if (!payload.new || payload.new.user_id !== userId || payload.new.key !== appKey || !payload.new.data) return;
           const incoming = JSON.stringify(payload.new.data);
           if (incoming === lastSyncedJson) return;
           lastSyncedJson = incoming;

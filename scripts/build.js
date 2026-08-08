@@ -14,7 +14,7 @@ const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
 const ENV_FILE = path.join(ROOT, '.env');
 
-const PLACEHOLDER_FILES = ['src/scripts/sync.js'];
+const PLACEHOLDER_FILES = ['src/scripts/supabase-client.js'];
 const PASSTHROUGH_FILES = [
   'sw.js',
   'src/pages/index.html',
@@ -24,10 +24,14 @@ const PASSTHROUGH_FILES = [
   'src/pages/grind-log.html',
   'src/pages/progression-tab.html',
   'src/pages/facescan.html',
+  'src/pages/login.html',
+  'src/scripts/supabase-client.js',
+  'src/scripts/auth.js',
   'src/scripts/topbar.js',
   'src/scripts/apple-health.js',
   'src/scripts/github-health.js',
   'src/scripts/sync-service.js',
+  'src/scripts/workout-persistence.js',
   'src/scripts/theme.js',
   'src/scripts/event-horizon.js',
   'src/styles/liquid-amethyst.css',
@@ -89,11 +93,19 @@ function ensureClean(dir) {
   fs.mkdirSync(dir, { recursive: true });
 }
 
+function outputPath(rel) {
+  if (rel.startsWith('src/pages/')) return path.join(DIST, path.basename(rel));
+  if (rel.startsWith('src/scripts/')) return path.join(DIST, 'scripts', path.basename(rel));
+  if (rel.startsWith('src/styles/')) return path.join(DIST, 'styles', path.basename(rel));
+  if (rel.startsWith('src/data/')) return path.join(DIST, 'data', path.basename(rel));
+  return path.join(DIST, rel);
+}
+
 function copyPassthrough() {
   for (const rel of PASSTHROUGH_FILES) {
     const src = path.join(ROOT, rel);
     if (!fs.existsSync(src)) continue;
-    const dest = path.join(DIST, rel);
+    const dest = outputPath(rel);
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.copyFileSync(src, dest);
   }
@@ -122,7 +134,7 @@ function renderFile(rel, env) {
     text = text.split(placeholder).join(value);
     if (text !== before) replaced++;
   }
-  const dest = path.join(DIST, rel);
+  const dest = outputPath(rel);
   fs.mkdirSync(path.dirname(dest), { recursive: true });
   fs.writeFileSync(dest, text);
   return replaced;

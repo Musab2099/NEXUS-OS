@@ -777,8 +777,8 @@ a.topbar-pill,
 
 /* §5 — Accessibility: prevent body scroll behind modals */
 body.topbar-modal-open {
-  overflow: hidden;
-  touch-action: none;
+  overflow-y: auto;
+  touch-action: auto;
 }
 
 /* §5 — Modal scroll containment */

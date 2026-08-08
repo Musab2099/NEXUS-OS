@@ -134,7 +134,7 @@
   }
 
   function initCardTilt() {
-    if (reduced() || !finePointerQuery.matches) return;
+    if (reduced() || !finePointerQuery.matches || window.matchMedia('(hover: none)').matches) return;
     all('.nx-anim-card').forEach(function (card) {
       if (card.dataset.nxTiltReady === 'true') return;
       card.dataset.nxTiltReady = 'true';
@@ -447,14 +447,14 @@
 
   function initCommandPalette() {
     var commands = [
-      { label: 'Open Dashboard', hint: 'Home', icon: '⌂', href: '/src/pages/index.html', keys: 'dashboard home' },
-      { label: 'Open Goals', hint: 'Dashboard section', icon: '◎', href: '/src/pages/index.html#goals-section', keys: 'goals target' },
-      { label: 'Open Wellness', hint: 'Sleep, habits, recovery', icon: '◌', href: '/src/pages/health.html', keys: 'wellness health sleep habits' },
-      { label: 'Open Gym Tracker', hint: 'Strength and progress', icon: '◇', href: '/src/pages/gym.html', keys: 'gym tracker strength' },
-      { label: 'Start Workout', hint: 'Live workout mode', icon: '▶', href: '/src/pages/live-workout.html', keys: 'start workout live session' },
-      { label: 'Check Skills', hint: 'Calisthenics progressions', icon: '✦', href: '/src/pages/progression-tab.html', keys: 'skills calisthenics planche handstand' },
-      { label: 'Open Grind Log', hint: 'XP and daily output', icon: 'ϟ', href: '/src/pages/grind-log.html', keys: 'grind log xp productivity' },
-      { label: 'Weekly Check-in', hint: 'FaceScan AI', icon: '◉', href: '/src/pages/facescan.html', keys: 'facescan face scan check in check-in' }
+      { label: 'Open Dashboard', hint: 'Home', icon: '⌂', href: '/index.html', keys: 'dashboard home' },
+      { label: 'Open Goals', hint: 'Dashboard section', icon: '◎', href: '/index.html#goals-section', keys: 'goals target' },
+      { label: 'Open Wellness', hint: 'Sleep, habits, recovery', icon: '◌', href: '/health.html', keys: 'wellness health sleep habits' },
+      { label: 'Open Gym Tracker', hint: 'Strength and progress', icon: '◇', href: '/gym.html', keys: 'gym tracker strength' },
+      { label: 'Start Workout', hint: 'Live workout mode', icon: '▶', href: '/live-workout.html', keys: 'start workout live session' },
+      { label: 'Check Skills', hint: 'Calisthenics progressions', icon: '✦', href: '/progression-tab.html', keys: 'skills calisthenics planche handstand' },
+      { label: 'Open Grind Log', hint: 'XP and daily output', icon: 'ϟ', href: '/grind-log.html', keys: 'grind log xp productivity' },
+      { label: 'Weekly Check-in', hint: 'FaceScan AI', icon: '◉', href: '/facescan.html', keys: 'facescan face scan check in check-in' }
     ];
     var backdrop = document.createElement('div');
     backdrop.className = 'nx-command-backdrop';
