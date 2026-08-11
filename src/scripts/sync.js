@@ -132,7 +132,6 @@
     }
     async function pushNow() {
       if (!supa || !userId) return;
-      if (!userId) return;
       const state = collect();
       const json = JSON.stringify(state);
       if (json === lastSyncedJson) return;
@@ -172,12 +171,16 @@
       accessToken = session.access_token;
       if (!accessToken) return;
       supa = window.supabaseClient;
-      supa.auth.onAuthStateChange(function (event, nextSession) {
+      var authChangeResult = supa.auth.onAuthStateChange(function (event, nextSession) {
         if (nextSession && nextSession.user && nextSession.user.id === userId) {
           accessToken = nextSession.access_token;
         } else if (event === 'SIGNED_OUT') {
           userId = null;
           accessToken = null;
+          /* Unsubscribe to prevent stale listeners after sign-out. */
+          if (authChangeResult && authChangeResult.data && authChangeResult.data.subscription) {
+            authChangeResult.data.subscription.unsubscribe();
+          }
         }
       });
       try {

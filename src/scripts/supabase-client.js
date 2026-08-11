@@ -6,11 +6,20 @@
   const SUPABASE_URL = '__SUPABASE_URL__';
   const SUPABASE_KEY = '__SUPABASE_KEY__';
 
-  window.nexusSupabaseConfig = { url: SUPABASE_URL, key: SUPABASE_KEY };
+  const isPlaceholder =
+    !SUPABASE_URL || !SUPABASE_KEY ||
+    SUPABASE_URL.indexOf('__SUPABASE_') === 0 ||
+    SUPABASE_KEY.indexOf('__SUPABASE_') === 0;
 
-  if (!window.supabase || !SUPABASE_URL || !SUPABASE_KEY ||
-      SUPABASE_URL.indexOf('__SUPABASE_') === 0 ||
-      SUPABASE_KEY.indexOf('__SUPABASE_') === 0) {
+  const configured = !!(window.supabase && !isPlaceholder);
+
+  window.nexusSupabaseConfig = {
+    url: SUPABASE_URL,
+    key: SUPABASE_KEY,
+    configured: configured,
+  };
+
+  if (!configured) {
     window.supabaseClient = null;
     return;
   }

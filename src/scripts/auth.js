@@ -68,13 +68,20 @@
     return session;
   }
 
+  function notConfiguredError() {
+    return new Error(
+      'Supabase Auth is not configured in this build. ' +
+      'Run `npm run build` after copying .env.example to .env and filling in SUPABASE_URL and SUPABASE_KEY, then reload dist/login.html.'
+    );
+  }
+
   async function signIn(email, password) {
-    if (!window.nexusSupabaseAuth) return { data: null, error: new Error('Supabase Auth is not configured in this build.') };
+    if (!window.nexusSupabaseAuth) return { data: null, error: notConfiguredError() };
     return window.nexusSupabaseAuth.signIn(email, password);
   }
 
   async function signUp(email, password) {
-    if (!window.nexusSupabaseAuth) return { data: null, error: new Error('Supabase Auth is not configured in this build.') };
+    if (!window.nexusSupabaseAuth) return { data: null, error: notConfiguredError() };
     return window.nexusSupabaseAuth.signUp(email, password);
   }
 

@@ -84,7 +84,8 @@
 
   function initCircadianEngine() {
     updateCircadianTinting();
-    setInterval(updateCircadianTinting, 60 * 1000);
+    /* Store the interval ID so it can be cleared if the engine is ever torn down. */
+    var _circadianTimer = setInterval(updateCircadianTinting, 60 * 1000);
     // Re-check when window regains focus
     window.addEventListener('focus', updateCircadianTinting);
     document.addEventListener('visibilitychange', function () {

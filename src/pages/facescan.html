@@ -10,6 +10,7 @@
   <link rel="manifest" href="/manifest.json">
   <title>FaceScan AI — NEXUS</title>
   <style>
+    html.auth-pending body { visibility: hidden !important; }
     :root { --face-max: 720px; }
     .face-shell { position:relative; z-index:1; width:min(var(--face-max), calc(100% - 32px)); min-height:100vh; margin:0 auto; padding:42px 0 80px; -webkit-overflow-scrolling:touch; }
     .face-back { display:inline-flex; align-items:center; gap:7px; color:var(--text-secondary); text-decoration:none; font-size:12px; font-weight:700; margin-bottom:28px; }

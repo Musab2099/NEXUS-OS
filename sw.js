@@ -21,7 +21,6 @@ function fetchWithTimeout(request) {
 }
 
 const CACHE_FILES = [
-  '/',
   '/index.html',
   '/login.html',
   '/health.html',
@@ -33,7 +32,7 @@ const CACHE_FILES = [
   '/scripts/supabase-client.js',
   '/scripts/auth.js',
   '/scripts/topbar.js',
-  '/scripts/sync.js',
+  '/scripts/sync.js',  /* sync.js is now included in the build via PASSTHROUGH_FILES */
   '/scripts/apple-health.js',
   '/scripts/github-health.js',
   '/scripts/sync-service.js',
@@ -110,7 +109,7 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
           return res;
         })
-        .catch(() => cached);
+        .catch(() => cached || new Response('', { status: 503 }));
       return cached || fetchPromise;
     })
   );

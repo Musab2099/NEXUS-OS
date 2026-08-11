@@ -30,6 +30,7 @@ const PASSTHROUGH_FILES = [
   'src/scripts/topbar.js',
   'src/scripts/apple-health.js',
   'src/scripts/github-health.js',
+  'src/scripts/sync.js',
   'src/scripts/sync-service.js',
   'src/scripts/workout-persistence.js',
   'src/scripts/theme.js',
