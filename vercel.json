@@ -13,6 +13,8 @@
     { "source": "/grind-log.html", "destination": "/grind-log.html" },
     { "source": "/progression-tab", "destination": "/progression-tab.html" },
     { "source": "/progression-tab.html", "destination": "/progression-tab.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/login.html", "destination": "/login.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

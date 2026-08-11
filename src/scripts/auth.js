@@ -5,11 +5,11 @@
 
   document.documentElement.classList.add('auth-pending');
   var client = window.supabaseClient;
-  var publicPages = ['/login.html'];
+  var publicPages = ['/login.html', '/login'];
 
   function isPublicPage() {
     var path = window.location.pathname.replace(/\\/g, '/');
-    return publicPages.indexOf(path) !== -1 || path.endsWith('/login.html');
+    return publicPages.indexOf(path) !== -1 || path.endsWith('/login.html') || path.endsWith('/login');
   }
 
   async function getSession() {
