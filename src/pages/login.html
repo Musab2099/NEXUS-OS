@@ -133,7 +133,7 @@
         submit.textContent = signUpMode ? 'Creating…' : 'Signing in…';
         var email = document.getElementById('authEmail').value.trim();
         var result;
-        try { result = signUpMode ? await window.nexusAuth.signUp(email, password.value) : await window.nexusAuth.signIn(email, password.value); }
+        try { result = signUpMode ? await window.nexusSupabaseAuth.signUp(email, password.value) : await window.nexusSupabaseAuth.signIn(email, password.value); }
         catch (e) { result = { error: e }; }
         submit.disabled = false;
         submit.textContent = signUpMode ? 'Sign up' : 'Sign in';
