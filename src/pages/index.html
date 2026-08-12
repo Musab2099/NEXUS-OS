@@ -675,14 +675,10 @@ body{
     } catch (e) {}
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.documentElement.setAttribute('data-initial-route', window.location.hash === '#goals-section' ? 'goals' : 'home');
-    document.documentElement.classList.add('js-loading', 'nexus-ready', 'auth-pending');
+    document.documentElement.classList.add('js-loading', 'nexus-ready');
   }());</script>
 <noscript><style>html:not(.nexus-ready) body{visibility:visible!important}</style></noscript>
 <script src="/scripts/theme.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="/scripts/supabase-client.js"></script>
-<script src="/scripts/auth.js" defer></script>
-<script src="/scripts/sync.js" defer></script>
 <script src="/scripts/topbar.js" defer></script>
 <link rel="stylesheet" href="/styles/animations.css">
 <script src="/scripts/animations.js" defer></script>
@@ -711,7 +707,7 @@ body{
       <a href="/grind-log.html" class="nav-link" data-route="grind">Grind Log</a>
     </nav>
     <div class="header-right">
-      <button class="sign-out-btn" type="button" data-sign-out>SIGN OUT</button><span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span>
+      <span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span>
       <div class="theme-dropdown" data-theme-control>
         <button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button>
         <div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme">
@@ -1016,59 +1012,26 @@ body{
     return dateToKey(n);
   }
 
-  // ──────────────────────────────────────────────
-  // CLOUD WORKOUT HYDRATION
-  // ──────────────────────────────────────────────
+  // Workout activity remains local-first after cloud authentication removal.
   let cloudWorkoutLogs = [];
-  let dashboardRefreshInFlight = null;
   function dashboardDateKey(value) {
     const d = value instanceof Date ? value : new Date(value || Date.now());
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
-  function normalizeCloudWorkout(row) {
-    if (!row || !row.date) return null;
-    const wrapped = row.workout_data && row.workout_data.data ? row.workout_data.data : row.workout_data;
-    return { date: String(row.date).slice(0, 10), data: wrapped || {} };
-  }
-  async function refreshDashboardFromSupabase() {
-    if (!window.supabaseClient || !window.nexusAuthReady) return;
-    if (dashboardRefreshInFlight) return dashboardRefreshInFlight;
-    dashboardRefreshInFlight = (async function () {
+  function loadLocalWorkoutLogs() {
+    cloudWorkoutLogs = [];
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (!key || key.indexOf('nexus_workout_') !== 0) continue;
       try {
-        const session = await window.nexusAuthReady;
-        if (!session || !session.user) return;
-        const stateResult = await window.supabaseClient.from('app_state').select('key,data').eq('user_id', session.user.id).in('key', ['goals', 'gym', 'grind', 'calisthenics']);
-        console.info('[NEXUS dashboard] app_state load response', stateResult);
-        if (!stateResult.error && Array.isArray(stateResult.data)) {
-          stateResult.data.forEach(function (row) {
-            const state = row && row.data && typeof row.data === 'object' ? row.data : {};
-            Object.keys(state).forEach(function (key) {
-              try { localStorage.setItem(key, JSON.stringify(state[key])); } catch (e) { }
-            });
-          });
-        }
-        const result = await window.supabaseClient.from('workout_logs').select('date,workout_data,updated_at').eq('user_id', session.user.id).order('date', { ascending: false }).limit(365);
-        console.info('[NEXUS dashboard] workout_logs load response', result);
-        if (!result.error && Array.isArray(result.data)) {
-          cloudWorkoutLogs = result.data.map(normalizeCloudWorkout).filter(Boolean);
-          const finished = cloudWorkoutLogs.filter(row => row.data && (row.data.finished || (row.data.session && row.data.session.log)));
-          if (finished.length) {
-            const compact = finished.map(row => ({ date: row.date, workout: row.data }));
-            try { localStorage.setItem('nexus_workout_cloud_cache', JSON.stringify(compact)); } catch (e) { }
-          }
-          renderDashboardWidgets();
-        } else if (result.error) {
-          console.warn('[NEXUS dashboard] workout_logs unavailable; using local fallback', result.error);
-        }
-      } catch (error) {
-        console.warn('[NEXUS dashboard] cloud refresh failed; using local fallback', error);
-      } finally {
-        dashboardRefreshInFlight = null;
-      }
-    }());
-    return dashboardRefreshInFlight;
+        const stored = JSON.parse(localStorage.getItem(key));
+        const data = stored && stored.data ? stored.data : stored;
+        cloudWorkoutLogs.push({ date: key.slice('nexus_workout_'.length), data: data || {} });
+      } catch (e) { }
+    }
   }
   function getWorkoutActivity() {
+    loadLocalWorkoutLogs();
     const dates = new Set();
     const xpByDate = {};
     cloudWorkoutLogs.forEach(row => {
@@ -1076,13 +1039,10 @@ body{
       const data = row.data || {};
       if (data.finished || data.done || (data.session && Array.isArray(data.session.log) && data.session.log.length)) dates.add(row.date);
     });
-    try {
-      const cached = JSON.parse(localStorage.getItem('nexus_workout_cloud_cache') || '[]');
-      cached.forEach(row => { if (row && row.date) dates.add(row.date); });
-    } catch (e) { }
     return { dates, xpByDate };
   }
   function renderDashboardWidgets() {
+    loadLocalWorkoutLogs();
     updateHeader(); updateGoalsCard(); updateGrindCard(); updateGymCard(); updateHighlights(); updateNexusStats(); updatePulse(); buildHeatmap();
   }
 
@@ -1766,9 +1726,9 @@ body{
    }, 60 * 1000);
 
 
-  window.addEventListener('pageshow', function () { renderDashboardWidgets(); refreshDashboardFromSupabase(); });
-  window.addEventListener('focus', function () { renderDashboardWidgets(); refreshDashboardFromSupabase(); });
-  document.addEventListener('visibilitychange', function () { if (!document.hidden) { renderDashboardWidgets(); refreshDashboardFromSupabase(); } });
+  window.addEventListener('pageshow', function () { renderDashboardWidgets(); });
+  window.addEventListener('focus', function () { renderDashboardWidgets(); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) renderDashboardWidgets(); });
 
   window.addEventListener('storage', () => {
     renderLongGoals();
@@ -1783,30 +1743,9 @@ body{
      updateHeader();
    });
 
-  refreshDashboardFromSupabase();
-
-  // Dashboard refresh on nav Home click (no page reload)
-  var homeLink = document.querySelector('a[data-route="home"]');
-  if (homeLink) {
-    homeLink.addEventListener('click', function (e) {
-      if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
-        e.preventDefault();
-        refreshDashboardFromSupabase();
-      }
-    });
-  }
+  // Dashboard state is rendered directly from local storage.
 
 })();
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  if (typeof initCloudSync !== 'function') return;
-  initCloudSync({
-    appKey: 'goals',
-    syncedKeys: ['long_goals_v1', 'day_window_v1'],
-    onApplied: function () { window.dispatchEvent(new Event('storage')); }
-  });
-});
 </script>
 
 </body>

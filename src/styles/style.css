@@ -12,10 +12,6 @@ html.nexus-ready body {
   visibility: visible;
 }
 
-html.auth-pending body {
-  visibility: hidden !important;
-}
-
 /* JavaScript-disabled fallback: retain the readable static document. */
 @media (scripting: none) {
   html:not(.nexus-ready) body {
@@ -225,31 +221,6 @@ html[data-initial-route="grind"] .nav-link[data-route="home"] {
   min-width: max-content;
 }
 
-.sign-out-btn {
-  min-height: 30px;
-  padding: 7px 10px;
-  border: 1px solid color-mix(in srgb, var(--a3, #D946EF) 32%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--a3, #D946EF) 8%, transparent);
-  color: var(--text-secondary, #CBD5E1);
-  font: inherit;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: .08em;
-  line-height: 1;
-  cursor: pointer;
-  transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
-}
-
-.sign-out-btn:hover,
-.sign-out-btn:focus-visible {
-  color: var(--text-primary, #F1F5F9);
-  background: color-mix(in srgb, var(--a3, #D946EF) 18%, transparent);
-  border-color: color-mix(in srgb, var(--a3, #D946EF) 55%, transparent);
-  outline: none;
-  transform: translateY(-1px);
-}
-
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -436,12 +407,6 @@ html[data-initial-route="grind"] .nav-link[data-route="home"] {
 
   .header-right {
     gap: 6px;
-  }
-
-  .sign-out-btn {
-    min-height: 30px;
-    padding: 7px 8px;
-    font-size: 8px;
   }
 
   .status-pill {

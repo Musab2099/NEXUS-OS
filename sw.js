@@ -1,6 +1,6 @@
 // NEXUS service worker
 // Bump CACHE_VERSION any time you change the cached file list or want to force-refresh clients.
-const CACHE_VERSION = 'nexus-v14';
+const CACHE_VERSION = 'nexus-v15';
 const NETWORK_TIMEOUT_MS = 10000;
 
 function fetchWithTimeout(request) {
@@ -22,17 +22,13 @@ function fetchWithTimeout(request) {
 
 const CACHE_FILES = [
   '/index.html',
-  '/login.html',
   '/health.html',
   '/gym.html',
   '/grind-log.html',
   '/progression-tab.html',
   '/facescan.html',
   '/live-workout.html',
-  '/scripts/supabase-client.js',
-  '/scripts/auth.js',
   '/scripts/topbar.js',
-  '/scripts/sync.js',  /* sync.js is now included in the build via PASSTHROUGH_FILES */
   '/scripts/apple-health.js',
   '/scripts/github-health.js',
   '/scripts/sync-service.js',

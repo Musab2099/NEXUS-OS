@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="amethyst" class="auth-pending">
+<html lang="en" data-theme="amethyst">
 
 <head>
   <meta charset="UTF-8">
@@ -1227,22 +1227,6 @@
       background: linear-gradient(135deg, #818CF8, #C7D2FE);
     }
 
-    .live-sign-out {
-      position: fixed;
-      top: 16px;
-      left: 14px;
-      z-index: 250;
-      padding: 8px 11px;
-      border: 1px solid rgba(217,70,239,.32);
-      border-radius: 999px;
-      background: rgba(255,255,255,.05);
-      color: var(--muted);
-      font: 800 .62rem inherit;
-      letter-spacing: .08em;
-      cursor: pointer;
-    }
-    .live-sign-out:hover { color: var(--text); border-color: rgba(217,70,239,.58); background: rgba(217,70,239,.12); }
-
     /* ============================================================
    MISC UTILITIES
    ============================================================ */
@@ -1268,17 +1252,11 @@
     }
   </style>
   <link rel="stylesheet" href="/styles/animations.css">
-  <style>html.auth-pending body { visibility: hidden !important; }</style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script src="/scripts/supabase-client.js"></script>
-  <script src="/scripts/auth.js" defer></script>
   <script src="/scripts/workout-persistence.js" defer></script>
   <script src="/scripts/animations.js" defer></script>
 </head>
 
 <body>
-  <button class="live-sign-out" type="button" data-sign-out>SIGN OUT</button>
-
   <!-- ============================================================
      VIEW 1 — DAY SELECT
      ============================================================ -->
@@ -2012,8 +1990,7 @@
       localStorage.setItem('nx-workout-hist', JSON.stringify(hist.slice(0, 100)));
       localStorage.removeItem('nx-session-snap');
 
-      const currentSession = window.nexusSession || (window.nexusAuth && await window.nexusAuth.getSession());
-      confirmSave(window.supabaseClient && currentSession && currentSession.user ? 'Saved to cloud ☁️' : 'Saved locally ✓');
+      confirmSave('Saved locally ✓');
     }
 
     function confirmSave(msg) {
@@ -2061,9 +2038,6 @@
       var payload = Object.assign(workoutPayload(), override || {});
       var keyDate = date || localWorkoutDateKey();
       try { localStorage.setItem('nexus_workout_' + keyDate, JSON.stringify({ version: 1, date: keyDate, savedAt: new Date().toISOString(), data: payload })); } catch (e) { console.warn('[NEXUS workout] local state save failed', e); }
-      if (window.NexusWorkoutStore && typeof window.NexusWorkoutStore.save === 'function') {
-        window.NexusWorkoutStore.save(keyDate, payload).catch(function (error) { console.error('[NEXUS workout] cloud state save failed', error); });
-      }
       snapshot();
     }
 
@@ -2077,14 +2051,19 @@
       } catch (e) { console.warn('[NEXUS workout] snapshot failed', e); }
     }
 
-    async function hydrateWorkoutFromCloud() {
-      if (!window.NexusWorkoutStore) return null;
-      const remote = await window.NexusWorkoutStore.load(localWorkoutDateKey());
-      const rootPayload = remote && remote.data ? remote.data : remote;
-      const payload = rootPayload && rootPayload.sources && rootPayload.sources.live ? rootPayload.sources.live : rootPayload;
-      if (!payload || payload.finished || !payload.day || !Array.isArray(payload.exercises)) return null;
-      Object.assign(S, payload);
-      return payload;
+
+    async function hydrateWorkoutFromLocal() {
+      try {
+        const raw = localStorage.getItem('nexus_workout_' + localWorkoutDateKey());
+        const stored = raw ? JSON.parse(raw) : null;
+        const payload = stored && stored.data ? stored.data : stored;
+        if (!payload || payload.finished || !payload.day || !Array.isArray(payload.exercises)) return null;
+        Object.assign(S, payload);
+        return payload;
+      } catch (error) {
+        console.warn('[NEXUS workout] local state hydrate failed', error);
+        return null;
+      }
     }
 
     window.addEventListener('load', async () => {
@@ -2093,8 +2072,8 @@
         selectDay(urlDay);
       }
 
-      const cloudPayload = await hydrateWorkoutFromCloud();
-      if (cloudPayload) {
+      const localPayload = await hydrateWorkoutFromLocal();
+      if (localPayload) {
         S.elapsedTick = setInterval(tickElapsed, 1000);
         goTo('v-tracker');
         renderTracker();

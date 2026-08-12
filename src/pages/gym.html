@@ -2074,7 +2074,7 @@
       } catch (e) { }
       document.documentElement.setAttribute('data-theme', savedTheme);
       document.documentElement.setAttribute('data-initial-route', 'gym');
-      document.documentElement.classList.add('js-loading', 'nexus-ready', 'auth-pending');
+      document.documentElement.classList.add('js-loading', 'nexus-ready');
     }());
   </script>
   <noscript>
@@ -2085,12 +2085,8 @@
     </style>
   </noscript>
   <script src="/scripts/theme.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script src="/scripts/supabase-client.js"></script>
-  <script src="/scripts/auth.js" defer></script>
   <script src="/scripts/workout-persistence.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="/scripts/sync.js" defer></script>
   <script src="/scripts/apple-health.js" defer></script>
   <script src="/scripts/sync-service.js" defer></script>
   <script src="/scripts/topbar.js" defer></script>
@@ -2115,7 +2111,7 @@
         aria-current="page">Gym</a><a href="/progression-tab.html" class="nav-link"
         data-route="calisthenics">Calisthenics</a><a href="/grind-log.html" class="nav-link"
         data-route="grind">Grind Log</a></nav>
-    <div class="header-right"><button class="sign-out-btn" type="button" data-sign-out>SIGN OUT</button><span class="status-pill"><span class="status-pill-dot"
+    <div class="header-right">SIGN OUT</button><span class="status-pill"><span class="status-pill-dot"
           aria-hidden="true"></span>ONLINE</span>
       <div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button
           aria-haspopup="menu" aria-expanded="false">THEME</button>
@@ -3428,21 +3424,6 @@
     }());
   </script>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      if (typeof initCloudSync !== 'function') return;
-      initCloudSync({
-        appKey: 'gym',
-        syncedKeys: ['ibrahim_gym_v1', 'ibrahim_gym_done', 'gym_pr_v1', 'gym_measurements_v1', 'gym_schedule_v1'],
-        onApplied: function () {
-          ['gym_pr_v1', 'gym_measurements_v1', 'gym_schedule_v1'].forEach(function (k) {
-            try { var v = localStorage.getItem(k); if (v != null) localStorage.setItem(k, v); } catch (e) { }
-          });
-          window.dispatchEvent(new Event('storage'));
-        }
-      });
-    });
-  </script>
 </body>
 
 </html>

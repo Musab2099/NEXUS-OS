@@ -21,7 +21,6 @@
 
 
 <style>
-    html.auth-pending body { visibility: hidden !important; }
     @media(max-width:600px){.page,.shell,main{padding-bottom:0!important}}
     /* Theme-agnostic tokens */
     :root {
@@ -770,14 +769,10 @@
     } catch (e) {}
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.documentElement.setAttribute('data-initial-route', 'calisthenics');
-    document.documentElement.classList.add('js-loading', 'nexus-ready', 'auth-pending');
+    document.documentElement.classList.add('js-loading', 'nexus-ready');
   }());</script>
 <noscript><style>html:not(.nexus-ready) body{visibility:visible!important}</style></noscript>
 <script src="/scripts/theme.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="/scripts/supabase-client.js"></script>
-<script src="/scripts/auth.js" defer></script>
-<script src="/scripts/sync.js" defer></script>
 <script src="/scripts/topbar.js" defer></script>
 <link rel="stylesheet" href="/styles/animations.css">
 <script src="/scripts/animations.js" defer></script>
@@ -788,7 +783,7 @@
   <header class="navbar" data-navbar>
     <a class="logo" href="/index.html" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><polygon points="14,2 26,8 26,20 14,26 2,20 2,8" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity=".1"/><polygon points="14,7 21,11 21,17 14,21 7,17 7,11" stroke="currentColor" stroke-width="1" fill="none" opacity=".7"/><circle cx="14" cy="14" r="3" fill="currentColor"/></svg></span><span class="logo-text">NEXUS</span></a>
     <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/index.html" class="nav-link" data-route="home">Home</a><a href="/index.html#goals-section" class="nav-link" data-route="goals">Goals</a><a href="/health.html" class="nav-link" data-route="wellness">Wellness</a><a href="/gym.html" class="nav-link" data-route="gym">Gym</a><a href="/progression-tab.html" class="nav-link active" data-route="calisthenics" aria-current="page">Calisthenics</a><a href="/grind-log.html" class="nav-link" data-route="grind">Grind Log</a></nav>
-    <div class="header-right"><button class="sign-out-btn" type="button" data-sign-out>SIGN OUT</button><span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span><div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button><div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button" data-theme-option="periwinkle" role="menuitemradio">Focus</button><button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div></div></div>
+    <div class="header-right">SIGN OUT</button><span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span><div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button><div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button" data-theme-option="periwinkle" role="menuitemradio">Focus</button><button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div></div></div>
   </header>
   <!-- Ambient orb layer -->
   <div class="orbs" aria-hidden="true">
@@ -1225,12 +1220,6 @@
       }
       init();
     })();
-  </script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      if (typeof initCloudSync !== 'function') return;
-      initCloudSync({ appKey: 'calisthenics', syncedKeys: ['cali_skills_v1'], onApplied: function () { location.reload(); } });
-    });
   </script>
 </body>
 
