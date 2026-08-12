@@ -1,5 +1,3 @@
-// Shared browser Supabase client.
-// Credentials are injected by scripts/build.js; never create another client in a page.
 (function () {
   'use strict';
 
@@ -11,29 +9,34 @@
     SUPABASE_URL.indexOf('__SUPABASE_') === 0 ||
     SUPABASE_KEY.indexOf('__SUPABASE_') === 0;
 
-  const configured = !!(window.supabase && !isPlaceholder);
+  window.nexusSupabaseConfig = { url: SUPABASE_URL, key: SUPABASE_KEY, configured: false };
+  window.supabaseClient = null;
+  window.nexusSupabaseAuth = null;
 
-  window.nexusSupabaseConfig = {
-    url: SUPABASE_URL,
-    key: SUPABASE_KEY,
-    configured: configured,
-  };
-
-  if (!configured) {
-    window.supabaseClient = null;
+  if (isPlaceholder) {
+    console.warn('[NEXUS] Supabase creds missing — local-only mode.');
     return;
   }
 
-  window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  var sb = window.supabase || null;
 
-  window.nexusSupabaseAuth = {
-    getSession: function () { return window.supabaseClient.auth.getSession(); },
-    signIn: function (email, password) {
-      return window.supabaseClient.auth.signInWithPassword({ email: email, password: password });
-    },
-    signUp: function (email, password) {
-      return window.supabaseClient.auth.signUp({ email: email, password: password });
-    },
-    signOut: function () { return window.supabaseClient.auth.signOut(); },
-  };
-})();
+  if (!sb || typeof sb.createClient !== 'function') {
+    console.error('[NEXUS] window.supabase not found — CDN script failed to load.');
+    return;
+  }
+
+  try {
+    var client = sb.createClient(SUPABASE_URL, SUPABASE_KEY);
+    window.supabaseClient = client;
+    window.nexusSupabaseConfig.configured = true;
+    window.nexusSupabaseAuth = {
+      getSession: function () { return client.auth.getSession(); },
+      signIn:     function (email, pw) { return client.auth.signInWithPassword({ email: email, password: pw }); },
+      signUp:     function (email, pw) { return client.auth.signUp({ email: email, password: pw }); },
+      signOut:    function () { return client.auth.signOut(); },
+    };
+    console.log('[NEXUS] Supabase ready.');
+  } catch (err) {
+    console.error('[NEXUS] createClient failed:', err);
+  }
+}());
