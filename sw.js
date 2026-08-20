@@ -1,6 +1,6 @@
 // NEXUS service worker
 // Bump CACHE_VERSION any time you change the cached file list or want to force-refresh clients.
-const CACHE_VERSION = 'nexus-v15';
+const CACHE_VERSION = 'nexus-v16';
 const NETWORK_TIMEOUT_MS = 10000;
 
 function fetchWithTimeout(request) {

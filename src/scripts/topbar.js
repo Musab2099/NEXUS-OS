@@ -46,6 +46,12 @@
       link.classList.toggle('is-active', active);
       link.setAttribute('aria-current', active ? 'page' : 'false');
     });
+    if (route) {
+      document.documentElement.setAttribute('data-initial-route', route);
+    }
+    if (typeof window.NexusUpdateNavIndicator === 'function') {
+      window.NexusUpdateNavIndicator();
+    }
   }
 
   function closeThemeMenu() {

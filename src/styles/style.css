@@ -54,9 +54,12 @@ html.js-loading .theme-dropdown .dropdown-menu {
   display: none !important;
 }
 
+html {
+  overscroll-behavior-y: auto;
+}
+
 html,
 body {
-  overscroll-behavior-y: none;
   overflow-y: auto;
   -webkit-text-size-adjust: 100%;
 }
@@ -129,22 +132,28 @@ body {
   display: inline-block;
 }
 
-.logo-icon {
+.logo-icon,
+.logo-container {
   display: inline-flex;
-  width: 28px;
-  height: 28px;
   align-items: center;
   justify-content: center;
   color: currentColor;
+  flex-shrink: 0;
 }
 
-.logo-icon svg {
-  display: block;
-  width: 28px;
-  height: 28px;
+.logo-icon img,
+.logo-icon svg,
+.logo-container img,
+.logo-container svg {
+  height: clamp(1.5rem, 3vw, 2.25rem); /* Responsive fluid height */
+  width: auto; /* Preserves natural aspect ratio */
+  max-width: 100%;
+  object-fit: contain; /* Prevents warping inside flex/grid containers */
+  flex-shrink: 0; /* Prevents flex squishing */
 }
 
 .nav-pill {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -153,6 +162,7 @@ body {
   max-width: 100%;
   margin: 0 auto;
   padding: 4px;
+  overflow: hidden;
   overflow-x: auto;
   scrollbar-width: none;
   background: var(--card-bg, var(--card, rgba(255,255,255,.05)));
@@ -165,9 +175,15 @@ body {
   display: none;
 }
 
-.nav-pill a {
+.nav-pill a,
+.nav-link {
+  position: relative;
+  z-index: 1;
   flex: 0 0 auto;
-  padding: 8px 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 1rem;
   border-radius: 999px;
   color: var(--text-secondary, var(--t2, rgba(255,255,255,.72)));
   font-size: 11px;
@@ -202,12 +218,8 @@ html[data-initial-route="grind"] .nav-link[data-route="grind"] {
   box-shadow: 0 0 18px color-mix(in srgb, var(--a1, #7C3AED) 42%, transparent);
 }
 
-/* When a different route is active, remove active styling from Home link */
-html[data-initial-route="goals"] .nav-link[data-route="home"],
-html[data-initial-route="wellness"] .nav-link[data-route="home"],
-html[data-initial-route="gym"] .nav-link[data-route="home"],
-html[data-initial-route="calisthenics"] .nav-link[data-route="home"],
-html[data-initial-route="grind"] .nav-link[data-route="home"] {
+/* When a specific route is active, ensure all non-active links remain clean without background pills */
+html[data-initial-route] .nav-link:not(.active):not(.is-active) {
   color: var(--text-secondary, var(--t2, rgba(255,255,255,.72)));
   background: transparent;
   box-shadow: none;
@@ -391,9 +403,8 @@ html[data-initial-route="grind"] .nav-link[data-route="home"] {
   }
 
   .logo-icon,
-  .logo-icon svg {
-    width: 24px;
-    height: 24px;
+  .logo-container {
+    flex-shrink: 0;
   }
 
   .nav-pill {
@@ -470,11 +481,8 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
-.page,
-.shell,
-body > main {
-  min-height: 100vh;
-}
+/* Allow .shell, .page, and main to grow with content so iOS PWA scroll works.
+   Pages that need a viewport-height hero-bleed can opt back in with min-height: 100dvh. */
 
 .orbs,
 .nx-ambient,

@@ -123,8 +123,8 @@
       var rotateY = Math.max(-maxDeg, Math.min(maxDeg, offsetX * maxDeg));
       var rotateX = Math.max(-maxDeg, Math.min(maxDeg, -offsetY * maxDeg));
 
-      card.style.transform =
-        'perspective(1000px) rotateX(' + rotateX.toFixed(2) + 'deg) rotateY(' + rotateY.toFixed(2) + 'deg)';
+      card.style.setProperty('--tilt-x', rotateX.toFixed(2) + 'deg');
+      card.style.setProperty('--tilt-y', rotateY.toFixed(2) + 'deg');
     }, { passive: true });
 
     document.addEventListener('pointerleave', function (e) {
@@ -132,7 +132,8 @@
       if (!target || typeof target.closest !== 'function') return;
       var card = target.closest('[data-tiltable]');
       if (card) {
-        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+        card.style.setProperty('--tilt-x', '0deg');
+        card.style.setProperty('--tilt-y', '0deg');
       }
     }, true);
 
@@ -143,7 +144,8 @@
       tiltResetTimer = setTimeout(function () {
         var tilted = document.querySelectorAll('[data-tiltable]');
         for (var i = 0; i < tilted.length; i++) {
-          tilted[i].style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+          tilted[i].style.setProperty('--tilt-x', '0deg');
+          tilted[i].style.setProperty('--tilt-y', '0deg');
         }
         tiltResetTimer = null;
       }, 100);

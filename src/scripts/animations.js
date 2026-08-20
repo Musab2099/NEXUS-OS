@@ -405,26 +405,37 @@
 
   function initNavPill() {
     all('.nav-pill').forEach(function (nav) {
-      if (nav.querySelector(':scope > .nx-nav-indicator')) return;
-      var indicator = document.createElement('span');
-      indicator.className = 'nx-nav-indicator';
-      indicator.setAttribute('aria-hidden', 'true');
-      nav.insertBefore(indicator, nav.firstChild);
+      var indicator = nav.querySelector(':scope > .nx-nav-indicator');
+      if (!indicator) {
+        indicator = document.createElement('span');
+        indicator.className = 'nx-nav-indicator';
+        indicator.setAttribute('aria-hidden', 'true');
+        nav.insertBefore(indicator, nav.firstChild);
+      }
 
       function update() {
         var active = nav.querySelector('.nav-link.active, .nav-link.is-active');
-        if (!active) return;
+        if (!active) {
+          indicator.style.opacity = '0';
+          return;
+        }
+        indicator.style.opacity = '1';
         var navRect = nav.getBoundingClientRect();
         var rect = active.getBoundingClientRect();
         indicator.style.width = rect.width + 'px';
         indicator.style.height = rect.height + 'px';
-        indicator.style.transform = 'translate3d(' + (rect.left - navRect.left + nav.scrollLeft) + 'px,0,0)';
+        indicator.style.transform = 'translate3d(' + (rect.left - navRect.left + nav.scrollLeft) + 'px,' + (rect.top - navRect.top) + 'px,0)';
       }
+
+      window.NexusUpdateNavIndicator = function () {
+        window.requestAnimationFrame(update);
+      };
+
       update();
       window.addEventListener('resize', update, { passive: true });
       nav.addEventListener('scroll', update, { passive: true });
       var observer = new MutationObserver(update);
-      observer.observe(nav, { attributes: true, subtree: true, attributeFilter: ['class'] });
+      observer.observe(nav, { attributes: true, subtree: true, attributeFilter: ['class', 'aria-current'] });
       nav.querySelectorAll('.nav-link').forEach(function (link) {
         link.addEventListener('click', function () { window.requestAnimationFrame(update); });
       });
