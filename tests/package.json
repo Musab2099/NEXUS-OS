@@ -1,0 +1,20 @@
+{
+  "name": "nexus-os-tests",
+  "version": "1.0.0",
+  "description": "Playwright E2E + visual regression for NEXUS-OS",
+  "scripts": {
+    "test":                  "playwright test",
+    "test:smoke":            "playwright test tests/smoke.spec.js",
+    "test:nav":              "playwright test tests/navigation.spec.js",
+    "test:themes":           "playwright test tests/themes.spec.js",
+    "test:modules":          "playwright test tests/modules.spec.js",
+    "test:visual":           "playwright test tests/visual.spec.js",
+    "test:pwa":              "playwright test tests/pwa.spec.js",
+    "test:ci":               "playwright test --reporter=github",
+    "test:update-snapshots": "playwright test --update-snapshots",
+    "test:report":           "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.0"
+  }
+}

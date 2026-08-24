@@ -93,7 +93,7 @@
       pointer-events: none;
       z-index: 1;
     }
-    @keyframes aurora{0%{transform:translate(0,0) scale(1);}100%{transform:translate(-3%,2%) scale(1.05);}}
+    @keyframes aurora{0%,100%{opacity:.08;transform:translate(0,0) scale(1);}50%{opacity:.12;transform:translate(-2%,2%) scale(1.04);}}
     main{position:relative;z-index:2;max-width:720px;margin:0 auto;padding-top:max(52px,env(safe-area-inset-top));padding-bottom:calc(80px + env(safe-area-inset-bottom));padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right));}
     .back-btn{
       display: inline-flex;
@@ -689,7 +689,9 @@
       if (storedTheme === 'arctic' || storedTheme === 'ice') storedTheme = 'arctic-white';
       if (themeKeys.indexOf(storedTheme) !== -1) savedTheme = storedTheme;
       else if (Number.isInteger(themeIndex) && themeKeys[themeIndex]) savedTheme = themeKeys[themeIndex];
-    } catch (e) {}
+    } catch (e) {
+      console.warn('[NEXUS] theme bootstrap preference read failed', e);
+    }
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.documentElement.setAttribute('data-initial-route', 'wellness');
     document.documentElement.classList.add('js-loading', 'nexus-ready');
@@ -724,12 +726,12 @@
   </a>
   <div class="eyebrow-row">Wellness Hub</div>
   <nav class="tab-nav">
-    <button class="tab-btn" data-tab="sleep">😴 Sleep</button>
-    <button class="tab-btn" data-tab="habits">✅ Habits</button>
-    <button class="tab-btn" data-tab="recovery">⚡ Recovery</button>
-    <button class="tab-btn" data-tab="dreams">🌙 Dreams</button>
-    <button class="tab-btn" data-tab="journal">📓 Journal</button>
-    <button class="tab-btn" data-tab="intel">⌁ Intel</button>
+    <button type="button" class="tab-btn" data-tab="sleep">😴 Sleep</button>
+    <button type="button" class="tab-btn" data-tab="habits">✅ Habits</button>
+    <button type="button" class="tab-btn" data-tab="recovery">⚡ Recovery</button>
+    <button type="button" class="tab-btn" data-tab="dreams">🌙 Dreams</button>
+    <button type="button" class="tab-btn" data-tab="journal">📓 Journal</button>
+    <button type="button" class="tab-btn" data-tab="intel">⌁ Intel</button>
   </nav>
 
   <div class="gh-modal" id="ghModal" role="dialog" aria-modal="true" aria-labelledby="ghModalTitle">
@@ -788,7 +790,7 @@
         </div>
       </div>
       <div class="form-row" style="margin-bottom:14px"><div><div class="form-label">Notes (optional)</div><input type="text" id="slNotes" class="input" placeholder="e.g. woke up twice, vivid dreams…"></div></div>
-      <button class="btn-primary" id="slLogBtn" style="width:100%">+ Log Sleep</button>
+      <button type="button" class="btn-primary" id="slLogBtn" style="width:100%">+ Log Sleep</button>
     </div>
     <div class="card"><div class="card-eyebrow" style="margin-bottom:14px">Recent logs</div><div class="sleep-list" id="sleepList"><div class="empty">No sleep logged yet.</div></div></div>
   </div>
@@ -805,7 +807,7 @@
       <div class="habit-add-row">
         <input type="text" id="habitIcon" class="input" placeholder="🎯" style="width:52px;text-align:center;flex-shrink:0">
         <input type="text" id="habitName" class="input" placeholder="New habit…" style="flex:1">
-        <button class="btn-primary" id="habitAddBtn">+ Add</button>
+        <button type="button" class="btn-primary" id="habitAddBtn">+ Add</button>
       </div>
     </div>
   </div>
@@ -833,7 +835,7 @@
       <div class="divider"></div>
       <div class="rating-row"><div class="rating-label">⚡ Energy</div><div class="pill-row" id="energyPills"></div></div>
       <div class="rating-row"><div class="rating-label">🌀 Stress</div><div class="pill-row" id="stressPills"></div></div>
-      <button class="btn-primary" id="recSaveBtn" style="width:100%;margin-top:16px">Save Today's Recovery</button>
+      <button type="button" class="btn-primary" id="recSaveBtn" style="width:100%;margin-top:16px">Save Today's Recovery</button>
     </div>
     <div class="card"><div class="card-eyebrow" style="margin-bottom:14px">Last 7 days</div><div id="recHist"><div class="empty">No recovery logs yet.</div></div></div>
   </div>
@@ -864,26 +866,26 @@
       <div style="margin-bottom:12px">
         <div class="form-label" style="margin-bottom:8px">Type</div>
         <div class="type-row">
-          <button class="type-btn on lucid" data-type="lucid">🌀 Lucid</button>
-          <button class="type-btn normal" data-type="normal">💭 Normal</button>
-          <button class="type-btn vivid" data-type="vivid">✨ Vivid</button>
-          <button class="type-btn nightmare" data-type="nightmare">😱 Nightmare</button>
+          <button type="button" class="type-btn on lucid" data-type="lucid">🌀 Lucid</button>
+          <button type="button" class="type-btn normal" data-type="normal">💭 Normal</button>
+          <button type="button" class="type-btn vivid" data-type="vivid">✨ Vivid</button>
+          <button type="button" class="type-btn nightmare" data-type="nightmare">😱 Nightmare</button>
         </div>
       </div>
       <div style="margin-bottom:12px">
         <div class="form-label" style="margin-bottom:8px">Technique</div>
         <div class="tech-row">
-          <button class="tech-btn on" data-tech="none">None</button>
-          <button class="tech-btn" data-tech="MILD">MILD</button>
-          <button class="tech-btn" data-tech="WILD">WILD</button>
-          <button class="tech-btn" data-tech="WBTB">WBTB</button>
-          <button class="tech-btn" data-tech="SSILD">SSILD</button>
-          <button class="tech-btn" data-tech="FILD">FILD</button>
+          <button type="button" class="tech-btn on" data-tech="none">None</button>
+          <button type="button" class="tech-btn" data-tech="MILD">MILD</button>
+          <button type="button" class="tech-btn" data-tech="WILD">WILD</button>
+          <button type="button" class="tech-btn" data-tech="WBTB">WBTB</button>
+          <button type="button" class="tech-btn" data-tech="SSILD">SSILD</button>
+          <button type="button" class="tech-btn" data-tech="FILD">FILD</button>
         </div>
       </div>
       <div class="form-row" style="margin-bottom:12px"><div><div class="form-label">Title</div><input type="text" id="dreamTitle" class="input" placeholder="Flying over Tokyo…"></div></div>
       <div style="margin-bottom:14px"><div class="form-label">Description</div><textarea id="dreamDesc" class="input" placeholder="Write everything you remember…"></textarea></div>
-      <button class="btn-primary" id="dreamLogBtn" style="width:100%">+ Log Dream</button>
+      <button type="button" class="btn-primary" id="dreamLogBtn" style="width:100%">+ Log Dream</button>
     </div>
     <div class="card"><div class="card-eyebrow" style="margin-bottom:14px">Dream journal</div><div class="dream-list" id="dreamList"><div class="empty">No dreams logged yet.</div></div></div>
   </div>
@@ -893,18 +895,18 @@
     <div class="card">
       <div class="card-eyebrow" style="margin-bottom:12px">Today</div>
       <div class="mood-row" id="moodRow">
-        <button class="mood-btn" data-mood="🔥">🔥</button>
-        <button class="mood-btn" data-mood="😊">😊</button>
-        <button class="mood-btn" data-mood="😐">😐</button>
-        <button class="mood-btn" data-mood="😔">😔</button>
-        <button class="mood-btn" data-mood="😤">😤</button>
-        <button class="mood-btn" data-mood="😴">😴</button>
-        <button class="mood-btn" data-mood="🧠">🧠</button>
+        <button type="button" class="mood-btn" data-mood="🔥">🔥</button>
+        <button type="button" class="mood-btn" data-mood="😊">😊</button>
+        <button type="button" class="mood-btn" data-mood="😐">😐</button>
+        <button type="button" class="mood-btn" data-mood="😔">😔</button>
+        <button type="button" class="mood-btn" data-mood="😤">😤</button>
+        <button type="button" class="mood-btn" data-mood="😴">😴</button>
+        <button type="button" class="mood-btn" data-mood="🧠">🧠</button>
       </div>
       <div class="j-meta"><span id="jDateLabel"></span><span class="j-wc" id="jWordCount">0 words</span></div>
       <textarea class="input journal-ta" id="journalTA" placeholder="Wins, lessons, random thoughts, goals… just write."></textarea>
       <div style="display:flex;align-items:center;margin-top:10px">
-        <button class="btn-primary" id="jSaveBtn">Save Entry</button>
+        <button type="button" class="btn-primary" id="jSaveBtn">Save Entry</button>
         <span class="autosave" id="jAutosave"></span>
       </div>
     </div>
@@ -954,7 +956,7 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const get=k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}};
-  const set=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+  const set=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(error){console.warn('[NEXUS wellness] local state save failed',error);}};
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const pad2=n=>String(n).padStart(2,'0');
   function today(){const d=new Date();return`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
@@ -1026,7 +1028,7 @@
     if(activeTab==='sleep')renderSleepChart();
     const list=$('sleepList');
     if(!logs.length){list.innerHTML='<div class="empty">No sleep logged yet.</div>';return;}
-    list.innerHTML=logs.slice(0,7).map(l=>`<div class="sleep-row"><div class="sleep-date">${fmtDate(l.date)}</div><div class="sleep-hrs">${fmtHrs(l.dur)}</div><div class="sleep-time">${l.bed} → ${l.wake}${l.notes?' · '+esc(l.notes):''}</div><div class="sleep-stars">${'⭐'.repeat(l.q)}</div><button class="del-btn" data-id="${l.id}">×</button></div>`).join('');
+    list.innerHTML=logs.slice(0,7).map(l=>`<div class="sleep-row"><div class="sleep-date">${fmtDate(l.date)}</div><div class="sleep-hrs">${fmtHrs(l.dur)}</div><div class="sleep-time">${l.bed} → ${l.wake}${l.notes?' · '+esc(l.notes):''}</div><div class="sleep-stars">${'⭐'.repeat(l.q)}</div><button type="button" class="del-btn" data-id="${l.id}">×</button></div>`).join('');
   }
   $('sleepList').addEventListener('click',e=>{const b=e.target.closest('.del-btn');if(!b)return;setSleepLogs(getSleepLogs().filter(l=>l.id!==+b.dataset.id));renderSleep();});
 
@@ -1047,7 +1049,7 @@
     if(!habits.length){list.innerHTML='<div class="empty">No habits yet. Add one below!</div>';return;}
     list.innerHTML=habits.map(h=>{
       const isDone=done.includes(h.id);const s=habitStreak(h.id);const sText=s>=3?`🔥${s}d`:s>0?`${s}d`:'';
-      return`<div class="habit-row ${isDone?'done':''}"><button class="habit-check ${isDone?'on':''}" data-act="toggle" data-id="${h.id}">${isDone?'✓':''}</button><span class="habit-icon">${h.icon}</span><span class="habit-name">${esc(h.name)}</span><span class="habit-streak ${s>=3?'hot':''}">${sText}</span><button class="del-btn" data-act="del" data-id="${h.id}">×</button></div>`;
+      return`<div class="habit-row ${isDone?'done':''}"><button type="button" class="habit-check ${isDone?'on':''}" data-act="toggle" data-id="${h.id}">${isDone?'✓':''}</button><span class="habit-icon">${h.icon}</span><span class="habit-name">${esc(h.name)}</span><span class="habit-streak ${s>=3?'hot':''}">${sText}</span><button type="button" class="del-btn" data-act="del" data-id="${h.id}">×</button></div>`;
     }).join('');
   }
   $('habitList').addEventListener('click',e=>{
@@ -1071,7 +1073,7 @@
     mGrid.insertAdjacentHTML('beforeend',`<div class="muscle-block"><div class="muscle-top"><span class="muscle-name">${m}</span><span class="muscle-val" id="mv-${k}">0</span></div><input type="range" class="slider" min="0" max="5" value="0" data-m="${k}"></div>`);
   });
   mGrid.addEventListener('input',e=>{const sl=e.target.closest('.slider');if(!sl)return;rec.soreness[sl.dataset.m]=+sl.value;$('mv-'+sl.dataset.m).textContent=sl.value;refreshRing();});
-  function buildPills(cid,dk){const el=$(cid);el.innerHTML=Array.from({length:5},(_,i)=>`<button class="r-pill ${i+1===rec[dk]?'on':''}" data-v="${i+1}" data-k="${dk}">${i+1}</button>`).join('');}
+  function buildPills(cid,dk){const el=$(cid);el.innerHTML=Array.from({length:5},(_,i)=>`<button type="button" class="r-pill ${i+1===rec[dk]?'on':''}" data-v="${i+1}" data-k="${dk}">${i+1}</button>`).join('');}
   buildPills('energyPills','energy');buildPills('stressPills','stress');
   ['energyPills','stressPills'].forEach(cid=>{$(cid).addEventListener('click',e=>{const p=e.target.closest('.r-pill');if(!p)return;rec[p.dataset.k]=+p.dataset.v;$(cid).querySelectorAll('.r-pill').forEach(pp=>pp.classList.toggle('on',+pp.dataset.v===rec[p.dataset.k]));refreshRing();});});
   function calcScore(){const avgS=Object.values(rec.soreness).reduce((a,b)=>a+b,0)/MUSCLES.length;return Math.round((5-avgS)/5*30+rec.energy/5*40+(6-rec.stress)/5*30);}
@@ -1118,7 +1120,7 @@
     $('dTotal').textContent=dreams.length;$('dLucid').textContent=lucid;$('dRate').textContent=dreams.length?Math.round(lucid/dreams.length*100)+'%':'0%';
     const list=$('dreamList');
     if(!dreams.length){list.innerHTML='<div class="empty">No dreams logged yet.</div>';return;}
-    list.innerHTML=dreams.map(d=>`<div class="dream-item"><div class="dream-head"><div class="dream-title-text">${esc(d.title)}</div><span class="d-badge ${d.type}">${d.type}</span><span class="dream-date">${fmtDate(d.date)}</span><button class="del-btn" data-id="${d.id}">×</button></div>${d.desc?`<div class="dream-desc">${esc(d.desc)}</div>`:''} ${d.tech!=='none'?`<div class="dream-tech">Technique: ${d.tech}</div>`:''}</div>`).join('');
+    list.innerHTML=dreams.map(d=>`<div class="dream-item"><div class="dream-head"><div class="dream-title-text">${esc(d.title)}</div><span class="d-badge ${d.type}">${d.type}</span><span class="dream-date">${fmtDate(d.date)}</span><button type="button" class="del-btn" data-id="${d.id}">×</button></div>${d.desc?`<div class="dream-desc">${esc(d.desc)}</div>`:''} ${d.tech!=='none'?`<div class="dream-tech">Technique: ${d.tech}</div>`:''}</div>`).join('');
   }
   $('dreamList').addEventListener('click',e=>{const b=e.target.closest('.del-btn');if(!b)return;setDreams(getDreams().filter(d=>d.id!==+b.dataset.id));renderDreams();});
 
@@ -1136,7 +1138,7 @@
   function renderJHist(){
     const past=getJournal().filter(e=>e.date!==today());const el=$('jHist');
     if(!past.length){el.innerHTML='<div class="empty">No past entries yet.</div>';return;}
-    el.innerHTML=past.slice(0,10).map(e=>`<div class="j-entry" data-date="${e.date}"><div class="j-entry-head"><span class="j-mood">${e.mood||'📓'}</span><span class="j-date">${fmtDate(e.date)}</span><button class="del-btn" data-date="${e.date}">×</button></div><div class="j-preview">${esc(e.content)}</div></div>`).join('');
+    el.innerHTML=past.slice(0,10).map(e=>`<div class="j-entry" data-date="${e.date}"><div class="j-entry-head"><span class="j-mood">${e.mood||'📓'}</span><span class="j-date">${fmtDate(e.date)}</span><button type="button" class="del-btn" data-date="${e.date}">×</button></div><div class="j-preview">${esc(e.content)}</div></div>`).join('');
   }
   $('jHist').addEventListener('click',e=>{const del=e.target.closest('.del-btn[data-date]');if(del){setJournal(getJournal().filter(x=>x.date!==del.dataset.date));renderJHist();renderMoodTrendChart();return;}const entry=e.target.closest('.j-entry');if(entry)entry.classList.toggle('expanded');});
 

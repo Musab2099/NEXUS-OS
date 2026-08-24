@@ -181,17 +181,18 @@ body > main {
 .nx-card-sheen {
   position: absolute;
   z-index: 2;
-  inset: -80% 45% -80% -45%;
+  top: 12%;
+  left: 8%;
+  width: 84%;
+  height: 76%;
   pointer-events: none;
-  background: linear-gradient(
-    110deg,
-    transparent,
-    color-mix(in srgb, var(--nx-anim-text) 12%, transparent),
-    transparent
-  );
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--nx-anim-primary) 12%, transparent) 0%, transparent 70%);
+  filter: blur(24px);
   opacity: 0;
-  transform: translateX(-120%) rotate(12deg);
-  transition: opacity .2s ease;
+  transform: translate3d(-8%, 4%, 0) scale(.92);
+  will-change: transform, opacity;
+  transition: opacity .45s ease, transform .8s var(--nx-anim-ease);
 }
 
 .nx-anim-card,
@@ -435,11 +436,6 @@ body > main {
     to { opacity: 1; transform: translateY(0); }
   }
 
-  @keyframes nx-sheen {
-    0% { transform: translateX(-120%) rotate(12deg); }
-    100% { transform: translateX(280%) rotate(12deg); }
-  }
-
   @keyframes nx-ripple-out {
     0% { opacity: .7; transform: translate(-50%, -50%) scale(0); }
     100% { opacity: 0; transform: translate(-50%, -50%) scale(12); }
@@ -592,7 +588,7 @@ body > main {
 
   .nx-anim-card:hover .nx-card-sheen {
     opacity: 1;
-    animation: nx-sheen 2s ease-out both;
+    transform: translate3d(7%, -4%, 0) scale(1.08);
   }
 
   .nx-ripple { animation: nx-ripple-out .6s ease-out forwards; }

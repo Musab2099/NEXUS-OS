@@ -84,6 +84,8 @@
         radial-gradient(45% 35% at 50% 50%, rgba(176, 38, 255, 0.08) 0%, transparent 60%),
         linear-gradient(180deg, #0E0A1C 0%, #0A0813 100%);
       filter:blur(40px) saturate(1.05);
+      opacity:.10;
+      will-change:transform;
       pointer-events:none;
     }
     body::after{
@@ -681,7 +683,9 @@
       if (storedTheme === 'arctic' || storedTheme === 'ice') storedTheme = 'arctic-white';
       if (themeKeys.indexOf(storedTheme) !== -1) savedTheme = storedTheme;
       else if (Number.isInteger(themeIndex) && themeKeys[themeIndex]) savedTheme = themeKeys[themeIndex];
-    } catch (e) {}
+    } catch (e) {
+      console.warn('[NEXUS] theme bootstrap preference read failed', e);
+    }
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.documentElement.setAttribute('data-initial-route', 'grind');
     document.documentElement.classList.add('js-loading', 'nexus-ready');
@@ -765,7 +769,7 @@
       <div class="log-form-row">
         <input class="log-input" type="text" id="taskInput" placeholder="What did you grind on?" autocomplete="off" />
         <input class="log-xp-input" type="number" id="xpInput" placeholder="XP" min="1" max="999" />
-        <button class="log-add-btn" id="logAddBtn">+ Log</button>
+        <button type="button" class="log-add-btn" id="logAddBtn">+ Log</button>
       </div>
     </div>
 
@@ -820,7 +824,7 @@
 
     const LS_KEY='grind_log_v1';
     function load(){try{const r=localStorage.getItem(LS_KEY);return r?JSON.parse(r):{}}catch{return{}}}
-    function save(s){try{localStorage.setItem(LS_KEY,JSON.stringify(s))}catch{}}
+    function save(s){try{localStorage.setItem(LS_KEY,JSON.stringify(s))}catch(error){console.warn('[NEXUS grind] local state save failed',error)}}
     let S=load();
     function gs(key,def){return S[key]!=null?S[key]:def}
     function ss(key,val){S[key]=val;save(S)}
@@ -842,7 +846,7 @@
 
     // ─── GOALS ───
     function getLongGoals(){try{return JSON.parse(localStorage.getItem('long_goals_v1'))||[];}catch{return[];}}
-    function setLongGoals(goals){try{localStorage.setItem('long_goals_v1',JSON.stringify(goals));}catch{}}
+    function setLongGoals(goals){try{localStorage.setItem('long_goals_v1',JSON.stringify(goals));}catch(error){console.warn('[NEXUS grind] goal save failed',error)}}
     function goalPct(g){
       const cur=Number(g.current)||0,tgt=Number(g.target)||0,start=Number(g.start!=null?g.start:g.current)||0;
       let pct;
@@ -975,7 +979,7 @@
           ${linkedGoal?`<span class="task-goal-tag" title="${escapeHtml(linkedGoal.title)}">→ ${escapeHtml(linkedGoal.title.slice(0,12))}${linkedGoal.title.length>12?'…':''}</span>`:''}
           <span class="task-cat-pill">${cat.emoji} ${cat.name}</span>
           <span class="task-xp">+${log.xp}</span>
-          <button class="task-del" data-idx="${realIdx}">×</button>`;
+          <button type="button" class="task-del" data-idx="${realIdx}">×</button>`;
         row.querySelector('.task-del').addEventListener('click',e=>{
           const idx=parseInt(e.target.dataset.idx,10);const all=getAllLogs();all.splice(idx,1);ss('logs',all);render();
         });

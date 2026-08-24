@@ -1,0 +1,4 @@
+node_modules/
+playwright-report/
+test-results/
+# DO NOT ignore __snapshots__ — those are your visual baselines, commit them

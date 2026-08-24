@@ -84,7 +84,8 @@ body{
   width:560px;height:560px;
   background:var(--amethyst);
   filter:blur(140px);
-  opacity:.26;
+  opacity:.12;
+  will-change:transform;
   top:-140px;right:-120px;
   animation:drift1 28s ease-in-out infinite;
 }
@@ -92,7 +93,8 @@ body{
   width:420px;height:420px;
   background:var(--cyan);
   filter:blur(120px);
-  opacity:.17;
+  opacity:.08;
+  will-change:transform;
   bottom:-100px;left:-80px;
   animation:drift2 38s ease-in-out infinite;
 }
@@ -100,21 +102,22 @@ body{
   width:300px;height:300px;
   background:var(--magenta);
   filter:blur(100px);
-  opacity:.13;
+  opacity:.06;
+  will-change:transform;
   top:42%;left:38%;
   animation:drift3 46s ease-in-out infinite;
 }
 
 @keyframes drift1{
-  0%,100%{transform:translate(0,0)}
-  25%{transform:translate(-90px,110px)}
-  50%{transform:translate(-180px,50px)}
-  75%{transform:translate(-50px,130px)}
+  0%,100%{transform:translate(0,0) scale(1)}
+  25%{transform:translate(-90px,110px) scale(1.04)}
+  50%{transform:translate(-180px,50px) scale(1.08)}
+  75%{transform:translate(-50px,130px) scale(1.03)}
 }
 @keyframes drift2{
-  0%,100%{transform:translate(0,0)}
-  33%{transform:translate(140px,-70px)}
-  66%{transform:translate(70px,-140px)}
+  0%,100%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(140px,-70px) scale(.96)}
+  66%{transform:translate(70px,-140px) scale(1.06)}
 }
 @keyframes drift3{
   0%,100%{transform:translate(0,0) scale(1)}
@@ -672,7 +675,9 @@ body{
       if (storedTheme === 'arctic' || storedTheme === 'ice') storedTheme = 'arctic-white';
       if (themeKeys.indexOf(storedTheme) !== -1) savedTheme = storedTheme;
       else if (Number.isInteger(themeIndex) && themeKeys[themeIndex]) savedTheme = themeKeys[themeIndex];
-    } catch (e) {}
+    } catch (e) {
+      console.warn('[NEXUS] theme bootstrap preference read failed', e);
+    }
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.documentElement.setAttribute('data-initial-route', window.location.hash === '#goals-section' ? 'goals' : 'home');
     document.documentElement.classList.add('js-loading', 'nexus-ready');
@@ -999,7 +1004,10 @@ body{
   // STORAGE
   // ──────────────────────────────────────────────
   function storeGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }
-  function storeSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { } }
+  function storeSet(k, v) {
+    try { localStorage.setItem(k, JSON.stringify(v)); }
+    catch (error) { console.warn('[NEXUS dashboard] local state save failed', error); }
+  }
 
   function pad2(n) { return String(n).padStart(2, '0'); }
   function dateToKey(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
@@ -1409,7 +1417,7 @@ body{
     const rows = [
       ['Modules active', '6 / 6', 'v-v'],
       ['Goals on track', (goals.length - done) + ' / ' + goals.length, 'v-g'],
-      ['Supabase sync', '—', 'v-m'],
+      ['Local storage', 'READY', 'v-m'],
     ];
     el.innerHTML = rows.map(r => `
       <div class="meta-row">

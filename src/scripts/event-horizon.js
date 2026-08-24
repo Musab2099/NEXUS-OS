@@ -85,7 +85,7 @@
   function initCircadianEngine() {
     updateCircadianTinting();
     /* Store the interval ID so it can be cleared if the engine is ever torn down. */
-    var _circadianTimer = setInterval(updateCircadianTinting, 60 * 1000);
+    var circadianTimer = setInterval(updateCircadianTinting, 60 * 1000);
     // Re-check when window regains focus
     window.addEventListener('focus', updateCircadianTinting);
     document.addEventListener('visibilitychange', function () {
@@ -95,6 +95,10 @@
     window.addEventListener('storage', function (e) {
       if (e.key === 'day_window_v1') updateCircadianTinting();
     });
+
+    window.addEventListener('pagehide', function () {
+      clearInterval(circadianTimer);
+    }, { once: true });
   }
 
   // ──────────────────────────────────────────────
@@ -197,7 +201,7 @@
    */
   window.triggerSyncFlash = function (target) {
     var el = typeof target === 'string' ? document.querySelector(target) : target;
-    if (!el) return;
+    if (!el || typeof el.addEventListener !== 'function') return;
     if (prefersReducedMotion.matches) return;
 
     // Remove existing flash if re-triggered

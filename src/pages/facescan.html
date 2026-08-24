@@ -43,7 +43,7 @@
         if (value === 'amethyst') value = 'nexus-dark';
         if (value === 'arctic' || value === 'ice') value = 'arctic-white';
         if (['nexus-dark', 'periwinkle', 'arctic-white'].indexOf(value) !== -1) saved = value;
-      } catch (e) { }
+      } catch (e) { console.warn('[NEXUS FaceScan] theme preference read failed', e); }
       document.documentElement.setAttribute('data-theme', saved);
       document.documentElement.setAttribute('data-initial-route', 'home');
       document.documentElement.classList.add('js-loading', 'nexus-ready');
@@ -80,8 +80,8 @@
       function read() { try { return JSON.parse(localStorage.getItem(key)); } catch (e) { return null; } }
       function render() { var scan = read(); if (!scan) { result.textContent = 'No check-in saved yet.'; return; } date.value = scan.date || today(); rating.value = scan.rating == null ? '' : scan.rating; result.textContent = 'Saved ' + scan.date + (scan.rating == null ? '' : ' · ' + scan.rating + '/10'); }
       date.value = today();
-      document.getElementById('faceSave').addEventListener('click', function () { var value = rating.value === '' ? null : Math.max(0, Math.min(10, Number(rating.value))); var scan = { date: date.value || today(), rating: Number.isFinite(value) ? value : null, timestamp: new Date().toISOString() }; try { localStorage.setItem(key, JSON.stringify(scan)); } catch (e) { } render(); });
-      document.getElementById('faceClear').addEventListener('click', function () { try { localStorage.removeItem(key); } catch (e) { } rating.value = ''; date.value = today(); render(); });
+      document.getElementById('faceSave').addEventListener('click', function () { var value = rating.value === '' ? null : Math.max(0, Math.min(10, Number(rating.value))); var scan = { date: date.value || today(), rating: Number.isFinite(value) ? value : null, timestamp: new Date().toISOString() }; try { localStorage.setItem(key, JSON.stringify(scan)); } catch (e) { console.warn('[NEXUS FaceScan] check-in save failed', e); } render(); });
+      document.getElementById('faceClear').addEventListener('click', function () { try { localStorage.removeItem(key); } catch (e) { console.warn('[NEXUS FaceScan] check-in clear failed', e); } rating.value = ''; date.value = today(); render(); });
       render();
     }());
   </script>

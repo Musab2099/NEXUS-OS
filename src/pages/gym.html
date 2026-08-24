@@ -98,12 +98,14 @@
     }
 
     @keyframes aurora {
-      0% {
+      0%, 100% {
+        opacity: .08;
         transform: translate(0, 0) scale(1);
       }
 
-      100% {
-        transform: translate(-3%, 2%) scale(1.05);
+      50% {
+        opacity: .12;
+        transform: translate(-2%, 2%) scale(1.04);
       }
     }
 
@@ -241,101 +243,6 @@
       font-size: 13px;
       color: var(--text-secondary);
       font-style: italic;
-    }
-
-    .apple-health-card {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 13px 15px;
-      margin: 0 0 14px;
-      border: 1px solid rgba(176, 38, 255, 0.24);
-      border-radius: 14px;
-      background: linear-gradient(135deg, rgba(138, 43, 226, 0.08), rgba(255, 20, 147, 0.05));
-    }
-
-    .apple-health-mark {
-      display: grid;
-      place-items: center;
-      width: 34px;
-      height: 34px;
-      flex-shrink: 0;
-      border-radius: 11px;
-      background: linear-gradient(135deg, rgba(138, 43, 226, 0.28), rgba(255, 20, 147, 0.22));
-      font-size: 17px;
-    }
-
-    .apple-health-copy {
-      min-width: 0;
-      flex: 1;
-    }
-
-    .apple-health-title {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-primary);
-    }
-
-    .apple-health-status {
-      font-family: var(--mono);
-      font-size: 9px;
-      font-weight: 700;
-      color: #C77DFF;
-      letter-spacing: 0.04em;
-    }
-
-    .apple-health-sub {
-      margin-top: 3px;
-      overflow: hidden;
-      color: var(--text-secondary);
-      font-size: 11px;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .apple-health-stats {
-      display: flex;
-      flex-shrink: 0;
-      gap: 12px;
-    }
-
-    .apple-health-stat {
-      text-align: right;
-    }
-
-    .apple-health-value {
-      display: block;
-      color: var(--text-primary);
-      font-family: var(--mono);
-      font-size: 14px;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .apple-health-label {
-      display: block;
-      margin-top: 2px;
-      color: var(--text-secondary);
-      font-family: var(--mono);
-      font-size: 8px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    @media(max-width:480px) {
-      .apple-health-card {
-        align-items: flex-start;
-      }
-
-      .apple-health-stats {
-        flex-direction: column;
-        gap: 6px;
-      }
     }
 
     .divider {
@@ -2085,8 +1992,6 @@
   <script src="/scripts/theme.js" defer></script>
   <script src="/scripts/workout-persistence.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="/scripts/apple-health.js" defer></script>
-  <script src="/scripts/sync-service.js" defer></script>
   <script src="/scripts/topbar.js" defer></script>
   <link rel="stylesheet" href="/styles/animations.css">
   <script src="/scripts/animations.js" defer></script>
@@ -2143,39 +2048,24 @@
         <span class="today-pill-name" id="todayName"></span>
         <span class="today-pill-rest" id="todayRest"></span>
       </div>
-      <button class="schedule-btn" onclick="openScheduleModal()">⚙ Schedule</button>
+      <button type="button" class="schedule-btn" onclick="openScheduleModal()">⚙ Schedule</button>
     </div>
-
-    <section class="apple-health-card" id="appleHealthCard" aria-label="Apple Health workout metrics">
-      <div class="apple-health-mark" aria-hidden="true">♥</div>
-      <div class="apple-health-copy">
-        <div class="apple-health-title">Apple Health <span class="apple-health-status"
-            id="appleHealthStatus">CHECKING</span></div>
-        <div class="apple-health-sub" id="appleHealthSub">Loading Apple Watch metrics…</div>
-      </div>
-      <div class="apple-health-stats" aria-live="polite">
-        <div class="apple-health-stat"><span class="apple-health-value" id="appleHealthCalories">—</span><span
-            class="apple-health-label">active kcal</span></div>
-        <div class="apple-health-stat"><span class="apple-health-value" id="appleHealthHeartRate">—</span><span
-            class="apple-health-label">avg bpm</span></div>
-      </div>
-    </section>
 
     <!-- ✏️ UPDATED: Tab 3 emoji ⚫ → 🦵, label "Thu · Core" → "Thu · Legs" -->
     <div class="day-tabs">
-      <button class="day-tab" style="--tab-color:var(--push)" data-day="0" onclick="setDay(0)">
+      <button type="button" class="day-tab" style="--tab-color:var(--push)" data-day="0" onclick="setDay(0)">
         <span class="day-tab-emoji">🔴</span>
         <span class="day-tab-label" id="tabLabel0">Mon · Push</span>
       </button>
-      <button class="day-tab" style="--tab-color:var(--pull)" data-day="1" onclick="setDay(1)">
+      <button type="button" class="day-tab" style="--tab-color:var(--pull)" data-day="1" onclick="setDay(1)">
         <span class="day-tab-emoji">🔵</span>
         <span class="day-tab-label" id="tabLabel1">Tue · Pull</span>
       </button>
-      <button class="day-tab" style="--tab-color:var(--legs)" data-day="2" onclick="setDay(2)">
+      <button type="button" class="day-tab" style="--tab-color:var(--legs)" data-day="2" onclick="setDay(2)">
         <span class="day-tab-emoji">🦵</span>
         <span class="day-tab-label" id="tabLabel2">Thu · Legs</span>
       </button>
-      <button class="day-tab" style="--tab-color:var(--core)" data-day="3" onclick="setDay(3)">
+      <button type="button" class="day-tab" style="--tab-color:var(--core)" data-day="3" onclick="setDay(3)">
         <span class="day-tab-emoji">🟡</span>
         <span class="day-tab-label" id="tabLabel3">Fri · Full</span>
       </button>
@@ -2185,8 +2075,8 @@
       <div class="done-bar">
         <div class="done-summary" id="doneSummary">0 / 0 exercises checked</div>
         <div class="done-btns">
-          <button class="missed-btn" id="missedBtnEl" onclick="toggleWorkoutMissed()">✕ Mark missed</button>
-          <button class="done-btn" id="doneBtnEl" onclick="toggleWorkoutDone()">Mark workout done</button>
+          <button type="button" class="missed-btn" id="missedBtnEl" onclick="toggleWorkoutMissed()">✕ Mark missed</button>
+          <button type="button" class="done-btn" id="doneBtnEl" onclick="toggleWorkoutDone()">Mark workout done</button>
         </div>
       </div>
       <!-- Start Workout button routes to live tracker with current day pre-selected -->
@@ -2293,7 +2183,7 @@
         <div class="log-field"><label class="log-label">Notes</label><textarea class="log-input log-notes" id="logNotes"
             placeholder="How'd it go?"></textarea></div>
       </div>
-      <button class="log-save-btn" onclick="saveLog()">Save Today's Log</button>
+      <button type="button" class="log-save-btn" onclick="saveLog()">Save Today's Log</button>
     </div>
 
     <div class="divider"><span>Weight</span></div>
@@ -2314,7 +2204,7 @@
       <div class="weight-input-row">
         <input type="number" class="weight-input" id="wInput" placeholder="Enter weight (lbs)" step="0.1" min="100"
           max="300">
-        <button class="weight-save-btn" onclick="saveWeight()">Save</button>
+        <button type="button" class="weight-save-btn" onclick="saveWeight()">Save</button>
       </div>
       <div class="weight-chart" id="wChart"></div>
     </div>
@@ -2352,7 +2242,7 @@
             placeholder="e.g. 32" step="0.1" min="0" max="60">
         </div>
       </div>
-      <button class="log-save-btn" style="margin-top:0" onclick="saveMeasurement()">Log Measurements</button>
+      <button type="button" class="log-save-btn" style="margin-top:0" onclick="saveMeasurement()">Log Measurements</button>
       <div style="margin-top:14px" id="measHistList"></div>
     </div>
 
@@ -2389,13 +2279,13 @@
       <div class="rest-timer-eyebrow">Rest Timer</div>
       <div class="rest-timer-msg" id="rtMsg">Recover 💪</div>
       <div class="rest-presets">
-        <button class="rest-preset" data-s="60" onclick="rtStart(60)">60s</button>
-        <button class="rest-preset" data-s="90" onclick="rtStart(90)">90s</button>
-        <button class="rest-preset active" data-s="120" onclick="rtStart(120)">2m</button>
-        <button class="rest-preset" data-s="180" onclick="rtStart(180)">3m</button>
+        <button type="button" class="rest-preset" data-s="60" onclick="rtStart(60)">60s</button>
+        <button type="button" class="rest-preset" data-s="90" onclick="rtStart(90)">90s</button>
+        <button type="button" class="rest-preset active" data-s="120" onclick="rtStart(120)">2m</button>
+        <button type="button" class="rest-preset" data-s="180" onclick="rtStart(180)">3m</button>
       </div>
     </div>
-    <button class="rest-skip" onclick="rtHide()" title="Skip">✕</button>
+    <button type="button" class="rest-skip" onclick="rtHide()" title="Skip">✕</button>
   </div>
 
   <!-- PR MODAL -->
@@ -2413,7 +2303,7 @@
           <option value="kg">kg</option>
         </select>
         <input type="text" class="pr-input pr-note-field" id="prNote" placeholder="Note (optional)">
-        <button class="pr-save-btn" onclick="logPR()">+ Log</button>
+        <button type="button" class="pr-save-btn" onclick="logPR()">+ Log</button>
       </div>
       <div class="pr-sparkline" id="prSparkline"></div>
       <div id="prHistList"></div>
@@ -2429,8 +2319,8 @@
       <div class="sched-days" id="schedDayPicker"></div>
       <div class="sched-preview" id="schedPreview">Select 4 days to preview your schedule</div>
       <div class="sched-actions">
-        <button class="sched-cancel-btn" onclick="closeScheduleModal()">Cancel</button>
-        <button class="sched-save-btn" id="schedSaveBtn" onclick="saveScheduleModal()" disabled>Save Schedule</button>
+        <button type="button" class="sched-cancel-btn" onclick="closeScheduleModal()">Cancel</button>
+        <button type="button" class="sched-save-btn" id="schedSaveBtn" onclick="saveScheduleModal()" disabled>Save Schedule</button>
       </div>
     </div>
   </div>
@@ -2671,7 +2561,7 @@
         picker.innerHTML = DOW_NAMES_SHORT.map((name, i) => {
           const selIdx = schedPendingDays.indexOf(i);
           const isSel = selIdx !== -1;
-          return `<button class="sched-day-btn${isSel ? ' selected' : ''}" onclick="toggleSchedDay(${i})">${name}<span class="sched-day-order">${isSel ? 'Day ' + 'ABCD'[selIdx] : ''}</span></button>`;
+          return `<button type="button" class="sched-day-btn${isSel ? ' selected' : ''}" onclick="toggleSchedDay(${i})">${name}<span class="sched-day-order">${isSel ? 'Day ' + 'ABCD'[selIdx] : ''}</span></button>`;
         }).join('');
         const labels = ['Push+Core', 'Pull+Core', 'Legs+Core', 'Full Body'];
         const preview = schedPendingDays.length === 4
@@ -2830,7 +2720,7 @@
           <div class="pr-hist-unit">${e.unit}</div>
           <div class="pr-hist-note">${escHtml(e.note)}</div>
           ${e.val === best ? '<span class="pr-best-tag">🏆 Best</span>' : ''}
-          <button class="pr-del" data-ex="${escHtml(exName)}" data-ts="${e.ts}">×</button>
+          <button type="button" class="pr-del" data-ex="${escHtml(exName)}" data-ts="${e.ts}">×</button>
         </div>`).join('');
         listEl.querySelectorAll('.pr-del').forEach(b => b.addEventListener('click', () => {
           const h = loadPR();
@@ -2878,7 +2768,7 @@
         <div class="meas-hist-row">
           <div class="meas-hist-date">${fmtDate(m.date)}</div>
           <div class="meas-hist-vals">${[m.arms != null ? `Arms:${m.arms}"` : null, m.chest != null ? `Chest:${m.chest}"` : null, m.waist != null ? `Waist:${m.waist}"` : null].filter(Boolean).join('  ')}</div>
-          <button class="meas-del" data-date="${m.date}">×</button>
+          <button type="button" class="meas-del" data-date="${m.date}">×</button>
         </div>`).join('');
         histEl.querySelectorAll('.meas-del').forEach(b => b.addEventListener('click', () => {
           const a = loadMeas().filter(m => m.date !== b.dataset.date); saveMeas(a); renderMeasurements();
@@ -2943,7 +2833,7 @@
           ${ex.note ? `<div class="ex-note">${ex.note}</div>` : ''}
         </div>
         ${badgeHtml}
-        <button class="ex-pr-btn ${exPR.length ? 'has-pr' : ''}" data-ex="${escHtml(ex.name)}" title="Log PR">${exPR.length ? prLabel : 'PR'}</button>`;
+        <button type="button" class="ex-pr-btn ${exPR.length ? 'has-pr' : ''}" data-ex="${escHtml(ex.name)}" title="Log PR">${exPR.length ? prLabel : 'PR'}</button>`;
 
         row.querySelector('.ex-pr-btn').addEventListener('click', e => {
           e.stopPropagation();
@@ -3373,46 +3263,6 @@
       }
       init();
     })();
-  </script>
-
-  <script>
-    (function () {
-      function formatMetric(value, suffix) {
-        return value == null || !Number.isFinite(Number(value)) ? '—' : Number(value).toLocaleString(undefined, { maximumFractionDigits: 0 }) + suffix;
-      }
-      function renderAppleHealth(rows, offline) {
-        var date = window.appleHealth.today();
-        var row = (rows || []).filter(function (item) { return item.workout_date === date; })[0] || null;
-        var status = document.getElementById('appleHealthStatus');
-        var sub = document.getElementById('appleHealthSub');
-        var calories = document.getElementById('appleHealthCalories');
-        var heartRate = document.getElementById('appleHealthHeartRate');
-        if (!status || !sub || !calories || !heartRate) return;
-        if (!row) {
-          status.textContent = offline ? 'OFFLINE' : 'NO DATA';
-          sub.textContent = offline ? 'No cached Apple Watch workout for today' : 'No Apple Health workout synced for today';
-          calories.textContent = '—'; heartRate.textContent = '—';
-          return;
-        }
-        status.textContent = offline ? 'CACHED' : 'SYNCED';
-        sub.textContent = row.workout_type + (row.duration_minutes ? ' · ' + formatMetric(row.duration_minutes, ' min') : '');
-        calories.textContent = formatMetric(row.active_calories, '');
-        heartRate.textContent = row.avg_heart_rate == null ? '—' : formatMetric(row.avg_heart_rate, '');
-      }
-      function loadAppleHealth() {
-        if (!window.appleHealth) return;
-        var cached = window.appleHealth.cached();
-        renderAppleHealth(cached, !navigator.onLine);
-        if (!navigator.onLine) return;
-        window.appleHealth.refresh().then(function (rows) {
-          renderAppleHealth(rows, false);
-        }).catch(function () {
-          renderAppleHealth(window.appleHealth.cached(), true);
-        });
-      }
-      document.addEventListener('DOMContentLoaded', loadAppleHealth);
-      window.addEventListener('online', loadAppleHealth);
-    }());
   </script>
 
 </body>

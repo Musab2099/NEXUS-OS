@@ -75,6 +75,8 @@
         radial-gradient(50% 40% at 85% 85%, rgba(255, 20, 147, 0.14) 0%, transparent 60%),
         radial-gradient(35% 30% at 65% 18%, rgba(176, 38, 255, 0.10) 0%, transparent 55%);
       filter: blur(44px);
+      opacity: .10;
+      will-change: transform;
       pointer-events: none;
       z-index: 0;
     }
@@ -763,7 +765,9 @@
       if (storedTheme === 'arctic' || storedTheme === 'ice') storedTheme = 'arctic-white';
       if (themeKeys.indexOf(storedTheme) !== -1) savedTheme = storedTheme;
       else if (Number.isInteger(themeIndex) && themeKeys[themeIndex]) savedTheme = themeKeys[themeIndex];
-    } catch (e) {}
+    } catch (e) {
+      console.warn('[NEXUS] theme bootstrap preference read failed', e);
+    }
     document.documentElement.setAttribute('data-theme', savedTheme);
     document.documentElement.setAttribute('data-initial-route', 'calisthenics');
     document.documentElement.classList.add('js-loading', 'nexus-ready');
@@ -817,7 +821,7 @@
       'use strict';
       const LS_KEY = 'cali_skills_v1';
       function loadData() { try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch { return {}; } }
-      function saveData(d) { try { localStorage.setItem(LS_KEY, JSON.stringify(d)); } catch { } }
+      function saveData(d) { try { localStorage.setItem(LS_KEY, JSON.stringify(d)); } catch (error) { console.warn('[NEXUS skills] local state save failed', error); } }
       function todayKey() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
       function fmtDate(k) { const [y, m, d] = k.split('-').map(Number); const dt = new Date(y, m - 1, d); const dow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dt.getDay()]; const mon = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][dt.getMonth()]; return dow + ' ' + mon + ' ' + d; }
       function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -1068,7 +1072,7 @@
       function renderTabs() {
         const tabs = document.getElementById('skillTabs');
         tabs.innerHTML = SKILLS.map((sk, i) => `
-    <button class="skill-tab${i === currentSkillIdx ? ' active' : ''}" style="--tab-color:${sk.color}" onclick="switchSkill(${i})">
+    <button type="button" class="skill-tab${i === currentSkillIdx ? ' active' : ''}" style="--tab-color:${sk.color}" onclick="switchSkill(${i})">
       ${sk.emoji} ${sk.name}
     </button>`).join('');
       }
@@ -1105,10 +1109,10 @@
         // Level nav
         const isCurrentLevel = viewingLevelIdx === currentLevel;
         const levelNavHTML = `<div class="level-nav">
-    <button class="level-nav-btn" onclick="viewLevel(${Math.max(0, viewingLevelIdx - 1)})" ${viewingLevelIdx === 0 ? 'disabled style="opacity:0.3"' : ''}>← Prev</button>
+    <button type="button" class="level-nav-btn" onclick="viewLevel(${Math.max(0, viewingLevelIdx - 1)})" ${viewingLevelIdx === 0 ? 'disabled style="opacity:0.3"' : ''}>← Prev</button>
     <div class="level-nav-label">Level ${viewingLevelIdx + 1} / ${sk.levels.length}</div>
-    <button class="level-nav-btn" onclick="viewLevel(${Math.min(sk.levels.length - 1, viewingLevelIdx + 1)})" ${viewingLevelIdx === sk.levels.length - 1 ? 'disabled style="opacity:0.3"' : ''}>Next →</button>
-    <button class="set-level-btn${isCurrentLevel ? ' is-current' : ''}" onclick="setCurrentLevel(${viewingLevelIdx})">
+    <button type="button" class="level-nav-btn" onclick="viewLevel(${Math.min(sk.levels.length - 1, viewingLevelIdx + 1)})" ${viewingLevelIdx === sk.levels.length - 1 ? 'disabled style="opacity:0.3"' : ''}>Next →</button>
+    <button type="button" class="set-level-btn${isCurrentLevel ? ' is-current' : ''}" onclick="setCurrentLevel(${viewingLevelIdx})">
       ${isCurrentLevel ? '✓ Current Level' : 'Set as Current'}
     </button>
   </div>`;
@@ -1138,7 +1142,7 @@
         <div class="logger-label">Notes</div>
         <textarea class="logger-input logger-notes" id="logNote" placeholder="Form notes, how it felt…"></textarea>
       </div>
-      <button class="logger-save-btn" onclick="logSession()">+ Log</button>
+      <button type="button" class="logger-save-btn" onclick="logSession()">+ Log</button>
     </div>
   </div>`;
 
@@ -1154,7 +1158,7 @@
         <div class="session-unit">${s.unit || unit}</div>
         <div class="session-note">${esc(s.note || '')}</div>
         ${s.value === bestVal ? '<span class="session-best">🏆 Best</span>' : ''}
-        <button class="session-del" data-ts="${s.ts}" onclick="delSession('${sk.key}',${s.ts})">×</button>
+        <button type="button" class="session-del" data-ts="${s.ts}" onclick="delSession('${sk.key}',${s.ts})">×</button>
       </div>`).join('')
           : '<div class="empty-msg">No sessions yet — log your first one above!</div>';
 

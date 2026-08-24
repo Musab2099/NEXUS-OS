@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-**NEXUS** — Ibrahim's personal operating system. A zero-dependency, local-first PWA built as a static folder of HTML/CSS/JS pages sharing a unified design system ("Deep Cyber Amethyst"), with optional serverless Apple Health ingestion.
+**NEXUS** — Ibrahim's personal operating system. A zero-dependency, local-first PWA built as a static folder of HTML/CSS/JS pages sharing a unified design system ("Deep Cyber Amethyst").
 
 **Stack:** Vanilla JS (ES2020+), Vanilla CSS, HTML5. Chart.js 4.4 for gym charts. No frontend framework or bundler. Build step via Node.js script (`node scripts/build.js`) copies source to `dist/`. Hosted on Vercel.
 
@@ -21,7 +21,7 @@ npm run dev
 node scripts/build.js
 ```
 
-**Bump the service worker cache** — change `CACHE_VERSION` in `sw.js` (currently `nexus-v16`) to force clients to refetch.
+**Bump the service worker cache** — change `CACHE_VERSION` in `sw.js` (currently `nexus-v17`) to force clients to refetch.
 
 **Deploy** — push to Git remote, import on Vercel. The `vercel.json` at root runs `node scripts/build.js` and serves `dist/`.
 
@@ -55,9 +55,7 @@ node scripts/build.js
 - **`src/scripts/theme.js`** — Exposes `window.NexusTheme` (`init`, `set`, `get`). Manages 3 themes: `nexus-dark` (default "Deep Cyber Amethyst"), `arctic-white`, and `periwinkle` ("Focus"). Stored in `localStorage['nexus-theme']`.
 - **`src/scripts/animations.js`** — Loaded on every page. Handles ambient orbs, card sheen, 3D tilt, button ripples, Ctrl/Cmd+K command palette, page transitions, and skeleton loaders.
 - **`src/scripts/workout-persistence.js`** — Exposes `window.NexusWorkoutStore` for local-first workout logging under `nexus_workout_<date>`.
-- **`src/scripts/apple-health.js` & `src/scripts/sync-service.js`** — Read-only Apple Health cache and opt-in POST ingestion payload transmitter targeting `/api/sync-health`.
-- **`api/sync-health.js` & `supabase/functions/sync-health/`** — Serverless endpoint & Deno edge function for Apple Health telemetry ingestion into Supabase.
-- **`sw.js`** — Service worker (`CACHE_VERSION = 'nexus-v16'`). Network-first for HTML, stale-while-revalidate for assets.
+- **`sw.js`** — Service worker (`CACHE_VERSION = 'nexus-v17'`). Network-first for HTML, stale-while-revalidate for assets.
 
 ## Color System & Styling — "Deep Cyber Amethyst"
 

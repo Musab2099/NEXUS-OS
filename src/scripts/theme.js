@@ -24,7 +24,10 @@
       var index = Number(localStorage.getItem(INDEX_KEY));
       var keys = Object.keys(THEMES);
       return Number.isInteger(index) && keys[index] ? keys[index] : null;
-    } catch (e) { return null; }
+    } catch (error) {
+      console.warn('[NEXUS theme] preference read failed', error);
+      return null;
+    }
   }
 
   function validTheme(theme) {
@@ -45,7 +48,9 @@
       try {
         localStorage.setItem(KEY, id);
         localStorage.setItem(INDEX_KEY, String(Object.keys(THEMES).indexOf(id)));
-      } catch (e) { }
+      } catch (error) {
+        console.warn('[NEXUS theme] preference save failed', error);
+      }
     }
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', THEMES[id].color);

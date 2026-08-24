@@ -1,7 +1,13 @@
 // NEXUS service worker
 // Bump CACHE_VERSION any time you change the cached file list or want to force-refresh clients.
-const CACHE_VERSION = 'nexus-v16';
+const CACHE_VERSION = 'nexus-v17';
 const NETWORK_TIMEOUT_MS = 10000;
+
+function cacheResponse(request, response) {
+  return caches.open(CACHE_VERSION)
+    .then((cache) => cache.put(request, response))
+    .catch((error) => console.warn('[NEXUS SW] cache update failed', error));
+}
 
 function fetchWithTimeout(request) {
   const controller = new AbortController();
@@ -28,10 +34,9 @@ const CACHE_FILES = [
   '/progression-tab.html',
   '/facescan.html',
   '/live-workout.html',
+  '/offline.html',
   '/scripts/topbar.js',
-  '/scripts/apple-health.js',
   '/scripts/github-health.js',
-  '/scripts/sync-service.js',
   '/scripts/theme.js',
   '/scripts/event-horizon.js',
   '/scripts/workout-persistence.js',
@@ -51,7 +56,12 @@ const CACHE_FILES = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(CACHE_FILES))
+    caches.open(CACHE_VERSION)
+      .then((cache) => cache.addAll(CACHE_FILES))
+      .catch((error) => {
+        console.error('[NEXUS SW] precache failed', error);
+        throw error;
+      })
   );
   self.skipWaiting();
 });
@@ -69,13 +79,11 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // Never intercept cross-origin requests — this lets Supabase API calls
-  // (and anything else not on your domain) go straight to the network,
-  // untouched by the cache.
+  // Never intercept cross-origin requests so external resources go straight
+  // to the network, untouched by the cache.
   if (url.origin !== self.location.origin) return;
 
-  // Only handle GET requests; let POST/PUT/etc. (e.g. Supabase writes if
-  // ever proxied same-origin) pass through untouched.
+  // Only handle GET requests; let POST/PUT/etc. pass through untouched.
   if (req.method !== 'GET') return;
 
   const isPage = req.mode === 'navigate' || req.destination === 'document';
@@ -87,10 +95,10 @@ self.addEventListener('fetch', (event) => {
       fetchWithTimeout(req)
         .then((res) => {
           const copy = res.clone();
-          caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
+          cacheResponse(req, copy);
           return res;
         })
-        .catch(() => caches.match(req))
+        .catch(() => caches.match(req).then((cached) => cached || caches.match('/offline.html')))
     );
     return;
   }
@@ -102,7 +110,7 @@ self.addEventListener('fetch', (event) => {
       const fetchPromise = fetchWithTimeout(req)
         .then((res) => {
           const copy = res.clone();
-          caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
+          cacheResponse(req, copy);
           return res;
         })
         .catch(() => cached || new Response('', { status: 503 }));

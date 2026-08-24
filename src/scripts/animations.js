@@ -5,6 +5,7 @@
   var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   var finePointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
   var reduced = function () { return motionQuery.matches; };
+  var booted = false;
 
   function all(selector, root) {
     return Array.prototype.slice.call((root || document).querySelectorAll(selector));
@@ -82,9 +83,9 @@
     var selectors = '.card, .glass, .glass-card, .ltg-card, .ov-card, .level-card, .xp-hero, .stat-box, .hist-chart-wrap, .goal-contrib-card, .mood-chart-card, .gh-metric';
     var cards = all(selectors);
     var alreadySeen = false;
-    try { alreadySeen = sessionStorage.getItem('nx-entrance-seen') === '1'; } catch (e) { }
+    try { alreadySeen = sessionStorage.getItem('nx-entrance-seen') === '1'; } catch (e) { console.warn('[NEXUS animations] session storage read failed', e); }
     if (!alreadySeen) {
-      try { sessionStorage.setItem('nx-entrance-seen', '1'); } catch (e) { }
+      try { sessionStorage.setItem('nx-entrance-seen', '1'); } catch (e) { console.warn('[NEXUS animations] session storage write failed', e); }
     } else {
       document.documentElement.classList.add('nx-session-entrance-seen');
     }
@@ -566,6 +567,8 @@
   };
 
   function boot() {
+    if (booted) return;
+    booted = true;
     injectAmbient();
     initCursorGlow();
     initCards();

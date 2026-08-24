@@ -89,6 +89,8 @@ body::before {
     radial-gradient(ellipse 38% 30% at 52%  54%,  rgba(217, 70, 239, 0.16) 0%, transparent 48%),
     #07051A !important;
   filter:    blur(100px) !important;
+  opacity:   .10;
+  will-change: transform;
   transform: none !important;
   inset:     -20% !important;
   animation: la-drift 38s ease-in-out infinite alternate !important;
@@ -107,7 +109,8 @@ body::before {
   width: 560px; height: 560px;
   background: var(--amethyst, #7C3AED);
   filter: blur(140px);
-  opacity: .26;
+  opacity: .12;
+  will-change: transform;
   top: -140px; right: -120px;
   animation: la-drift1 28s ease-in-out infinite;
 }
@@ -115,7 +118,8 @@ body::before {
   width: 420px; height: 420px;
   background: var(--cyan, #22D3EE);
   filter: blur(120px);
-  opacity: .17;
+  opacity: .08;
+  will-change: transform;
   bottom: -100px; left: -80px;
   animation: la-drift2 38s ease-in-out infinite;
 }
@@ -123,21 +127,22 @@ body::before {
   width: 300px; height: 300px;
   background: var(--magenta, #D946EF);
   filter: blur(100px);
-  opacity: .13;
+  opacity: .06;
+  will-change: transform;
   top: 42%; left: 38%;
   animation: la-drift3 46s ease-in-out infinite;
 }
 
 @keyframes la-drift1 {
-  0%,100%{transform:translate(0,0)}
-  25%{transform:translate(-90px,110px)}
-  50%{transform:translate(-180px,50px)}
-  75%{transform:translate(-50px,130px)}
+  0%,100%{transform:translate(0,0) scale(1)}
+  25%{transform:translate(-90px,110px) scale(1.04)}
+  50%{transform:translate(-180px,50px) scale(1.08)}
+  75%{transform:translate(-50px,130px) scale(1.03)}
 }
 @keyframes la-drift2 {
-  0%,100%{transform:translate(0,0)}
-  33%{transform:translate(140px,-70px)}
-  66%{transform:translate(70px,-140px)}
+  0%,100%{transform:translate(0,0) scale(1)}
+  33%{transform:translate(140px,-70px) scale(.96)}
+  66%{transform:translate(70px,-140px) scale(1.06)}
 }
 @keyframes la-drift3 {
   0%,100%{transform:translate(0,0) scale(1)}

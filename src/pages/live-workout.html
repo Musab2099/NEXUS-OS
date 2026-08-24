@@ -1262,6 +1262,7 @@
      ============================================================ -->
   <div id="v-day" class="view active">
     <button
+      type="button"
       onclick="window.location.href='/gym.html'"
       style="
         position:absolute;
@@ -1347,7 +1348,7 @@
     </div>
 
     <div class="ds-footer">
-      <button class="btn-grad" id="start-btn" disabled onclick="startWorkout()">Select a day to begin</button>
+      <button type="button" class="btn-grad" id="start-btn" disabled onclick="startWorkout()">Select a day to begin</button>
     </div>
   </div>
 
@@ -1358,7 +1359,7 @@
   <div id="v-tracker" class="view">
     <!-- Top bar -->
     <div class="t-topbar">
-      <button class="t-back" onclick="confirmBack()">←</button>
+      <button type="button" class="t-back" onclick="confirmBack()">←</button>
       <span class="t-title" id="t-title">Push Day</span>
       <span class="t-elapsed" id="t-elapsed">00:00</span>
     </div>
@@ -1392,16 +1393,16 @@
             <span class="set-sep">of</span>
             <span class="set-tot" id="set-tot">4</span>
           </div>
-          <button class="edit-sets" onclick="editSets()">✏️ edit</button>
+          <button type="button" class="edit-sets" onclick="editSets()">✏️ edit</button>
         </div>
 
         <div class="rep-row">
-          <button class="rep-btn" onclick="nudgeReps(-1)">−</button>
+          <button type="button" class="rep-btn" onclick="nudgeReps(-1)">−</button>
           <div class="rep-val-wrap">
             <div class="rep-val grad-text" id="rep-val" onclick="editReps()">10</div>
             <div class="rep-target">Target: <b id="rep-target">8–12</b></div>
           </div>
-          <button class="rep-btn" onclick="nudgeReps(1)">+</button>
+          <button type="button" class="rep-btn" onclick="nudgeReps(1)">+</button>
         </div>
 
         <textarea class="note-field" id="set-note" rows="2"
@@ -1416,10 +1417,10 @@
 
     <!-- Fixed CTA bar -->
     <div class="t-cta">
-      <button class="btn-grad" id="complete-btn" onclick="completeSet()">✓ &nbsp;COMPLETE SET</button>
+      <button type="button" class="btn-grad" id="complete-btn" onclick="completeSet()">✓ &nbsp;COMPLETE SET</button>
       <div class="cta-row">
-        <button class="btn-ghost" onclick="skipExercise()">⏭ Skip Exercise</button>
-        <button class="btn-ghost" onclick="finishEarly()">🏁 Finish Early</button>
+        <button type="button" class="btn-ghost" onclick="skipExercise()">⏭ Skip Exercise</button>
+        <button type="button" class="btn-ghost" onclick="finishEarly()">🏁 Finish Early</button>
       </div>
     </div>
   </div>
@@ -1449,9 +1450,9 @@
       </div>
 
       <div class="rest-ctrl">
-        <button class="btn-ghost" onclick="shiftRest(-30)">−30s</button>
-        <button class="btn-ghost" onclick="skipRest()">Skip</button>
-        <button class="btn-ghost" onclick="shiftRest(30)">+30s</button>
+        <button type="button" class="btn-ghost" onclick="shiftRest(-30)">−30s</button>
+        <button type="button" class="btn-ghost" onclick="skipRest()">Skip</button>
+        <button type="button" class="btn-ghost" onclick="shiftRest(30)">+30s</button>
       </div>
 
       <div class="rest-next-wrap">
@@ -1495,8 +1496,8 @@
     <div id="log-list"></div>
 
     <div class="sum-footer">
-      <button class="btn-grad" id="save-btn" onclick="saveSession()">💾 &nbsp;Save Session</button>
-      <button class="btn-ghost" onclick="newSession()">+ New Session</button>
+      <button type="button" class="btn-grad" id="save-btn" onclick="saveSession()">💾 &nbsp;Save Session</button>
+      <button type="button" class="btn-ghost" onclick="newSession()">+ New Session</button>
     </div>
   </div>
 

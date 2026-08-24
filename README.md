@@ -4,21 +4,20 @@
 >
 > NEXUS is Ibrahim's personal operating system. This repository is not open source and is not licensed for reuse, redistribution, modification, or forking without explicit permission.
 
-NEXUS is a local-first progressive web app for goals, wellness, calisthenics training, productivity, and skill progression. It is built with vanilla JavaScript, HTML, and CSS. Data is written to `localStorage` first so the app remains useful offline, with optional Supabase synchronization between devices.
+NEXUS is a local-first progressive web app for goals, wellness, calisthenics training, productivity, and skill progression. It is built with vanilla JavaScript, HTML, and CSS. Data is written to `localStorage` first so the app remains useful offline.
 
-## At a glance
+## At A Glance
 
 - **Frontend:** Vanilla JavaScript ES2020+, HTML5, CSS3
-- **Backend:** Vercel serverless function at `/api/sync-health` plus an optional Supabase Edge Function at `/functions/v1/sync-health`
-- **Database:** Supabase Postgres and Realtime
-- **Runtime libraries:** Supabase JS 2 and Chart.js 4.4 loaded from jsDelivr
+- **Storage:** Local browser storage with native cross-tab updates
+- **Runtime libraries:** Chart.js 4.4 loaded from jsDelivr for gym charts
 - **Offline support:** Service worker with network-first HTML and stale-while-revalidate static assets
-- **Build:** Dependency-free Node script that creates `dist/` and injects browser sync credentials
+- **Build:** Dependency-free Node script that creates `dist/`
 - **Tests:** Node's built-in `node:test` runner
 - **Visual system:** Deep Cyber Amethyst with a shared vanilla animation layer
 - **Hosting:** Vercel or another static host for the generated frontend bundle
 
-## App suite
+## App Suite
 
 | App | Source page | Purpose |
 |---|---|---|
@@ -29,15 +28,11 @@ NEXUS is a local-first progressive web app for goals, wellness, calisthenics tra
 | Grind Log | `src/pages/grind-log.html` | XP-based productivity tracking and category/rank summaries |
 | Calisthenics Skills | `src/pages/progression-tab.html` | Planche, handstand, front lever, muscle-up, L-sit, and back lever progressions |
 
-### Goals home
-
-The home page is the command center. It has a configurable wake/sleep energy ring (`day_window_v1`), long-term goals with calculated progress, a cross-app dock, and daily summaries.
-
 ### Wellness
 
-The Wellness page has five tabs: Sleep (duration, quality, seven-day chart, streaks), Habits (daily checklist and streaks), Recovery (soreness, energy, stress, readiness), Dreams (including lucid-dream statistics), and Journal (mood plus delayed autosave).
+The Wellness page has five tabs: Sleep, Habits, Recovery, Dreams, and Journal. Each module keeps its state in local browser storage and continues to work without a network connection.
 
-### Gym and live workout
+### Gym And Live Workout
 
 The Gym page uses a flexible four-day split. The selected weekdays are stored in `gym_schedule_v1`; the first selected day is Day A, the second Day B, and so on. The default is Monday through Thursday.
 
@@ -48,104 +43,43 @@ The Gym page uses a flexible four-day split. The selected weekdays are stored in
 | C | Handstand + Core |
 | D | Legs + Conditioning |
 
-Gym also includes exercise checklists, rest timers, PR history, consistency charts, training heatmaps, weight tracking, nutrition, body measurements, and Apple Health metrics. `live-workout.html` is the focused session view with set progression, rep controls, rest management, skipping/finishing actions, and local session history/snapshots.
-
-### Grind Log
-
-The Grind Log records Code, Study, Fitness, Content, Focus, and Other tasks. It provides XP history, a 14-day chart, category totals, and ranks from Rookie through Legend.
-
-### Calisthenics Skills
-
-`src/pages/progression-tab.html` is the current skills page; the former `valorant-cc.html` name is obsolete. It tracks Planche, Handstand, Front Lever, Muscle-Up, L-Sit, and Back Lever. Each skill has a progression ladder, level guide, current-level control, session logger, sparkline, recent sessions, and best-session indicator. State is stored in `cali_skills_v1`.
+Gym also includes exercise checklists, rest timers, PR history, consistency charts, training heatmaps, weight tracking, nutrition, and body measurements. `live-workout.html` is the focused session view with set progression, rep controls, rest management, skipping/finishing actions, and local session history.
 
 ## Architecture
 
-### Source and generated output
+### Source And Generated Output
 
 ```text
 NEXUS/
-├── api/                         Vercel serverless functions
-├── lib/                         Shared server-side validation and database modules
 ├── public/                      Root-level static assets and icons
 ├── scripts/                     Build script
 ├── src/
 │   ├── data/                    PWA manifest source
 │   ├── pages/                   HTML app pages
-│   ├── scripts/                 Browser JavaScript, including shared animation runtime
-│   └── styles/                  Shared CSS files, including shared animation styles
-├── supabase/                    SQL schema/migrations
+│   ├── scripts/                 Browser JavaScript
+│   └── styles/                  Shared CSS files
+├── supabase/                    Remaining database migrations
 ├── test/                        Node test suite
 ├── sw.js                        Service worker source
-├── vercel.json                  Vercel build and rewrite configuration
+├── vercel.json                  Vercel build configuration
 └── dist/                        Generated deployable frontend (gitignored)
 ```
 
-`scripts/build.js` cleans and recreates `dist/`, copies pages and browser assets, places icons/manifest files at the bundle root, and substitutes `__SUPABASE_URL__` and `__SUPABASE_KEY__` in `src/scripts/sync.js`. Missing browser credentials leave cloud sync disabled while local-first behavior continues to work. The server-side `api/` and `lib/` files are not part of the public frontend bundle.
+`scripts/build.js` cleans and recreates `dist/`, copies pages and browser assets, and places icons and the manifest at the bundle root. The server-side directories are not part of the public frontend bundle.
 
-### Shared browser infrastructure
+### Shared Browser Infrastructure
 
-- `src/scripts/sync.js` — `initCloudSync()` whitelists local keys, pulls/pushes Supabase state with debouncing, subscribes to Realtime changes, and dispatches storage updates after remote state is applied.
-- `src/scripts/topbar.js` — shared navigation/status UI, cross-app counts, responsive phone bottom bar, refresh hooks, and service-worker registration.
-- `src/scripts/theme.js` — theme preference handling.
-- `src/scripts/apple-health.js` — read-only Gym cache using `apple_health_metrics_v1` and authenticated `/api/sync-health` reads. It does not run background automation or upload Apple Health data.
-- `src/scripts/sync-service.js` — modular browser client for POSTing sanitized Apple Health payloads to the private `sync-health` Edge Function. It never contains or transmits the service-role key; callers provide the Edge Function URL and private sync token.
-- `src/scripts/event-horizon.js` — shared circadian tinting, tilt, and tactile interactions where included.
-- `src/scripts/animations.js` — shared vanilla animation runtime. It mounts ambient effects, staggered entrances, card hover/shimmer states, pointer ripples, cursor glow, progress/ring transitions, XP/rank effects, tab indicators, chart entrances, skill-node/sparkline effects, numeric transitions, rest-timer critical states, and same-origin page-exit transitions.
-- `src/styles/animations.css` — shared animation tokens, CSS keyframes, glass-card states, ambient layers, particle effects, reduced-motion fallbacks, and responsive animation rules. It uses existing theme variables rather than introducing a separate color system.
-- `sw.js` — service worker; bump `CACHE_VERSION` (`nexus-v10` currently) when changing cached assets or forcing a refresh. The animation CSS/JS assets and `live-workout.html` are included in the cache list.
+- `src/scripts/topbar.js` — static navigation enhancement, active route highlighting, theme controls, smooth scrolling, and service-worker registration.
+- `src/scripts/theme.js` — theme preference handling for the three NEXUS themes.
+- `src/scripts/workout-persistence.js` — local-first persistence for active workout sessions.
+- `src/scripts/event-horizon.js` — shared circadian tinting and tactile interactions where included.
+- `src/scripts/animations.js` — shared vanilla animation runtime for page transitions, card effects, progress feedback, tabs, charts, and rest-timer states.
+- `src/styles/animations.css` — shared animation tokens, keyframes, glass-card states, ambient layers, reduced-motion fallbacks, and responsive animation rules.
+- `sw.js` — service worker with network-first HTML and stale-while-revalidate static assets.
 
-### Shared animation system
+The animation system uses native DOM APIs and adds no framework or animation dependency. Existing page data and rendering functions remain the source of truth.
 
-All six app pages load the shared animation assets after their existing page scripts/styles where applicable:
-
-```html
-<link rel="stylesheet" href="../styles/animations.css">
-<script src="../scripts/animations.js" defer></script>
-```
-
-The animation system is pure CSS and vanilla JavaScript. It adds no external network requests, frameworks, animation libraries, canvas dependencies, or new runtime packages. The runtime progressively enhances existing markup by finding established selectors such as `.card`, `.tab-btn`, `.day-tab`, `.skill-tab`, progress fills, SVG rings, Chart.js containers, skill ladder nodes, and the live-workout rest overlay.
-
-The shared system provides:
-
-- **Mount motion:** topbar slide-down and staggered card entrance from `translateY(30px)` with approximately 60ms stagger increments.
-- **Ambient effects:** three slow blurred amethyst/indigo/magenta orbs, background breathing, subtle scanlines, and a desktop-only cursor glow.
-- **Glass interactions:** hover lift, border glow, diagonal sheen sweep, pressed scale state, and click-position ripples for buttons and links.
-- **Progress feedback:** animated progress/XP bars, SVG energy/readiness rings, completion glow, confetti particles, XP milestone particles, and rank unlock motion.
-- **Page-specific enhancement:** animated Wellness/Gym/Skills tabs, Chart.js/chart-container entrances, skill ladder nodes, SVG sparklines, number changes, and live-workout rest-timer critical/complete states.
-- **Navigation:** eligible same-origin page links fade the current page out before navigation; hash-only navigation and modified/new-tab clicks are left untouched.
-- **Accessibility:** all animation keyframes are scoped to `prefers-reduced-motion: no-preference`. Reduced-motion users receive static content with transitions, particles, cursor effects, scanlines, and ambient effects disabled.
-
-The runtime uses `requestAnimationFrame`, `MutationObserver`, `IntersectionObserver`, CSS custom properties, and native DOM APIs. Existing page data/rendering functions remain the source of truth; the animation layer observes and enhances their state rather than replacing application logic.
-
-When adding a new page, load both shared assets, reuse the existing theme tokens, and add page-specific selectors to `src/scripts/animations.js` only when generic selector-based enhancement is not enough. Run a build afterward so both assets are copied into `dist/`.
-
-### Cloud synchronization
-
-Cloud sync is optional and local-first. The page configurations are:
-
-| App key | Synced keys |
-|---|---|
-| `goals` | `long_goals_v1`, `day_window_v1` |
-| `health` | `wellness:sleep`, `wellness:habits`, `wellness:recovery`, `wellness:dreams`, `wellness:journal`, plus `wellness:done:` |
-| `gym` | `ibrahim_gym_v1`, `ibrahim_gym_done`, `gym_pr_v1`, `gym_measurements_v1`, `gym_schedule_v1` |
-| `grind` | `grind_log_v1` |
-| `calisthenics` | `cali_skills_v1` |
-
-The sync client uses an `app_state` table. Minimal setup:
-
-```sql
-create table app_state (
-  key text primary key,
-  data jsonb,
-  updated_at timestamptz default now()
-);
-alter table app_state enable row level security;
-create policy "public access" on app_state for all using (true);
-```
-
-This permissive policy is suitable only for the current single-user design. Add authentication and user-scoped RLS before supporting multiple users.
-
-## Local storage keys
+### Local Storage Keys
 
 | Area | Key | Contents |
 |---|---|---|
@@ -163,8 +97,6 @@ This permissive policy is suitable only for the current single-user design. Add 
 | Gym | `gym_pr_v1` | Exercise PR history |
 | Gym | `gym_measurements_v1` | Body measurement history |
 | Gym | `gym_schedule_v1` | Four selected training weekdays |
-| Apple Health | `apple_health_metrics_v1` | Cached server metrics |
-| Apple Health | `apple_health_sync_token` | Browser read token |
 | Live workout | `nx-workout-hist` | Saved session history |
 | Live workout | `nx-session-snap` | In-progress session snapshot |
 | Live workout | `nx-theme` | Live-workout theme |
@@ -172,101 +104,14 @@ This permissive policy is suitable only for the current single-user design. Add 
 | Skills | `cali_skills_v1` | Skill levels and session history |
 | Theme | `nexus-theme`, `nexus_theme`, `nexus-theme-index` | Theme preferences |
 
-Use the existing page helpers and sync-aware setters when changing storage behavior.
+Use the existing page helpers when changing storage behavior. Wrap browser storage access in the page's existing error handling patterns.
 
-## Apple Health API
-
-The Supabase Edge Function lives at `supabase/functions/sync-health/index.ts`. It requires only `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and the private `APPLE_HEALTH_SYNC_TOKEN`; it recursively sanitizes Health Auto Export payloads and upserts directly into `public.health_logs` using `onConflict: 'sample_id'` with duplicate ignoring enabled. Empty or duplicate-only batches return `200` with `{ "success": true, "count": 0 }`, and successful batches return `200` with the inserted row count. The function has no repository, commit, or third-party archival integration. Apply the health-data migrations under `supabase/migrations/` before deploying. `supabase/config.toml` disables Supabase's automatic JWT check because the function performs its own private-token check.
-
-For browser ingestion, load `src/scripts/sync-service.js` and call:
-
-```js
-const result = await window.appleHealthSync.sync(payload, {
-  endpoint: 'https://YOUR-PROJECT.supabase.co/functions/v1/sync-health',
-  token: localStorage.getItem('apple_health_sync_token')
-});
-```
-
-The URL and token should come from deployment configuration or a protected app setting. Never place `SUPABASE_SERVICE_ROLE_KEY` in this call or in any browser bundle.
-
-
-`api/sync-health.js` is the Vercel function at `/api/sync-health`. The repository does not contain a persistent Apple Health uploader or cron worker: Health Auto Export pushes payloads to this endpoint, while `src/scripts/apple-health.js` only performs authenticated read-through refreshes for the Gym dashboard.
-
-- `lib/health-validation.js` handles Bearer extraction, constant-time token comparison, flat payload validation, v2 mapping, date handling, numeric/text normalization, and recursive metadata sanitization.
-- `lib/supabase.js` requires the server-only service-role credential, performs Supabase REST requests, reads date-filtered records, and upserts workouts in bounded batches. Before every upsert is serialized and sent to Supabase, it defensively sanitizes each row's `metadata` again so direct callers cannot bypass the database safety boundary.
-
-| Method | Purpose | Authentication |
-|---|---|---|
-| `OPTIONS /api/sync-health` | CORS preflight | None |
-| `POST /api/sync-health` | Upsert flat or Health Auto Export v2 workouts | `Authorization: Bearer <APPLE_HEALTH_SYNC_TOKEN>` |
-| `PUT /api/sync-health` | Compatibility alias for the same validated upsert flow | Same Bearer token |
-| `PATCH /api/sync-health` | Compatibility alias for the same validated upsert flow | Same Bearer token |
-| `GET /api/sync-health?date=YYYY-MM-DD` | Read records for the Gym client | Same Bearer token |
-
-Every response includes `Access-Control-Allow-Origin: *`. `OPTIONS` returns `200` with `Access-Control-Allow-Methods: GET, POST, PUT, PATCH, OPTIONS` and `Access-Control-Allow-Headers: Content-Type, Authorization, X-Health-Sync-Token`. `PUT` and `PATCH` reuse the existing validated upsert path; unsupported methods return `405` with `Allow: GET, POST, PUT, PATCH, OPTIONS`. Trailing slashes are normalized in the handler without issuing a redirect, preserving the original method and request body.
-
-### POST payloads
-
-Flat/manual payloads remain supported:
-
-```json
-{
-  "external_id": "manual-workout-1",
-  "workout_date": "2026-07-31",
-  "workout_type": "Manual Workout",
-  "active_calories": 250,
-  "avg_heart_rate": 138,
-  "duration_minutes": 45,
-  "source": "manual"
-}
-```
-
-Health Auto Export v2 payloads have the form:
-
-```json
-{
-  "data": {
-    "workouts": [
-      {
-        "id": "apple-workout-123",
-        "start": "2026-07-31T08:15:00Z",
-        "name": "Traditional Strength Training",
-        "activeEnergy": { "qty": 420 },
-        "avgHeartRate": { "qty": 138 },
-        "duration": { "qty": 52 }
-      }
-    ]
-  }
-}
-```
-
-For each Health Auto Export sample, the Edge Function maps `sample_id`/`sampleId` (falling back to `id`/`uuid` or a content hash) to both `sample_id` and the required primary-key `id`, maps `name`, `startDate`/`start_date`, `endDate`/`end_date`, `qty`, and `units` to the normalized snake_case database columns, and stores the recursively sanitized original sample in `metadata` (`jsonb`). Quantity-shaped objects such as `{ "qty": 12.5, "units": "m" }` or `{ "value": 12.5 }` are reduced to their scalar value while preserving units when present. Arrays and nested samples are accepted up to 500 records, empty batches are successful no-ops, and duplicate sample IDs are ignored through `on_conflict=sample_id`. Apply the migrations under [`supabase/migrations/`](supabase/migrations/) before deploying the function.
-
-## Setup and development
+## Development
 
 ### Requirements
 
 - Node.js 18+
-- Supabase only when cloud sync or Apple Health persistence is needed
-- No install step is required for build/tests. `npm run dev` uses `npx serve`.
-
-### Environment
-
-```bash
-cp .env.example .env
-```
-
-Browser build variables:
-
-- `SUPABASE_URL` — Supabase project URL.
-- `SUPABASE_KEY` — Supabase anon/public key.
-
-Server-only API variables:
-
-- `SUPABASE_SERVICE_ROLE_KEY` — service-role key; never expose it.
-- `APPLE_HEALTH_SYNC_TOKEN` — private Bearer token shared with the export client and the Edge Function client.
-
-The API requires `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` at runtime. `SUPABASE_KEY` remains a browser/build-time anon key and is never accepted by the ingestion route. Never use the service-role key as the browser `SUPABASE_KEY`.
+- No install step is required for the build or Node test suite
 
 ### Commands
 
@@ -276,13 +121,6 @@ npm test            # node --test
 npm run dev         # build and serve dist/ at http://localhost:3000
 ```
 
-The build copies the shared animation files to:
-
-```text
-dist/src/styles/animations.css
-dist/src/scripts/animations.js
-```
-
 A dependency-free preview alternative is:
 
 ```bash
@@ -290,131 +128,28 @@ node scripts/build.js
 python3 -m http.server -d dist 8000
 ```
 
-Focused syntax checks:
+## Vercel Configuration
 
-```bash
-node --check src/scripts/animations.js
-node --check api/sync-health.js
-node --check lib/health-validation.js
-node --check lib/supabase.js
-node --check src/scripts/sync-service.js
-node --check test/sync-health.test.js
-node --check test/sync-service.test.js
-```
+`vercel.json` runs `node scripts/build.js`, publishes `dist/`, and rewrites the app routes to their generated HTML pages. The service worker cache version in `sw.js` must be bumped when the cached file list or static assets change.
 
-Edge Function validation requires the Supabase CLI/Deno toolchain:
+## Design System
 
-```bash
-deno check supabase/functions/sync-health/index.ts
-supabase functions deploy sync-health
-```
+Deep Cyber Amethyst tokens include `--bg`, `--bg-card`, `--amethyst`, `--indigo`, `--magenta`, and `--violet-muted`. Reuse the existing theme variables and preserve the project's rule against cyan and teal colors in the canonical dark theme.
 
-Deno is not required for the PWA build or Node test suite, but `deno check` should run in CI or before deploying the function.
-
-## Vercel and Health Auto Export checklist
-
-### Supabase
-
-- [ ] Run [`supabase/apple_health_logs.sql`](supabase/apple_health_logs.sql).
-- [ ] Confirm `apple_health_logs.external_id` has a unique constraint for upserts.
-- [ ] Keep RLS enabled and do not add anonymous write policies for `apple_health_logs`.
-- [ ] Configure `app_state` if browser cloud sync is needed.
-
-### Vercel environment variables
-
-Set values under **Project → Settings → Environment Variables** for every required environment, then redeploy after changes.
-
-| Variable | Used by | Security |
-|---|---|---|
-| `SUPABASE_URL` | Build-time browser sync | Public project URL |
-| `SUPABASE_KEY` | Build-time browser sync/API fallback | Anon/public key only |
-| `SUPABASE_SERVICE_ROLE_KEY` | Runtime Apple Health API | Server-only |
-| `APPLE_HEALTH_SYNC_TOKEN` | Runtime API authentication | Private Bearer secret |
-
-- [ ] Do not put `SUPABASE_SERVICE_ROLE_KEY` in `NEXT_PUBLIC_*`, HTML, client JavaScript, or Health Auto Export.
-- [ ] Confirm the project root, branch, and environment scope are correct.
-- [ ] Confirm `api/sync-health.js` deploys as `/api/sync-health` and root-level `lib/` dependencies are in the function bundle.
-- [ ] For the Supabase-only Edge Function, run `supabase functions deploy sync-health` with only `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `APPLE_HEALTH_SYNC_TOKEN` configured.
-- [ ] Confirm `public.health_logs.sample_id` has a unique constraint and `metadata` is `NOT NULL DEFAULT '{}'::jsonb`.
-- [ ] Confirm no `GITHUB_OWNER`, `GITHUB_REPO`, `GITHUB_BRANCH`, or `GITHUB_PAT` secret is required by the function.
-- [ ] Redeploy after adding or rotating environment variables.
-
-### Health Auto Export
-
-- [ ] Include Workouts and select JSON/`ExportVersion.v2` when available.
-- [ ] Use exactly `https://YOUR-DOMAIN/api/sync-health`.
-- [ ] Use `POST` and `Content-Type: application/json`.
-- [ ] Send `Authorization: Bearer YOUR_APPLE_HEALTH_SYNC_TOKEN`.
-- [ ] Allow the `OPTIONS` preflight.
-- [ ] Send the v2 body unchanged and preserve a stable `id`/`uuid` when available.
-- [ ] Preserve the iPhone-local `start`/`startDate` value.
-
-### Smoke tests
-
-```bash
-# Preflight: expected HTTP 200 plus the CORS headers.
-curl -i -X OPTIONS "https://YOUR-DOMAIN/api/sync-health" \
-  -H "Origin: https://example.com" \
-  -H "Access-Control-Request-Method: POST" \
-  -H "Access-Control-Request-Headers: authorization,content-type"
-
-# Flat POST: expected HTTP 200 with {"success":true,"count":...}.
-curl -i -X POST "https://YOUR-DOMAIN/api/sync-health" \
-  -H "Authorization: Bearer YOUR_APPLE_HEALTH_SYNC_TOKEN" \
-  -H "Content-Type: application/json" \
-  --data '{"external_id":"manual-smoke-test-1","workout_date":"2026-07-31","workout_type":"Manual Test","active_calories":1,"avg_heart_rate":null,"duration_minutes":1,"source":"manual"}'
-
-# PUT compatibility check: expected HTTP 201, not 405.
-curl -i -X PUT "https://YOUR-DOMAIN/api/sync-health/" \
-  -H "Authorization: Bearer YOUR_APPLE_HEALTH_SYNC_TOKEN" \
-  -H "Content-Type: application/json" \
-  --data '{"external_id":"manual-put-test-1","workout_date":"2026-07-31","workout_type":"PUT Test","active_calories":1,"avg_heart_rate":null,"duration_minutes":1,"source":"manual"}'
-```
-
-- [ ] Invalid/missing tokens return `401`.
-- [ ] New, empty, and duplicate-only batches return `200` with `{ "success": true, "count": ... }`.
-- [ ] The row appears in `health_logs`.
-- [ ] Retrying the same `sample_id` does not create a duplicate.
-
-Troubleshooting:
-
-- **405:** likely stale deployment or wrong URL; use exactly `/api/sync-health` and test `OPTIONS`.
-- **401:** verify the exact Bearer token, environment scope, and header format.
-- **500:** verify runtime Supabase credentials and redeploy.
-- **502:** verify the `health_logs` schema, Supabase URL/key pair, and unique `sample_id` constraint.
-
-## Vercel configuration
-
-`vercel.json` runs `node scripts/build.js`, publishes `dist/`, and rewrites `/`, `/health`, `/gym`, `/grind-log`, and `/progression-tab` to generated pages. The catch-all frontend rewrite does not replace the repository-level API function.
-
-## Design system
-
-Deep Cyber Amethyst tokens include `--bg: #0A0813`, `--bg-card: #12101F`, `--amethyst: #8A2BE2`, `--indigo: #B026FF`, `--magenta: #FF1493`, and `--violet-muted: #6B4FA0`. The primary gradient is:
-
-```css
-linear-gradient(135deg, #8A2BE2 0%, #B026FF 50%, #FF1493 100%)
-```
-
-Use it for progress fills, rings, sparklines, and primary actions. Preserve the project rule against cyan/teal colors.
-
-## Adding an app
+## Adding An App
 
 1. Add the page under `src/pages/`.
 2. Add it to `PASSTHROUGH_FILES` in `scripts/build.js`.
-3. Add navigation entries to `src/scripts/topbar.js` and the home dock.
-4. Add an explicit `appKey` and storage whitelist to `initCloudSync()` if it syncs.
-5. Update `sw.js`'s cache list/version if it should work offline.
-6. Update `.env.example`/`PLACEHOLDER_FILES` only for new build-time placeholders.
-7. Run `npm run build` and `npm test`.
+3. Add navigation entries to the static page headers and the home dock when appropriate.
+4. Add an explicit storage key prefix and use the existing local-first helpers.
+5. Update `sw.js`'s cache list and version if it should work offline.
+6. Run `npm run build` and `npm test`.
 
 ## Limitations
 
 - There is no user login; this is a single-user deployment.
-- Apple Health uses one shared Bearer token rather than per-user sessions.
-- The service-role key bypasses RLS and must remain server-only.
-- Visual regression remains manual across desktop/mobile, reduced-motion mode, offline mode, two-tab sync, and animation timing/state transitions.
+- Visual regression remains manual across desktop/mobile, reduced-motion mode, offline mode, two-tab updates, and animation timing/state transitions.
 
 ## License
 
 Private project. All rights reserved. No part of this codebase may be copied, modified, distributed, or used to build derivative works without the author's explicit written permission.
-
