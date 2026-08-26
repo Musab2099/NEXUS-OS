@@ -19,6 +19,9 @@ npm run dev
 
 # Or skip the npm wrapper — pure Node
 node scripts/build.js
+
+# Run Playwright E2E and visual regression tests
+cd tests && npm test
 ```
 
 **Bump the service worker cache** — change `CACHE_VERSION` in `sw.js` (currently `nexus-v17`) to force clients to refetch.
@@ -31,7 +34,9 @@ node scripts/build.js
 
 ```
 /                      ← committed source
+├── .github/workflows/ ← GitHub Actions CI workflow (test.yml)
 ├── scripts/build.js   ← copies src/ -> dist/ and public/* -> dist/ root
+├── tests/             ← Playwright E2E & visual regression tests (see tests/TESTING.md)
 ├── vercel.json        ← tells Vercel: build = scripts/build.js, output = dist
 └── dist/              ← gitignored, generated build output
 ```
@@ -56,6 +61,7 @@ node scripts/build.js
 - **`src/scripts/animations.js`** — Loaded on every page. Handles ambient orbs, card sheen, 3D tilt, button ripples, Ctrl/Cmd+K command palette, page transitions, and skeleton loaders.
 - **`src/scripts/workout-persistence.js`** — Exposes `window.NexusWorkoutStore` for local-first workout logging under `nexus_workout_<date>`.
 - **`sw.js`** — Service worker (`CACHE_VERSION = 'nexus-v17'`). Network-first for HTML, stale-while-revalidate for assets.
+- **`tests/`** — Playwright E2E and visual regression suite (`smoke`, `navigation`, `themes`, `animations`, `modules`, `pwa`, `visual`). Documented in `tests/TESTING.md` and automated via `.github/workflows/test.yml`.
 
 ## Color System & Styling — "Deep Cyber Amethyst"
 

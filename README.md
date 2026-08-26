@@ -13,7 +13,7 @@ NEXUS is a local-first progressive web app for goals, wellness, calisthenics tra
 - **Runtime libraries:** Chart.js 4.4 loaded from jsDelivr for gym charts
 - **Offline support:** Service worker with network-first HTML and stale-while-revalidate static assets
 - **Build:** Dependency-free Node script that creates `dist/`
-- **Tests:** Node's built-in `node:test` runner
+- **Tests:** Playwright E2E and visual regression test suite (`tests/`) run via GitHub Actions
 - **Visual system:** Deep Cyber Amethyst with a shared vanilla animation layer
 - **Hosting:** Vercel or another static host for the generated frontend bundle
 
@@ -58,14 +58,23 @@ NEXUS/
 │   ├── pages/                   HTML app pages
 │   ├── scripts/                 Browser JavaScript
 │   └── styles/                  Shared CSS files
-├── supabase/                    Remaining database migrations
-├── test/                        Node test suite
+├── supabase/                    Database migrations
+├── tests/                       Playwright E2E and visual regression test suite
+├── .github/workflows/           GitHub Actions CI workflow (test.yml)
 ├── sw.js                        Service worker source
 ├── vercel.json                  Vercel build configuration
 └── dist/                        Generated deployable frontend (gitignored)
 ```
 
-`scripts/build.js` cleans and recreates `dist/`, copies pages and browser assets, and places icons and the manifest at the bundle root. The server-side directories are not part of the public frontend bundle.
+`scripts/build.js` cleans and recreates `dist/`, copies the source folders and browser assets, and places the service worker and manifest at the bundle root. The server-side directories are not part of the public frontend bundle.
+
+### Where To Start
+
+- **Change a feature:** open its matching file in `src/pages/`.
+- **Change shared behavior or appearance:** use `src/scripts/` or `src/styles/`.
+- **Add a browser asset:** put it in `public/`; the build copies it to the bundle root.
+- **Change deployment or offline behavior:** use `vercel.json` or `sw.js`.
+- **Verify a change:** use the matching suite in `tests/tests/`; shared selectors live in `tests/tests/helpers.js`.
 
 ### Shared Browser Infrastructure
 
@@ -111,14 +120,16 @@ Use the existing page helpers when changing storage behavior. Wrap browser stora
 ### Requirements
 
 - Node.js 18+
-- No install step is required for the build or Node test suite
+- No install step is required for the core build (tests require Playwright setup in `tests/`)
 
 ### Commands
 
 ```bash
 npm run build       # node scripts/build.js; writes dist/
-npm test            # node --test
 npm run dev         # build and serve dist/ at http://localhost:3000
+
+# E2E & Visual Regression Tests (from tests/ directory)
+cd tests && npm install && npm test
 ```
 
 A dependency-free preview alternative is:
@@ -139,16 +150,15 @@ Deep Cyber Amethyst tokens include `--bg`, `--bg-card`, `--amethyst`, `--indigo`
 ## Adding An App
 
 1. Add the page under `src/pages/`.
-2. Add it to `PASSTHROUGH_FILES` in `scripts/build.js`.
-3. Add navigation entries to the static page headers and the home dock when appropriate.
-4. Add an explicit storage key prefix and use the existing local-first helpers.
-5. Update `sw.js`'s cache list and version if it should work offline.
-6. Run `npm run build` and `npm test`.
+2. Add navigation entries to the static page headers and the home dock when appropriate.
+3. Add an explicit storage key prefix and use the existing local-first helpers.
+4. Update `sw.js`'s cache list and version if it should work offline.
+5. Run `npm run build` and test with `cd tests && npm test`.
 
 ## Limitations
 
 - There is no user login; this is a single-user deployment.
-- Visual regression remains manual across desktop/mobile, reduced-motion mode, offline mode, two-tab updates, and animation timing/state transitions.
+- Visual regression tests are automated via Playwright (`tests/tests/visual.spec.js`), though manual checks remain useful for dynamic state transitions.
 
 ## License
 
