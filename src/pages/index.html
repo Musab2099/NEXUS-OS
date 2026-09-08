@@ -16,6 +16,15 @@
 <meta name="apple-mobile-web-app-title" content="NEXUS">
 <title>NEXUS — Ibrahim's OS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<<<<<<< HEAD
+=======
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/themes.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="../scripts/app.js"></script>
+  <script src="../scripts/sync.js" defer></script>
+  <script src="../scripts/topbar.js" defer></script>
+>>>>>>> 97637ac151207f33462553962126ce48909aa0b4
 <style>
 /* ─── RESET ──────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -40,7 +49,7 @@ ul{list-style:none}
   --deep:#0C0920;
   --amethyst:#7C3AED;
   --violet:#A78BFA;
-  --cyan:#22D3EE;
+  --indigo:#B026FF;
   --magenta:#D946EF;
   --green:#10B981;
   --amber:#F59E0B;
@@ -91,7 +100,7 @@ body{
 }
 .orb-2{
   width:420px;height:420px;
-  background:var(--cyan);
+  background:var(--indigo, #B026FF);
   filter:blur(120px);
   opacity:.08;
   will-change:transform;
@@ -153,7 +162,7 @@ body{
   letter-spacing:-.025em;line-height:1.1;
 }
 .greeting-h1 .name{
-  background:linear-gradient(135deg,var(--violet) 0%,var(--cyan) 100%);
+  background:linear-gradient(135deg,var(--violet) 0%,var(--magenta) 100%);
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
   background-clip:text;
@@ -261,7 +270,7 @@ body{
   transition:width .9s cubic-bezier(.4,0,.2,1);
 }
 .fill-a{background:var(--amethyst)}
-.fill-c{background:var(--cyan)}
+.fill-c{background:var(--indigo, #B026FF)}
 .fill-v{background:var(--violet)}
 .fill-m{background:var(--magenta)}
 
@@ -275,7 +284,7 @@ body{
   font-variant-numeric:tabular-nums;
 }
 .stat-n.a{color:var(--violet)}
-.stat-n.c{color:var(--cyan)}
+.stat-n.c{color:var(--indigo, #B026FF)}
 .stat-n.g{color:var(--green)}
 .stat-k{
   font-size:9.5px;color:var(--text-secondary);
@@ -295,7 +304,7 @@ body{
 .badge-g{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.24);color:#34D399}
 .badge-a{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.24);color:#FCD34D}
 .badge-v{background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.26);color:var(--violet)}
-.badge-c{background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.24);color:var(--cyan)}
+.badge-c{background:rgba(176,38,255,.1);border:1px solid rgba(176,38,255,.24);color:var(--magenta)}
 
 /* ─── RING ───────────────────────────────────────────── */
 .ring-wrap{display:flex;align-items:center;gap:16px;margin-bottom:16px}
@@ -386,7 +395,7 @@ body{
   transition:background .3s;
 }
 .dot.on-v{background:var(--amethyst);border-color:var(--amethyst);box-shadow:0 0 6px rgba(124,58,237,.5)}
-.dot.on-c{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 6px rgba(34,211,238,.4)}
+.dot.on-c{background:var(--indigo, #B026FF);border-color:var(--indigo, #B026FF);box-shadow:0 0 6px rgba(176,38,255,.4)}
 
 /* ─── HEATMAP ────────────────────────────────────────── */
 .heatmap{display:flex;gap:3px}
@@ -407,8 +416,13 @@ body{
 .meta-v{font-size:12px;font-weight:600}
 .v-v{color:var(--violet)}
 .v-g{color:#34D399}
+<<<<<<< HEAD
 .v-c{color:var(--cyan)}
 .v-m{color:var(--text-secondary)}
+=======
+.v-c{color:var(--indigo, #B026FF)}
+.v-m{color:var(--text-muted)}
+>>>>>>> 97637ac151207f33462553962126ce48909aa0b4
 
 /* ─── LTG GOALS (from original) ──────────────────────── */
 .section-eye{
@@ -610,6 +624,20 @@ body{
   box-shadow:0 6px 24px rgba(124,58,237,.60), 0 0 20px rgba(217,70,239,.35);
 }
 
+.btn-primary {
+  background: linear-gradient(135deg, #7C3AED 0%, #A855F7 45%, #D946EF 100%);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  box-shadow: 0 4px 18px rgba(124,58,237,.45);
+}
+.btn-primary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 24px rgba(124,58,237,.60);
+}
+
 .ltg-form-row{margin-bottom:14px}
 .ltg-form-row label{
   display:block;font-size:11px;font-weight:600;
@@ -636,6 +664,39 @@ body{
 .reveal{
   opacity:0;transform:translateY(18px);
   animation:slideUp .52s cubic-bezier(.4,0,.2,1) forwards;
+}
+.quick-actions {
+  display: flex;
+  gap: 10px;
+  margin: 0 0 24px;
+  flex-wrap: wrap;
+}
+.qa-btn {
+  flex: 1;
+  min-width: 100px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all .2s;
+}
+.qa-btn:hover {
+  border-color: var(--violet);
+  background: rgba(124, 58, 237, 0.15);
+  transform: translateY(-2px);
+}
+.qa-btn:active {
+  transform: scale(0.96);
 }
 @keyframes slideUp{
   to{opacity:1;transform:translateY(0)}
@@ -736,6 +797,12 @@ body{
     <p class="greeting-sub" id="greetingSub"><span id="greetingGoals">—</span></p>
   </header>
 
+  <div class="quick-actions reveal d0" style="animation-delay: 0s">
+    <button class="qa-btn" id="qaWorkout" title="Log today's workout"><span>💪</span> Workout</button>
+    <button class="qa-btn" id="qaSleep" title="Log 8h sleep"><span>😴</span> Sleep</button>
+    <button class="qa-btn" id="qaMood" title="Log good mood"><span>😊</span> Mood</button>
+  </div>
+
   <!-- ── BENTO GRID ── -->
   <main class="bento" aria-label="NEXUS dashboard">
 
@@ -746,8 +813,8 @@ body{
           <defs>
             <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stop-color="#7C3AED"/>
-              <stop offset="50%" stop-color="#A78BFA"/>
-              <stop offset="100%" stop-color="#22D3EE"/>
+              <stop offset="50%" stop-color="#B026FF"/>
+              <stop offset="100%" stop-color="#FF1493"/>
             </linearGradient>
             <filter id="ringGlow" x="-30%" y="-30%" width="160%" height="160%">
               <feGaussianBlur stdDeviation="3" result="blur"/>
@@ -785,6 +852,7 @@ body{
       <div id="goalsCardBars"></div>
       <div class="div"></div>
       <div class="stats" id="goalsCardStats"></div>
+      <button type="button" class="btn-primary" style="width:100%; margin-top:16px; font-size:11px; padding:8px" onclick="document.getElementById('ltgCard').scrollIntoView({ behavior: 'smooth' })">Manage Goals &rarr;</button>
     </article>
 
     <!-- GRIND LOG — 1 col -->
@@ -824,7 +892,7 @@ body{
         <div class="ring" aria-label="Sleep quality">
           <svg width="72" height="72" viewBox="0 0 72 72">
             <circle cx="36" cy="36" r="29" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="6"/>
-            <circle cx="36" cy="36" r="29" fill="none" stroke="var(--cyan)" stroke-width="6"
+            <circle cx="36" cy="36" r="29" fill="none" stroke="var(--amethyst, #7C3AED)" stroke-width="6"
                     id="wellnessRingFill" stroke-dasharray="182.2" stroke-dashoffset="182.2"
                     stroke-linecap="round"/>
           </svg>
@@ -1072,7 +1140,7 @@ body{
     const goals = getLongGoals();
     const done = goals.filter(g => goalProgress(g).pct >= 100).length;
     document.getElementById('goalsCardTitle').textContent = goals.length ? 'Active Goals' : 'No Goals Yet';
-    document.getElementById('goalsCardSub').textContent = goals.length + ' total · ' + done + ' completed';
+    document.getElementById('goalsCardSub').innerHTML = goals.length > 0 ? goals.length + ' total · ' + done + ' completed' : '<a href="#goals-section" style="color:var(--violet);text-decoration:none;font-weight:600">Add your first goal &rarr;</a>';
 
     const barsEl = document.getElementById('goalsCardBars');
     barsEl.innerHTML = '';
@@ -1101,27 +1169,29 @@ body{
   function updateGrindCard() {
     let S = {}; try { S = JSON.parse(localStorage.getItem('grind_log_v1')) || {}; } catch { }
     const logs = Array.isArray(S.logs) ? S.logs : [];
-    const td = dateToKey(new Date());
+    const td = getActiveDate();
     const todayXP = logs.filter(l => l.date === td).reduce((s, l) => s + (l.xp || 0), 0);
     const total = logs.reduce((s, l) => s + (l.xp || 0), 0);
 
     // Calculate streak
     let streak = 0;
     const dates = [...new Set(logs.map(l => l.date))].sort().reverse();
-    const today = dateToKey(new Date());
     let checkDate = new Date();
+    if (checkDate.getHours() < 6) checkDate.setDate(checkDate.getDate() - 1);
+    checkDate.setHours(0,0,0,0);
     for (let i = 0; i < 365; i++) {
       const key = dateToKey(checkDate);
       if (dates.includes(key)) {
         streak++;
         checkDate.setDate(checkDate.getDate() - 1);
-      } else if (key !== today) {
+      } else if (key !== td) {
         break;
       } else {
         checkDate.setDate(checkDate.getDate() - 1);
       }
     }
 
+<<<<<<< HEAD
     const workoutActivity = getWorkoutActivity();
     if (workoutActivity.dates.size) {
       const workoutDates = Array.from(workoutActivity.dates).sort().reverse();
@@ -1136,6 +1206,10 @@ body{
       streak = Math.max(streak, workoutStreak);
     }
     document.getElementById('grindDay').textContent = 'Day ' + (streak || 0);
+=======
+
+    document.getElementById('grindDay').textContent = 'Day ' + streak;
+>>>>>>> 97637ac151207f33462553962126ce48909aa0b4
     document.getElementById('grindBadge').textContent = streak >= 7 ? '🔥 On fire' : streak >= 3 ? '⚡ Rolling' : '💪 Keep going';
     const cloudWorkoutXP = cloudWorkoutLogs.reduce((sum, row) => {
       const log = row.data && row.data.session && Array.isArray(row.data.session.log) ? row.data.session.log : row.data && Array.isArray(row.data.log) ? row.data.log : [];
@@ -1185,7 +1259,11 @@ body{
       if (ringVal) ringVal.textContent = '—';
     }
 
+<<<<<<< HEAD
     if (sub) sub.textContent = sleep ? 'Last logged today' : 'Not logged yet';
+=======
+    document.getElementById('wellnessSub').innerHTML = sleep ? 'Last logged today' : '<a href="health.html" style="color:var(--violet);text-decoration:none;font-weight:600">Not logged yet. Log today\'s wellness &rarr;</a>';
+>>>>>>> 97637ac151207f33462553962126ce48909aa0b4
 
     // Badges
     const badges = [];
@@ -1218,7 +1296,11 @@ body{
     let gymS = {}; try { gymS = JSON.parse(localStorage.getItem('ibrahim_gym_v1')) || {}; } catch { }
     const td = dateToKey(new Date());
     const isDone = isTrainDay && gymS['done_' + schedIdx + '_' + td];
+<<<<<<< HEAD
     subEl.textContent = isDone ? 'Completed ✓' : isTrainDay ? 'Today' : 'No workout today';
+=======
+    document.getElementById('gymDaySub').innerHTML = isDone ? 'Completed ✓' : isTrainDay ? '<a href="gym.html" style="color:var(--violet);text-decoration:none;font-weight:600">Today. Log workout &rarr;</a>' : 'No workout today';
+>>>>>>> 97637ac151207f33462553962126ce48909aa0b4
 
     statsEl.innerHTML = `
       <div class="stat"><span class="stat-n" style="font-size:20px">—</span><span class="stat-k">Volume</span></div>
@@ -1240,8 +1322,12 @@ body{
     ];
 
     const started = SKILLS.filter(s => S[s.key] && ((S[s.key].level || 0) > 0)).length;
+<<<<<<< HEAD
     const subEl = document.getElementById('caliSub');
     if (subEl) subEl.textContent = (started ?? 0) + ' progressions active';
+=======
+    document.getElementById('caliSub').innerHTML = started > 0 ? started + ' progressions active' : '<a href="progression-tab.html" style="color:var(--violet);text-decoration:none;font-weight:600">Start your first progression &rarr;</a>';
+>>>>>>> 97637ac151207f33462553962126ce48909aa0b4
 
     const listEl = document.getElementById('caliSkills');
     if (!listEl) return;
@@ -1386,15 +1472,18 @@ body{
     // Streak
     let streak = 0;
     const dates = [...new Set(logs.map(l => l.date))].sort().reverse();
-    const today = dateToKey(new Date());
+    const td = getActiveDate();
     let checkDate = new Date();
+    if (checkDate.getHours() < 6) checkDate.setDate(checkDate.getDate() - 1);
+    checkDate.setHours(0,0,0,0);
     for (let i = 0; i < 365; i++) {
       const key = dateToKey(checkDate);
       if (dates.includes(key)) { streak++; checkDate.setDate(checkDate.getDate() - 1); }
-      else if (key !== today) { break; }
+      else if (key !== td) { break; }
       else { checkDate.setDate(checkDate.getDate() - 1); }
     }
 
+<<<<<<< HEAD
     const workoutActivity = getWorkoutActivity();
     if (workoutActivity.dates.size) {
       const cursor = new Date();
@@ -1408,6 +1497,9 @@ body{
       streak = Math.max(streak, workoutStreak);
     }
     document.getElementById('nexusStreak').textContent = (streak ?? 0) + ' day streak';
+=======
+    document.getElementById('nexusStreak').textContent = streak;
+>>>>>>> 97637ac151207f33462553962126ce48909aa0b4
 
     const goals = getLongGoals();
     const done = goals.filter(g => goalProgress(g).pct >= 100).length;
@@ -1542,7 +1634,7 @@ body{
 
     if (hours >= SLEEP_HOUR) {
       fillEl.setAttribute('stroke-dashoffset', 0);
-      fillEl.style.stroke = '#22D3EE';
+      fillEl.style.stroke = '#FF1493';
       pEl.textContent = '100%';
       phEl.textContent = 'PAST BEDTIME';
       stEl.textContent = '⚠️ Past bedtime';
@@ -1705,6 +1797,55 @@ body{
   });
 
   // ──────────────────────────────────────────────
+  // QUICK ACTIONS
+  // ──────────────────────────────────────────────
+  function quickLogWorkout() {
+    const dow = new Date().getDay();
+    let sched = [1, 2, 3, 4];
+    try { const s = JSON.parse(localStorage.getItem('gym_schedule_v1')); if (Array.isArray(s) && s.length === 4) sched = s; } catch { }
+    const schedIdx = sched.indexOf(dow);
+    if (schedIdx === -1) {
+      alert('Today is a rest day!'); return;
+    }
+    const td = dateToKey(new Date());
+    let gymS = {}; try { gymS = JSON.parse(localStorage.getItem('ibrahim_gym_v1')) || {}; } catch { }
+    gymS['done_' + schedIdx + '_' + td] = true;
+    localStorage.setItem('ibrahim_gym_v1', JSON.stringify(gymS));
+
+    // Award XP
+    let grindS = {}; try { grindS = JSON.parse(localStorage.getItem('grind_log_v1')) || {}; } catch { }
+    const logs = Array.isArray(grindS.logs) ? grindS.logs : [];
+    const alreadyAwarded = logs.some(l => l.date === td && l.name === 'Gym Workout');
+    if (!alreadyAwarded) {
+      logs.push({ name: 'Gym Workout', xp: 50, cat: 'fitness', date: td, ts: Date.now() });
+      grindS.logs = logs;
+      localStorage.setItem('grind_log_v1', JSON.stringify(grindS));
+    }
+    updateGymCard();
+    updateGrindCard();
+    updateNexusStats();
+  }
+  function quickLogSleep() {
+    const td = getActiveDate();
+    let sleepLogs = []; try { sleepLogs = JSON.parse(localStorage.getItem('wellness:sleep')) || []; } catch { }
+    sleepLogs = sleepLogs.filter(l => l.date !== td);
+    sleepLogs.unshift({ id: Date.now(), date: td, bed: '23:00', wake: '07:00', dur: 8, q: 3, notes: 'Quick log' });
+    localStorage.setItem('wellness:sleep', JSON.stringify(sleepLogs));
+    updateWellnessCard();
+  }
+  function quickLogMood() {
+    const td = getActiveDate();
+    let journal = []; try { journal = JSON.parse(localStorage.getItem('wellness:journal')) || []; } catch { }
+    journal = journal.filter(e => e.date !== td);
+    journal.unshift({ date: td, mood: '😊', content: 'Quick log: Feeling great!', ts: Date.now() });
+    localStorage.setItem('wellness:journal', JSON.stringify(journal));
+    updateWellnessCard();
+  }
+  document.getElementById('qaWorkout').addEventListener('click', quickLogWorkout);
+  document.getElementById('qaSleep').addEventListener('click', quickLogSleep);
+  document.getElementById('qaMood').addEventListener('click', quickLogMood);
+
+  // ──────────────────────────────────────────────
   // BOOT
   // ──────────────────────────────────────────────
   updateHeader();
@@ -1752,6 +1893,19 @@ body{
 
 })();
 </script>
+<<<<<<< HEAD
+=======
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (typeof initCloudSync !== 'function') return;
+  initCloudSync({
+    appKey: 'goals',
+    syncedKeys: ['long_goals_v1', 'day_window_v1', 'nexus_theme'],
+    onApplied: function () { window.dispatchEvent(new Event('storage')); }
+  });
+});
+</script>
+>>>>>>> 97637ac151207f33462553962126ce48909aa0b4
 
 </body>
 </html>

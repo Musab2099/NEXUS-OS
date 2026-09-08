@@ -101,7 +101,7 @@
 
   --bar:  linear-gradient(90deg, #7C3AED, #A78BFA, #D946EF);
   --bar2: #A78BFA;
-  --bar3: #22D3EE;
+  --bar3: #B026FF;
   --bar4: #5B4E8C;
 
   --sbg:  rgba(124, 58, 237, 0.06);
@@ -121,7 +121,7 @@
   --hm4: #7C3AED;
 
   --o1c: #7C3AED; --o1o: .26;
-  --o2c: #22D3EE; --o2o: .17;
+  --o2c: #B026FF; --o2o: .17;
   --o3c: #D946EF; --o3o: .13;
 
   --push: #D946EF;

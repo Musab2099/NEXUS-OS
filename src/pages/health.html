@@ -19,10 +19,19 @@
   <meta name="apple-mobile-web-app-title" content="NEXUS">
   <meta name="color-scheme" content="dark">
   <title>Wellness — NEXUS</title>
+<<<<<<< HEAD
 
 
 
 <style>
+=======
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script type="module" src="../scripts/app.js"></script>
+  <script src="../scripts/sync.js" defer></script>
+  <script src="../scripts/topbar.js" defer></script>
+  <style>
+>>>>>>> 97637ac151207f33462553962126ce48909aa0b4
     @media(max-width:600px){.page,.shell,main{padding-bottom:0!important}}
     /* Theme-agnostic tokens */
     :root {
@@ -1040,6 +1049,24 @@
   function setDone(d,a){set(`wellness:done:${d}`,a);}
   function habitStreak(id){let s=0;for(let i=1;i<=90;i++){const d=new Date();d.setDate(d.getDate()-i);const k=`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;if(getDone(k).includes(id))s++;else break;}return s;}
 
+  function checkHabitsXPSynergy(habits, done) {
+    if (!habits.length || done.length < habits.length) return;
+    const allDone = habits.every(h => done.includes(h.id));
+    if (!allDone) return;
+    const xpKey = 'wellness_habits_xp_' + today();
+    if (localStorage.getItem(xpKey)) return;
+    try {
+      localStorage.setItem(xpKey, '1');
+      let S = {};
+      try { S = JSON.parse(localStorage.getItem('grind_log_v1')) || {}; } catch (e) {}
+      if (!Array.isArray(S.logs)) S.logs = [];
+      S.logs.push({ name: 'All daily habits completed', xp: 25, cat: 'focus', date: today(), ts: Date.now() });
+      localStorage.setItem('grind_log_v1', JSON.stringify(S));
+      window.dispatchEvent(new Event('storage'));
+      if (typeof window.nexusChime === 'function') window.nexusChime();
+    } catch (e) {}
+  }
+
   function renderHabits(){
     const habits=getHabits();const done=getDone(today());
     const dnow=done.filter(id=>habits.find(h=>h.id===id)).length;
@@ -1054,7 +1081,11 @@
   }
   $('habitList').addEventListener('click',e=>{
     const btn=e.target.closest('[data-act]');if(!btn)return;const id=btn.dataset.id;
-    if(btn.dataset.act==='toggle'){const done=getDone(today());const idx=done.indexOf(id);idx===-1?done.push(id):done.splice(idx,1);setDone(today(),done);}
+    if(btn.dataset.act==='toggle'){
+      const done=getDone(today());const idx=done.indexOf(id);idx===-1?done.push(id):done.splice(idx,1);
+      setDone(today(),done);
+      checkHabitsXPSynergy(getHabits(), done);
+    }
     else{setHabits(getHabits().filter(h=>h.id!==id));}renderHabits();
   });
   $('habitAddBtn').addEventListener('click',()=>{
