@@ -1,5 +1,5 @@
 // =============================================================
-// NEXUS persistent nav bar.
+// NEXUS persistent nav bar & command palette.
 // Drop this on any page with:
 //     <script src="../scripts/topbar.js" defer></script>
 // Detects the device (phone vs desktop) and renders the nav
@@ -9,28 +9,116 @@
 (function () {
   'use strict';
 
+  // -------- AUDIO CHIME & HAPTICS ENGINE --------
+  window.nexusChime = function () {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const now = ctx.currentTime;
+      
+      // Dual-tone harmonic crystal bell: 880Hz (A5) -> 1320Hz (E6)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(880, now);
+      gain1.gain.setValueAtTime(0.28, now);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.85);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.85);
+
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(1320, now + 0.04);
+      gain2.gain.setValueAtTime(0.18, now + 0.04);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.95);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + 0.04);
+      osc2.stop(now + 0.95);
+    } catch (e) { }
+
+    if ('vibrate' in navigator) {
+      try { navigator.vibrate([80, 40, 100]); } catch (e) { }
+    }
+  };
+
+  // -------- DATA BACKUP & RESTORE ENGINE --------
+  window.NEXUS_BACKUP = {
+    exportJSON: function () {
+      try {
+        const backup = {
+          version: 'nexus-v18',
+          exportedAt: new Date().toISOString(),
+          data: {}
+        };
+        const trackedPrefixes = ['wellness:', 'ibrahim_gym_', 'gym_', 'grind_log_v1', 'cali_skills_v1', 'long_goals_v1', 'day_window_v1', 'nexus_theme'];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (!key) continue;
+          const isMatch = trackedPrefixes.some(p => key.startsWith(p));
+          if (isMatch) {
+            try {
+              backup.data[key] = JSON.parse(localStorage.getItem(key));
+            } catch (e) {
+              backup.data[key] = localStorage.getItem(key);
+            }
+          }
+        }
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const d = new Date().toISOString().slice(0, 10);
+        a.href = url;
+        a.download = 'nexus-backup-' + d + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        return true;
+      } catch (e) {
+        console.error('Export failed:', e);
+        return false;
+      }
+    },
+    importJSON: function (jsonStr) {
+      try {
+        const parsed = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+        if (!parsed || !parsed.data) throw new Error('Invalid NEXUS backup format');
+        let count = 0;
+        for (const [k, v] of Object.entries(parsed.data)) {
+          localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v));
+          count++;
+        }
+        window.dispatchEvent(new Event('storage'));
+        return count;
+      } catch (e) {
+        console.error('Import failed:', e);
+        return false;
+      }
+    }
+  };
+
   // -------- DEVICE DETECTION --------
-  // Combines pointer type, touch capability, and viewport width.
-  // Phones (any-width touch primary devices) get the bottom tab bar.
-  // Desktop (mouse primary, no touch) gets the top bar.
   function detectDevice() {
     const w = Math.min(window.innerWidth, window.innerHeight);
     const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
     const coarse = window.matchMedia('(pointer: coarse)').matches;
-    // iPhone 14 Pro: viewport CSS px ~393, smallest dim ~393.
-    // Most phones: smallest dim < 600.
-    // Desktop windows: smallest dim often > 600 even when narrow.
     const isPhoneSized = w <= 600;
     const isPhone = isTouch && (coarse || isPhoneSized);
     return isPhone ? 'phone' : 'desktop';
   }
 
   // -------- CSS --------
-  // Default = desktop (top bar). Mobile rules below override.
   const css = `
 .topbar {
   position: sticky; top: 0; z-index: 40;
-  display: flex; gap: 6px;
+  display: flex; gap: 6px; align-items: center;
   padding-top: max(12px, env(safe-area-inset-top));
   padding-bottom: 10px;
   padding-left: max(14px, env(safe-area-inset-left));
@@ -49,7 +137,7 @@
   text-decoration: none;
   color: var(--t1, #F1F5F9);
   -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background 0.15s, border-color 0.15s, transform 0.12s;
 }
 .topbar-pill:hover { background: var(--card, rgba(255, 255, 255, 0.07)); border-color: var(--bdr-hov, rgba(255, 255, 255, 0.12)); }
 .topbar-pill-dot {
@@ -83,29 +171,40 @@
   white-space: nowrap;
 }
 
-/* ===========================================================
-   PHONE LAYOUT — bottom tab bar
-   Activated by EITHER:
-   (a) the .topbar--phone class added by JS detectDevice()
-       (works even at desktop width if a phone is detected), or
-   (b) viewport width <= 600px (pure CSS fallback).
-   We list both selectors before each rule so that the class
-   override can win against a wider viewport.
-   =========================================================== */
-.topbar--phone,
-.topbar--phone { position: fixed; top: auto; left: 0; right: 0; bottom: 0; }
-@media (max-width: 600px) {
-  .topbar {
-    position: fixed;
-    top: auto;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
+/* Actions in topbar (Cmd+K, Theme) */
+.topbar-actions {
+  display: flex; gap: 6px; align-items: center; flex-shrink: 0;
 }
+.topbar-btn {
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  height: 32px; padding: 0 9px;
+  border-radius: 9px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.04);
+  cursor: pointer;
+  color: var(--t3, rgba(255,255,255,0.5));
+  font-size: 11px; font-weight: 600; font-family: inherit;
+  transition: all 0.15s;
+}
+.topbar-btn:hover {
+  background: var(--card, rgba(255,255,255,0.07));
+  border-color: var(--bdr-hov, rgba(255,255,255,0.14));
+  color: var(--t1, #fff);
+}
+.topbar-btn svg {
+  width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.topbar-btn kbd {
+  font-family: ui-monospace, monospace; font-size: 10px; font-weight: 700;
+  opacity: 0.7; padding: 1px 3px; border-radius: 4px; background: rgba(255,255,255,0.06);
+}
+
+/* Phone bottom bar */
 .topbar--phone,
 @media (max-width: 600px) {
   .topbar {
+    position: fixed; top: auto; left: 0; right: 0; bottom: 0;
     border-bottom: none;
     border-top: 1px solid var(--topbar-border, rgba(255, 255, 255, 0.10));
     padding-top: 8px;
@@ -114,263 +213,208 @@
     padding-right: max(6px, env(safe-area-inset-right));
     gap: 4px;
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(7, minmax(0, 1fr));
     background: var(--nav-bg, rgba(2, 2, 12, 0.85));
     -webkit-backdrop-filter: blur(18px) saturate(140%);
     backdrop-filter: blur(18px) saturate(140%);
   }
   .topbar-pill {
-    flex: none;
-    min-width: 0;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    padding: 6px 2px 4px;
-    border-radius: 10px;
-    height: auto;
-    text-align: center;
+    flex: none; min-width: 0;
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 4px; padding: 6px 2px 4px;
+    border-radius: 10px; height: auto; text-align: center;
   }
   .topbar-pill-dot { width: 6px; height: 6px; }
   .topbar-pill-label {
-    display: block;
-    font-size: 9px;
-    letter-spacing: 0.08em;
-    line-height: 1;
-    text-align: center;
+    display: block; font-size: 9px; letter-spacing: 0.08em; line-height: 1; text-align: center;
   }
-  .topbar-pill-count {
-    margin-left: 0;
-    font-size: 10px;
-    line-height: 1;
+  .topbar-pill-count { margin-left: 0; font-size: 10px; line-height: 1; }
+  
+  .topbar-actions { display: contents; }
+  .topbar-btn {
+    flex: none; width: auto; height: auto;
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 4px; padding: 6px 2px 4px;
+    border-radius: 10px; border: none; background: transparent;
   }
+  .topbar-btn span { font-size: 9px; letter-spacing: 0.08em; color: var(--t3, rgba(255,255,255,0.45)); }
+  .topbar-btn kbd { display: none; }
 }
 
-/* Body padding is set via inline style in applyDeviceClass()
-   to guarantee it wins over page-specific CSS. */
-
-/* Gym HUD */
+/* Gym HUD & Flame HUD */
 .topbar-gym-hud { display: flex; gap: 2px; align-items: center; }
 .topbar-gym-seg { width: 6px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.1); }
-.topbar-gym-seg.done { background: #F97316; box-shadow: 0 0 4px #F97316; }
-
-/* Wellness Flame HUD */
+.topbar-gym-seg.done { background: #B026FF; box-shadow: 0 0 4px #B026FF; }
 .topbar-flame-svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; transition: all 0.3s; margin-bottom:-2px;}
 .eh-flame-dim { color: rgba(255,255,255,0.2); }
-.eh-flame-active { color: #F59E0B; }
+.eh-flame-active { color: #D946EF; filter: drop-shadow(0 0 4px #D946EF); }
 
-html, body { -webkit-text-size-adjust: 100%; }
-.modal-bg, .modal, .po-modal-bg, .po-modal, .wt-overlay, .wt-viewer {
-  overscroll-behavior: contain;
-}
-body.topbar-modal-open {
-  overflow: hidden;
-  touch-action: none;
-}
-@media (max-width: 480px) {
-  .modal-bg, .po-modal-bg {
-    padding: 0 !important;
-    align-items: stretch !important;
-    justify-content: stretch !important;
-  }
-  .modal, .po-modal {
-    width: 100% !important;
-    max-width: 100% !important;
-    max-height: 100vh !important;
-    height: 100vh !important;
-    border-radius: 0 !important;
-    padding-top: max(20px, env(safe-area-inset-top)) !important;
-    padding-bottom: max(28px, env(safe-area-inset-bottom)) !important;
-    padding-left: max(20px, env(safe-area-inset-left)) !important;
-    padding-right: max(20px, env(safe-area-inset-right)) !important;
-    overflow-y: auto !important;
-    overscroll-behavior: contain;
-  }
-}
-
-/* ─── THEME SWITCHER (topbar.js) ───────────────────────────────────── */
-.topbar-theme-btn {
-  flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  width: 32px; height: 32px;
-  border-radius: 9px;
-  border: 1px solid rgba(255,255,255,0.07);
-  background: rgba(255,255,255,0.04);
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-  padding: 0;
-}
-.topbar-theme-btn:hover {
-  background: var(--card, rgba(255,255,255,0.07));
-  border-color: var(--bdr-hov, rgba(255,255,255,0.12));
-}
-.topbar-theme-btn svg {
-  width: 16px; height: 16px;
-  stroke: var(--t3, rgba(255,255,255,0.5));
-  fill: none;
-  stroke-width: 1.8;
-  stroke-linecap: round; stroke-linejoin: round;
-}
-
-/* Phone bottom bar: theme button as 6th column */
-.topbar--phone .topbar-theme-btn {
-  flex: none;
-  width: auto;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 6px 2px 4px;
-  border-radius: 10px;
-  border: none;
-  background: transparent;
-}
-.topbar--phone .topbar-theme-btn:hover {
-  background: transparent;
-}
-.topbar--phone .topbar-theme-btn span {
-  font-size: 9px;
-  letter-spacing: 0.08em;
-  color: var(--t3, rgba(255,255,255,0.45));
-}
-
-/* Theme picker modal */
-.nx-theme-bg {
+/* Command Palette & Theme Modals */
+.nx-modal-bg {
   position: fixed; inset: 0; z-index: 9999;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  display: none; align-items: center; justify-content: center;
-  padding: 20px;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  display: none; align-items: flex-start; justify-content: center;
+  padding: 80px 16px 20px;
 }
-.nx-theme-bg.show { display: flex; }
-.nx-theme-modal {
-  background: var(--card, rgba(14,10,42,0.48));
-  border: 1px solid var(--border, rgba(167,139,250,0.15));
-  border-radius: 20px;
-  padding: 24px;
-  max-width: 340px; width: 100%;
-  box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+.nx-modal-bg.show { display: flex; }
+.nx-cmd-modal {
+  background: var(--card, rgba(14,10,42,0.65));
+  border: 1px solid var(--border, rgba(167,139,250,0.2));
+  border-radius: 18px;
+  max-width: 520px; width: 100%;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
   backdrop-filter: blur(28px) saturate(170%);
   -webkit-backdrop-filter: blur(28px) saturate(170%);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  animation: nxPop 0.16s ease-out;
+}
+@keyframes nxPop {
+  from { opacity: 0; transform: scale(0.96) translateY(-8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.nx-cmd-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border, rgba(255,255,255,0.08));
+}
+.nx-cmd-head svg { width: 18px; height: 18px; stroke: var(--t3, rgba(255,255,255,0.5)); stroke-width: 2; fill: none; }
+.nx-cmd-input {
+  flex: 1; background: transparent; border: none; outline: none;
+  font-family: inherit; font-size: 15px; color: var(--t1, #fff);
+}
+.nx-cmd-input::placeholder { color: var(--t3, rgba(255,255,255,0.35)); }
+.nx-cmd-esc {
+  font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 5px;
+  background: rgba(255,255,255,0.08); color: var(--t3, rgba(255,255,255,0.6));
+}
+.nx-cmd-list {
+  max-height: 340px; overflow-y: auto; padding: 8px;
+}
+.nx-cmd-group-title {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--t3, rgba(255,255,255,0.4)); padding: 8px 10px 4px;
+}
+.nx-cmd-item {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 9px 12px; border-radius: 10px; border: none; background: transparent;
+  color: var(--t1, #EDE9FE); cursor: pointer; text-align: left; font-family: inherit;
+  transition: background 0.12s; text-decoration: none;
+}
+.nx-cmd-item:hover, .nx-cmd-item.selected {
+  background: var(--sbg, rgba(124,58,237,0.16));
+  color: #fff;
+}
+.nx-cmd-item-icon { font-size: 16px; width: 22px; text-align: center; }
+.nx-cmd-item-text { flex: 1; font-size: 13px; font-weight: 500; }
+.nx-cmd-item-badge {
+  font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;
+  background: rgba(255,255,255,0.06); color: var(--t3, rgba(255,255,255,0.5));
+}
+
+/* Theme Modal */
+.nx-theme-modal {
+  background: var(--card, rgba(14,10,42,0.65));
+  border: 1px solid var(--border, rgba(167,139,250,0.2));
+  border-radius: 20px; padding: 24px; max-width: 340px; width: 100%;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  backdrop-filter: blur(28px) saturate(170%); -webkit-backdrop-filter: blur(28px) saturate(170%);
 }
 .nx-theme-modal h3 {
-  font-size: 13px; font-weight: 700;
-  letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--t3, rgba(139,126,200,0.78));
-  margin: 0 0 16px;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--t3, rgba(139,126,200,0.78)); margin: 0 0 16px;
 }
-.nx-theme-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-}
+.nx-theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .nx-theme-swatch {
   display: flex; flex-direction: column; align-items: center; gap: 8px;
-  padding: 14px 8px; border-radius: 14px;
-  border: 2px solid transparent; background: transparent;
+  padding: 14px 8px; border-radius: 14px; border: 2px solid transparent; background: transparent;
   cursor: pointer; transition: all 0.2s; font-family: inherit;
 }
 .nx-theme-swatch:hover { background: var(--sbg, rgba(255,255,255,0.04)); }
-.nx-theme-swatch.active {
-  border-color: var(--a1, #7C3AED);
-  background: var(--sbg, rgba(124,58,237,0.06));
-}
+.nx-theme-swatch.active { border-color: var(--a1, #7C3AED); background: var(--sbg, rgba(124,58,237,0.06)); }
 .nx-theme-dot {
   width: 36px; height: 36px; border-radius: 50%;
   border: 2px solid var(--border, rgba(255,255,255,0.15));
-  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-  position: relative;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2); position: relative;
 }
 .nx-theme-dot::after {
-  content: '✓'; position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 700; color: white;
-  opacity: 0; transition: opacity 0.2s;
+  content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: white; opacity: 0; transition: opacity 0.2s;
 }
 .nx-theme-swatch.active .nx-theme-dot::after { opacity: 1; }
-.nx-theme-name {
-  font-size: 11px; font-weight: 600;
-  color: var(--t2, rgba(212,205,255,0.88));
-  letter-spacing: 0.02em;
-}
-.nx-theme-swatch[data-t="amethyst"] .nx-theme-dot {
-  background: linear-gradient(135deg, #7C3AED, #D946EF);
-}
-.nx-theme-swatch[data-t="arctic"] .nx-theme-dot {
-  background: linear-gradient(135deg, #1D4ED8, #38BDF8);
-}
-.nx-theme-swatch[data-t="peri"] .nx-theme-dot {
-  background: linear-gradient(135deg, #4F46E5, #C7D2FE);
-}
-.nx-theme-swatch[data-t="ice"] .nx-theme-dot {
-  background: linear-gradient(135deg, #075985, #38BDF8);
-}
+.nx-theme-name { font-size: 11px; font-weight: 600; color: var(--t2, rgba(212,205,255,0.88)); letter-spacing: 0.02em; }
+.nx-theme-swatch[data-t="amethyst"] .nx-theme-dot { background: linear-gradient(135deg, #7C3AED, #D946EF); }
+.nx-theme-swatch[data-t="arctic"] .nx-theme-dot { background: linear-gradient(135deg, #1D4ED8, #38BDF8); }
+.nx-theme-swatch[data-t="peri"] .nx-theme-dot { background: linear-gradient(135deg, #4F46E5, #C7D2FE); }
+.nx-theme-swatch[data-t="ice"] .nx-theme-dot { background: linear-gradient(135deg, #075985, #38BDF8); }
 `;
 
   // -------- TILE DEFINITIONS --------
-  // Each tile reads its own app's localStorage and returns
-  // { text, status } where status is 'idle' | 'good' | 'warn' | 'miss'.
   const TILES = [
     {
       id: 'goals', href: '../pages/index.html', label: 'GOALS', color: '#6366F1',
       getStatus: function () {
-        const key = 'goals:' + activeDateKey();
         let goals = [];
-        try { goals = JSON.parse(localStorage.getItem(key)) || []; } catch (e) { }
+        try { goals = JSON.parse(localStorage.getItem('long_goals_v1')) || []; } catch (e) { }
         const total = Array.isArray(goals) ? goals.length : 0;
-        const done = total ? goals.filter(function (g) { return g && g.done; }).length : 0;
-        return { text: total ? done + '/' + total : '0/0', status: classifyFraction(done, total) };
+        return { text: total > 0 ? total + ' goals' : '0 goals', status: total > 0 ? 'good' : 'idle' };
       }
     },
     {
       id: 'stack', href: '../pages/health.html', label: 'STACK', color: '#10B981',
       getStatus: function () {
-        let items = [];
-        try { items = JSON.parse(localStorage.getItem('stack:items')) || []; } catch (e) { }
-        let taken = {};
-        try { taken = JSON.parse(localStorage.getItem('stack:taken:' + activeDateKey())) || {}; } catch (e) { }
-        const total = Array.isArray(items) ? items.length : 0;
-        const done = total ? items.filter(function (i) { return i && taken[i.id]; }).length : 0;
+        let habits = [];
+        try { habits = JSON.parse(localStorage.getItem('wellness:habits')) || []; } catch (e) { }
+        const total = Array.isArray(habits) && habits.length ? habits.length : 6;
         
+        let done = [];
+        try { done = JSON.parse(localStorage.getItem('wellness:done:' + activeDateKey())) || []; } catch (e) { }
+        const doneCount = Array.isArray(done) ? done.length : 0;
+
+        // Calculate streak of 100% habit completion
         let streak = 0;
-        let map = {};
-        try { map = JSON.parse(localStorage.getItem('ibrahim_habits_v2_days')) || {}; } catch (e) {}
-        for(let i = 0; i < 30; i++) {
-          let d = new Date();
+        for (let i = 1; i <= 30; i++) {
+          const d = new Date();
           if (d.getHours() < 6) d.setDate(d.getDate() - 1);
           d.setDate(d.getDate() - i);
-          let k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-          if (map[k] && map[k].allDone) streak++; else if (i > 0) break;
+          const k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+          let pastDone = [];
+          try { pastDone = JSON.parse(localStorage.getItem('wellness:done:' + k)) || []; } catch (e) { }
+          if (Array.isArray(pastDone) && pastDone.length >= total) streak++;
+          else break;
         }
+
+        const flameClass = streak >= 3 ? 'eh-flame-active' : 'eh-flame-dim';
+        const svg = '<svg class="topbar-flame-svg ' + flameClass + '" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.866 8.21 8.21 0 003 2.48z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z"></path></svg>';
         
-        let flameClass = streak >= 3 ? 'eh-flame-active' : 'eh-flame-dim';
-        let svg = '<svg class="topbar-flame-svg ' + flameClass + '" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.866 8.21 8.21 0 003 2.48z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z"></path></svg>';
-        
-        return { html: svg, status: classifyFraction(done, total) };
+        return { html: svg + ' ' + doneCount + '/' + total, status: classifyFraction(doneCount, total) };
       }
     },
     {
-      id: 'gym', href: '../pages/gym.html', label: 'GYM', color: '#F97316',
+      id: 'gym', href: '../pages/gym.html', label: 'GYM', color: '#B026FF',
       getStatus: function () {
         let doneMap = {};
         try { doneMap = JSON.parse(localStorage.getItem('ibrahim_gym_done')) || {}; } catch (e) { }
         const td = calendarDateKey();
-        
+
         const d = new Date();
         const dow = d.getDay();
         const startOfWeek = new Date(d);
-        startOfWeek.setDate(d.getDate() - dow);
+        startOfWeek.setDate(d.getDate() - (dow === 0 ? 6 : dow - 1)); // Mon start
         let daysDoneThisWeek = 0;
         for (let i = 0; i < 7; i++) {
-            let tempD = new Date(startOfWeek);
-            tempD.setDate(startOfWeek.getDate() + i);
-            let k = tempD.getFullYear() + '-' + String(tempD.getMonth() + 1).padStart(2, '0') + '-' + String(tempD.getDate()).padStart(2, '0');
-            if (doneMap[k]) daysDoneThisWeek++;
+          const tempD = new Date(startOfWeek);
+          tempD.setDate(startOfWeek.getDate() + i);
+          const k = tempD.getFullYear() + '-' + String(tempD.getMonth() + 1).padStart(2, '0') + '-' + String(tempD.getDate()).padStart(2, '0');
+          if (doneMap[k]) daysDoneThisWeek++;
         }
         daysDoneThisWeek = Math.min(daysDoneThisWeek, 4);
         let segs = '';
-        for(let i = 0; i < 4; i++){
-            segs += '<span class="topbar-gym-seg' + (i < daysDoneThisWeek ? ' done' : '') + '"></span>';
+        for (let i = 0; i < 4; i++) {
+          segs += '<span class="topbar-gym-seg' + (i < daysDoneThisWeek ? ' done' : '') + '"></span>';
         }
-        
+
         const count = doneMap[td] || 0;
         const status = count > 0 ? 'good' : pastSixPm() ? 'miss' : 'warn';
         return { html: '<div class="topbar-gym-hud">' + segs + '</div>', status: status };
@@ -392,11 +436,15 @@ body.topbar-modal-open {
       getStatus: function () {
         let S = {};
         try { S = JSON.parse(localStorage.getItem('cali_skills_v1')) || {}; } catch (e) { }
-        const skills = Array.isArray(S.skills) ? S.skills : [];
         const td = calendarDateKey();
-        const today = skills.filter(function (s) { return s && s.date === td; });
-        if (!today.length) return { text: '—', status: 'idle' };
-        return { text: today.length + ' done', status: 'good' };
+        let sessionsToday = 0;
+        for (const k in S) {
+          if (S[k] && Array.isArray(S[k].sessions)) {
+            sessionsToday += S[k].sessions.filter(function (s) { return s && s.date === td; }).length;
+          }
+        }
+        if (sessionsToday > 0) return { text: sessionsToday + ' logged', status: 'good' };
+        return { text: '0/6', status: 'idle' };
       }
     }
   ];
@@ -411,10 +459,26 @@ body.topbar-modal-open {
         '<span class="topbar-pill-count" id="topbarCount_' + t.id + '">—</span>' +
         '</a>';
     });
-    var themeSvg = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
-    var themeBtn = '<button class="topbar-theme-btn" id="nxThemeBtn" title="Change theme">' + themeSvg + '<span>THEME</span></button>';
 
-    var modal = '<div class="nx-theme-bg" id="nxThemeBg">' +
+    const cmdSvg = '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7 10h10M7 14h10"/></svg>';
+    const cmdBtn = '<button class="topbar-btn" id="nxCmdBtn" title="Command Palette (⌘K)">' + cmdSvg + '<span>COMMAND</span><kbd>⌘K</kbd></button>';
+
+    const themeSvg = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+    const themeBtn = '<button class="topbar-btn" id="nxThemeBtn" title="Theme Switcher">' + themeSvg + '<span>THEME</span></button>';
+
+    // Command Palette Modal
+    const cmdModal = '<div class="nx-modal-bg" id="nxCmdBg">' +
+      '<div class="nx-cmd-modal">' +
+      '<div class="nx-cmd-head">' +
+      '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>' +
+      '<input type="text" class="nx-cmd-input" id="nxCmdInput" placeholder="Type a command or jump to app..." autocomplete="off">' +
+      '<span class="nx-cmd-esc">ESC</span>' +
+      '</div>' +
+      '<div class="nx-cmd-list" id="nxCmdList"></div>' +
+      '</div></div>';
+
+    // Theme Modal
+    const themeModal = '<div class="nx-modal-bg" id="nxThemeBg">' +
       '<div class="nx-theme-modal">' +
       '<h3>Choose Theme</h3>' +
       '<div class="nx-theme-grid">' +
@@ -424,8 +488,11 @@ body.topbar-modal-open {
       '<button class="nx-theme-swatch" data-t="ice"><div class="nx-theme-dot"></div><span class="nx-theme-name">Ice</span></button>' +
       '</div></div></div>';
 
+    // Hidden File Input for Backup Import
+    const hiddenFileInput = '<input type="file" id="nxBackupFileInput" accept=".json" style="display:none">';
+
     return '<header class="topbar" id="topbar" role="navigation" aria-label="Quick stats">' +
-      pills + themeBtn + '</header>' + modal;
+      pills + '<div class="topbar-actions">' + cmdBtn + themeBtn + '</div></header>' + cmdModal + themeModal + hiddenFileInput;
   }
 
   function injectStyleAndHTML() {
@@ -501,7 +568,7 @@ body.topbar-modal-open {
   }
 
   function startModalLock() {
-    const MODAL_SELECTORS = ['.modal-bg', '.po-modal-bg', '.wt-overlay', '.wt-viewer', '.wt-cam'];
+    const MODAL_SELECTORS = ['.modal-bg', '.nx-modal-bg', '.po-modal-bg', '.wt-overlay', '.wt-viewer', '.wt-cam'];
     function anyOpen() {
       for (const sel of MODAL_SELECTORS) {
         const els = document.querySelectorAll(sel);
@@ -518,9 +585,6 @@ body.topbar-modal-open {
   }
 
   // -------- Apply device class --------
-  // Toggles .topbar--phone on the topbar and .topbar-phone-mode / .topbar-desktop-mode
-  // on <body> so the bottom-tab layout is forced on phones regardless of
-  // viewport width (e.g. iPad split view, weird zoom levels).
   function applyDeviceClass() {
     const device = detectDevice();
     const bar = document.getElementById('topbar');
@@ -534,52 +598,38 @@ body.topbar-modal-open {
     document.body.classList.toggle('topbar-phone-mode', device === 'phone');
     document.body.classList.toggle('topbar-desktop-mode', device === 'desktop');
     document.documentElement.setAttribute('data-device', device);
-    // Inline padding guarantees override over page CSS.
     if (device === 'phone') {
       document.body.style.paddingBottom = 'calc(84px + env(safe-area-inset-bottom))';
+      lockGestures();
     } else {
       document.body.style.paddingBottom = '';
-    }
-    // Lock pinch-zoom on phones, allow it on desktop.
-    if (device === 'phone') {
-      lockGestures();
     }
   }
 
   // -------- Theme persistence --------
-  var THEME_KEY = 'nexus_theme';
-  var THEMES = ['amethyst', 'arctic', 'peri', 'ice'];
+  const THEME_KEY = 'nexus_theme';
+  const THEME_VARS_KEY = 'nexus_theme_vars_v1';
+  const THEMES = ['amethyst', 'arctic', 'peri', 'ice'];
 
   function applyTheme(id) {
     document.documentElement.setAttribute('data-theme', id);
-    // Update modal active state
+    try { localStorage.setItem(THEME_KEY, id); } catch (e) {}
     document.querySelectorAll('.nx-theme-swatch').forEach(function (sw) {
       sw.classList.toggle('active', sw.getAttribute('data-t') === id);
     });
-    // Update theme-color meta for PWA
-    var meta = document.querySelector('meta[name="theme-color"]');
+    const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
-      var colors = { amethyst: '#07051A', arctic: '#EEF5FF', peri: '#0D1030', ice: '#F0F9FF' };
+      const colors = { amethyst: '#07051A', arctic: '#EEF5FF', peri: '#0D1030', ice: '#F0F9FF' };
       meta.setAttribute('content', colors[id] || '#07051A');
     }
   }
 
-  function cycleTheme() {
-    var current = localStorage.getItem(THEME_KEY) || 'amethyst';
-    var idx = THEMES.indexOf(current);
-    var next = THEMES[(idx + 1) % THEMES.length];
-    localStorage.setItem(THEME_KEY, next);
-    applyTheme(next);
-  }
-
   function initTheme() {
-    var saved = localStorage.getItem(THEME_KEY);
-    if (saved && THEMES.indexOf(saved) !== -1) {
-      applyTheme(saved);
-    }
-    // Theme button click → open modal
-    var btn = document.getElementById('nxThemeBtn');
-    var bg = document.getElementById('nxThemeBg');
+    const saved = localStorage.getItem(THEME_KEY) || 'amethyst';
+    applyTheme(saved);
+
+    const btn = document.getElementById('nxThemeBtn');
+    const bg = document.getElementById('nxThemeBg');
     if (btn && bg) {
       btn.addEventListener('click', function () {
         bg.classList.add('show');
@@ -591,21 +641,165 @@ body.topbar-modal-open {
           document.body.classList.remove('topbar-modal-open');
         }
       });
-      // Swatch clicks
       bg.querySelectorAll('.nx-theme-swatch').forEach(function (sw) {
         sw.addEventListener('click', function () {
-          var t = sw.getAttribute('data-t');
-          localStorage.setItem(THEME_KEY, t);
+          const t = sw.getAttribute('data-t');
           applyTheme(t);
           bg.classList.remove('show');
           document.body.classList.remove('topbar-modal-open');
         });
       });
     }
-    // Sync across tabs
+
     window.addEventListener('storage', function (e) {
-      if (e.key === THEME_KEY && e.newValue) {
-        applyTheme(e.newValue);
+      if (e.key === THEME_KEY && e.newValue) applyTheme(e.newValue);
+    });
+  }
+
+  // -------- COMMAND PALETTE LOGIC --------
+  const COMMANDS = [
+    { cat: 'Navigation', icon: '🎯', name: 'Goals (Command Center)', act: () => { window.location.href = '../pages/index.html'; } },
+    { cat: 'Navigation', icon: '🧘', name: 'Wellness Hub (Sleep, Habits, Journal)', act: () => { window.location.href = '../pages/health.html'; } },
+    { cat: 'Navigation', icon: '🏋️', name: 'Calisthenics Strength & PRs', act: () => { window.location.href = '../pages/gym.html'; } },
+    { cat: 'Navigation', icon: '⚡', name: 'Grind Log & XP Productivity', act: () => { window.location.href = '../pages/grind-log.html'; } },
+    { cat: 'Navigation', icon: '🤸', name: 'Calisthenics Skill Progressions', act: () => { window.location.href = '../pages/progression-tab.html'; } },
+
+    { cat: 'Themes', icon: '🟣', name: 'Theme: Amethyst (Default Deep Glass)', act: () => { applyTheme('amethyst'); } },
+    { cat: 'Themes', icon: '⚪', name: 'Theme: Arctic White', act: () => { applyTheme('arctic'); } },
+    { cat: 'Themes', icon: '🔵', name: 'Theme: Periwinkle', act: () => { applyTheme('peri'); } },
+    { cat: 'Themes', icon: '❄️', name: 'Theme: Ice', act: () => { applyTheme('ice'); } },
+
+    { cat: 'Quick Actions', icon: '💻', name: 'Quick Log: +30 XP Deep Work', act: () => {
+      let S = {};
+      try { S = JSON.parse(localStorage.getItem('grind_log_v1')) || {}; } catch (e) { }
+      if (!Array.isArray(S.logs)) S.logs = [];
+      S.logs.push({ name: 'Deep work block', xp: 30, cat: 'focus', date: calendarDateKey(), ts: Date.now() });
+      localStorage.setItem('grind_log_v1', JSON.stringify(S));
+      window.dispatchEvent(new Event('storage'));
+      window.nexusChime();
+    }},
+    { cat: 'Quick Actions', icon: '🔔', name: 'Audio Chime & Haptics Test', act: () => { window.nexusChime(); } },
+    { cat: 'Quick Actions', icon: '💾', name: 'Export All Data (JSON Backup)', act: () => { window.NEXUS_BACKUP.exportJSON(); } },
+    { cat: 'Quick Actions', icon: '📥', name: 'Import Data from JSON File', act: () => {
+      const fi = document.getElementById('nxBackupFileInput');
+      if (fi) fi.click();
+    }}
+  ];
+
+  function initCommandPalette() {
+    const bg = document.getElementById('nxCmdBg');
+    const input = document.getElementById('nxCmdInput');
+    const list = document.getElementById('nxCmdList');
+    const btn = document.getElementById('nxCmdBtn');
+    const fileInput = document.getElementById('nxBackupFileInput');
+
+    if (fileInput) {
+      fileInput.addEventListener('change', function (e) {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (evt) {
+          const res = window.NEXUS_BACKUP.importJSON(evt.target.result);
+          if (res) {
+            alert('✓ Successfully imported ' + res + ' items into NEXUS.');
+            window.location.reload();
+          } else {
+            alert('✗ Failed to import backup file.');
+          }
+        };
+        reader.readAsText(file);
+      });
+    }
+
+    let selectedIndex = 0;
+    let filtered = COMMANDS;
+
+    function renderList() {
+      list.innerHTML = '';
+      if (!filtered.length) {
+        list.innerHTML = '<div style="padding:16px;text-align:center;font-size:13px;color:var(--text-muted)">No matching commands</div>';
+        return;
+      }
+      let currentCat = '';
+      filtered.forEach((cmd, idx) => {
+        if (cmd.cat !== currentCat) {
+          currentCat = cmd.cat;
+          const group = document.createElement('div');
+          group.className = 'nx-cmd-group-title';
+          group.textContent = currentCat;
+          list.appendChild(group);
+        }
+        const row = document.createElement('button');
+        row.className = 'nx-cmd-item' + (idx === selectedIndex ? ' selected' : '');
+        row.innerHTML = '<span class="nx-cmd-item-icon">' + cmd.icon + '</span>' +
+          '<span class="nx-cmd-item-text">' + cmd.name + '</span>' +
+          '<span class="nx-cmd-item-badge">' + cmd.cat + '</span>';
+        row.addEventListener('click', () => {
+          closeCmd();
+          cmd.act();
+        });
+        list.appendChild(row);
+      });
+      // Scroll into view
+      const selectedEl = list.querySelector('.nx-cmd-item.selected');
+      if (selectedEl) selectedEl.scrollIntoView({ block: 'nearest' });
+    }
+
+    function openCmd() {
+      bg.classList.add('show');
+      document.body.classList.add('topbar-modal-open');
+      input.value = '';
+      filtered = COMMANDS;
+      selectedIndex = 0;
+      renderList();
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function closeCmd() {
+      bg.classList.remove('show');
+      document.body.classList.remove('topbar-modal-open');
+    }
+
+    if (btn) btn.addEventListener('click', openCmd);
+    if (bg) {
+      bg.addEventListener('click', (e) => { if (e.target === bg) closeCmd(); });
+    }
+
+    input.addEventListener('input', () => {
+      const q = input.value.trim().toLowerCase();
+      filtered = COMMANDS.filter(c => c.name.toLowerCase().includes(q) || c.cat.toLowerCase().includes(q));
+      selectedIndex = 0;
+      renderList();
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIndex = (selectedIndex + 1) % Math.max(1, filtered.length);
+        renderList();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIndex = (selectedIndex - 1 + filtered.length) % Math.max(1, filtered.length);
+        renderList();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (filtered[selectedIndex]) {
+          closeCmd();
+          filtered[selectedIndex].act();
+        }
+      } else if (e.key === 'Escape') {
+        closeCmd();
+      }
+    });
+
+    // Global Hotkey (⌘K / Ctrl+K)
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (bg.classList.contains('show')) closeCmd();
+        else openCmd();
+      } else if (e.key === 'Escape' && bg.classList.contains('show')) {
+        closeCmd();
       }
     });
   }
@@ -617,8 +811,8 @@ body.topbar-modal-open {
     render();
     startModalLock();
     initTheme();
+    initCommandPalette();
 
-    // Re-evaluate on resize / orientation change / zoom change.
     let resizeTimer = null;
     window.addEventListener('resize', function () {
       clearTimeout(resizeTimer);
@@ -634,7 +828,6 @@ body.topbar-modal-open {
     window.addEventListener('storage', render);
     window.addEventListener('focus', render);
     document.addEventListener('visibilitychange', function () { if (!document.hidden) render(); });
-
     setInterval(render, 30 * 1000);
   }
 
@@ -643,12 +836,12 @@ body.topbar-modal-open {
   } else {
     boot();
   }
-  // --- Service Worker registration (once per page via topbar.js) ---
+
+  // Service Worker Registration
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .catch((err) => console.warn('SW registration failed:', err));
+      const swPath = location.pathname.includes('/src/pages/') ? '../../sw.js' : './sw.js';
+      navigator.serviceWorker.register(swPath).catch((err) => console.warn('SW registration:', err));
     });
   }
 })();
-

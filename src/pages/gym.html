@@ -19,6 +19,7 @@
   <title>Calisthenics Strength — NEXUS</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script type="module" src="../scripts/app.js"></script>
   <script src="../scripts/sync.js" defer></script>
   <script src="../scripts/topbar.js" defer></script>
   <style>
@@ -1239,9 +1240,12 @@
       background: rgba(107, 79, 160, 0.25);
     }
 
-    .heatmap-cell.cell-future {
-      background: rgba(138, 43, 226, 0.04);
+    .heatmap-cell.cell-today {
+      border: 2px solid var(--amethyst, #7C3AED);
+      box-shadow: 0 0 8px var(--amethyst, #7C3AED);
+      z-index: 1;
     }
+
 
     .heatmap-legend {
       display: flex;
@@ -2581,6 +2585,10 @@
         document.getElementById('rtMsg').textContent = msgs[msgIdx];
       }
       function rtPing() {
+        if (typeof window.nexusChime === 'function') {
+          window.nexusChime();
+          return;
+        }
         try {
           const ctx = new (window.AudioContext || window.webkitAudioContext)();
           [[440, 0], [554, 0.18], [880, 0.36]].forEach(([f, t]) => {
@@ -2916,6 +2924,28 @@
         const isDone = gs(doneKey, false);
         if (!isDone) ss(missedKey, false);
         ss(doneKey, !isDone);
+
+        if (!isDone) {
+          // Auto-award XP for completing a workout
+          let grindS = {}; try { grindS = JSON.parse(localStorage.getItem('grind_log_v1')) || {}; } catch { }
+          const logs = Array.isArray(grindS.logs) ? grindS.logs : [];
+          const dayTag = ['Day A (Push)', 'Day B (Pull)', 'Day C (Handstand)', 'Day D (Legs)'][currentDay] || 'Workout';
+          const alreadyAwarded = logs.some(l => l.date === tk && l.name && l.name.startsWith('Completed workout'));
+          if (!alreadyAwarded) {
+            logs.push({
+              name: 'Completed workout (' + dayTag + ')',
+              xp: 50,
+              cat: 'fitness',
+              date: tk,
+              ts: Date.now()
+            });
+            grindS.logs = logs;
+            localStorage.setItem('grind_log_v1', JSON.stringify(grindS));
+            window.dispatchEvent(new Event('storage'));
+          }
+          if (typeof window.nexusChime === 'function') window.nexusChime();
+        }
+
         writeHist(tk);
         renderWorkout(); renderHistory(); renderHeatmap(); renderConsistencyChart(); syncGymDone();
       };
@@ -2951,30 +2981,71 @@
       function renderHeatmap() {
         const grid = document.getElementById('heatmapGrid');
         grid.innerHTML = '';
-        const today = new Date(); today.setHours(0, 0, 0, 0);
-        const startDate = new Date(today);
-        startDate.setDate(startDate.getDate() - today.getDay() - 15 * 7);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayDateStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+        const year = today.getFullYear();
+        const month = today.getMonth();
+
+        const firstDayOfMonth = new Date(year, month, 1);
+        const lastDayOfMonth = new Date(year, month + 1, 0);
+
+        // Monday start: Sunday=0, Monday=1...
+        const firstMonday = new Date(firstDayOfMonth);
+        const dayOfWeek = firstMonday.getDay();
+        const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        firstMonday.setDate(firstMonday.getDate() - diffToMonday);
+
+        grid.style.display = 'grid';
+        grid.style.gridTemplateColumns = 'repeat(7, 1fr)';
+        grid.style.gap = '4px';
+
+        let current = new Date(firstMonday);
         let totalDone = 0, totalMissed = 0, bestStreak = 0, curStreak = 0;
-        for (let w = 0; w < 16; w++) {
-          const col = document.createElement('div'); col.className = 'heatmap-col';
-          for (let d = 0; d < 7; d++) {
-            const date = new Date(startDate);
-            date.setDate(startDate.getDate() + w * 7 + d);
-            const dateStr = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-            const isFuture = date > today;
-            const cell = document.createElement('div'); cell.className = 'heatmap-cell';
-            if (isFuture) { cell.classList.add('cell-future'); }
-            else {
-              const status = getDayStatus(dateStr, date);
-              if (status === 'done') { cell.classList.add('cell-done'); totalDone++; curStreak++; bestStreak = Math.max(bestStreak, curStreak); }
-              else if (status === 'missed') { cell.classList.add('cell-missed'); totalMissed++; curStreak = 0; }
-              else if (status === 'rest') { cell.classList.add('cell-rest'); }
-              else { curStreak = 0; }
+
+        while (current <= lastDayOfMonth) {
+            const dateStr = current.getFullYear() + '-' + String(current.getMonth() + 1).padStart(2, '0') + '-' + String(current.getDate()).padStart(2, '0');
+            const isThisMonth = current.getMonth() === month;
+            const isFuture = current > today;
+
+            const cell = document.createElement('div');
+            cell.className = 'heatmap-cell';
+            cell.textContent = isThisMonth ? current.getDate() : '';
+            cell.style.display = 'flex';
+            cell.style.alignItems = 'center';
+            cell.style.justifyContent = 'center';
+            cell.style.fontSize = '9px';
+            cell.style.color = 'var(--text-3)';
+            cell.style.width = '24px';
+            cell.style.height = '24px';
+
+            if (!isThisMonth || isFuture) {
+                cell.classList.add('cell-future');
+            } else {
+                const status = getDayStatus(dateStr, current);
+                if (status === 'done') {
+                    cell.classList.add('cell-done');
+                    totalDone++;
+                    curStreak++;
+                    bestStreak = Math.max(bestStreak, curStreak);
+                } else if (status === 'missed') {
+                    cell.classList.add('cell-missed');
+                    totalMissed++;
+                    curStreak = 0;
+                } else if (status === 'rest') {
+                    cell.classList.add('cell-rest');
+                } else {
+                    curStreak = 0;
+                }
             }
-            cell.title = fmtDate(date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0'));
-            col.appendChild(cell);
-          }
-          grid.appendChild(col);
+
+            if (dateStr === todayDateStr) {
+                cell.classList.add('cell-today');
+            }
+
+            cell.title = fmtDate(dateStr);
+            grid.appendChild(cell);
+            current.setDate(current.getDate() + 1);
         }
         document.getElementById('hmTotalDone').textContent = totalDone;
         document.getElementById('hmTotalMissed').textContent = totalMissed;

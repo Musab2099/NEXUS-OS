@@ -1,6 +1,6 @@
 // NEXUS service worker
 // Bump CACHE_VERSION any time you change the cached file list or want to force-refresh clients.
-const CACHE_VERSION = 'nexus-v5';
+const CACHE_VERSION = 'nexus-v18';
 
 const CACHE_FILES = [
   './',
@@ -9,8 +9,13 @@ const CACHE_FILES = [
   './src/pages/gym.html',
   './src/pages/grind-log.html',
   './src/pages/progression-tab.html',
+  './src/scripts/app.js',
   './src/scripts/topbar.js',
   './src/scripts/sync.js',
+  './src/scripts/event-horizon.js',
+  './src/styles/themes.css',
+  './src/styles/liquid-amethyst.css',
+  './src/styles/event-horizon.css',
   './src/data/manifest.json',
   './public/icon-192.png',
   './public/icon-512.png',
@@ -43,8 +48,7 @@ self.addEventListener('fetch', (event) => {
   // untouched by the cache.
   if (url.origin !== self.location.origin) return;
 
-  // Only handle GET requests; let POST/PUT/etc. (e.g. Supabase writes if
-  // ever proxied same-origin) pass through untouched.
+  // Only handle GET requests; let POST/PUT/etc. pass through untouched.
   if (req.method !== 'GET') return;
 
   const isPage = req.mode === 'navigate' || req.destination === 'document';
@@ -64,7 +68,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Stale-while-revalidate for static assets (JS, icons, manifest):
+  // Stale-while-revalidate for static assets (JS, icons, manifest, CSS):
   // serve instantly from cache, then refresh the cache in the background.
   event.respondWith(
     caches.match(req).then((cached) => {

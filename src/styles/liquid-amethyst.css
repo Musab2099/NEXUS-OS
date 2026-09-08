@@ -38,7 +38,7 @@
   --danger:         #8B7EC8;
   --xp-color:       #A78BFA;
   --xp-glow:        rgba(167, 139, 250, 0.40);
-  --cyan:           #22D3EE;
+  --cyan:           #B026FF;
 
   /* Gradient shorthand */
   --grad-amethyst:   linear-gradient(135deg, #7C3AED 0%, #A855F7 45%, #D946EF 100%);
@@ -85,7 +85,7 @@ html, body {
 body::before {
   background:
     radial-gradient(ellipse 62% 52% at 84% -8%,  rgba(124, 58, 237, 0.40) 0%, transparent 54%),
-    radial-gradient(ellipse 50% 45% at -10% 102%, rgba(34, 211, 238, 0.22) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 45% at -10% 102%, rgba(176, 38, 255, 0.22) 0%, transparent 50%),
     radial-gradient(ellipse 38% 30% at 52%  54%,  rgba(217, 70, 239, 0.16) 0%, transparent 48%),
     #07051A !important;
   filter:    blur(100px) !important;
@@ -113,7 +113,7 @@ body::before {
 }
 .orb-2 {
   width: 420px; height: 420px;
-  background: var(--cyan, #22D3EE);
+  background: var(--cyan, #B026FF);
   filter: blur(120px);
   opacity: .17;
   bottom: -100px; left: -80px;

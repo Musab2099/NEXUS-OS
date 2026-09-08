@@ -2,5 +2,12 @@
   "buildCommand": "node scripts/build.js",
   "outputDirectory": "dist",
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/", "destination": "/src/pages/index.html" },
+    { "source": "/health", "destination": "/src/pages/health.html" },
+    { "source": "/gym", "destination": "/src/pages/gym.html" },
+    { "source": "/grind", "destination": "/src/pages/grind-log.html" },
+    { "source": "/skills", "destination": "/src/pages/progression-tab.html" }
+  ]
 }

@@ -22,6 +22,7 @@ const PASSTHROUGH_FILES = [
   'src/pages/gym.html',
   'src/pages/grind-log.html',
   'src/pages/progression-tab.html',
+  'src/scripts/app.js',
   'src/scripts/topbar.js',
   'src/scripts/event-horizon.js',
   'src/styles/liquid-amethyst.css',
@@ -99,6 +100,22 @@ function renderFile(rel, env) {
   return replaced;
 }
 
+function createRootRedirect() {
+  const redirectHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0; url=src/pages/index.html">
+  <title>NEXUS</title>
+  <script>window.location.replace("src/pages/index.html");</script>
+</head>
+<body style="background:#07051A;color:#EDE9FE;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;">
+  <p>Loading NEXUS...</p>
+</body>
+</html>`;
+  fs.writeFileSync(path.join(DIST, 'index.html'), redirectHtml);
+}
+
 function main() {
   const env = loadCredentials();
   const fromEnvFile = fs.existsSync(ENV_FILE);
@@ -127,6 +144,7 @@ function main() {
     }
   }
 
+  createRootRedirect();
   console.log('✓ build complete →', path.relative(ROOT, DIST) + '/');
 }
 
