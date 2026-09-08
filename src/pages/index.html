@@ -256,8 +256,8 @@ body{
   border-radius:3px;overflow:hidden;
 }
 .prog-fill{
-  height:100%;border-radius:3px;
-  transition:width .9s cubic-bezier(.4,0,.2,1);
+  height:100%;border-radius:3px;width:100%;transform-origin:left;
+  transition:transform .9s cubic-bezier(.4,0,.2,1);
 }
 .fill-a{background:var(--amethyst)}
 .fill-c{background:var(--indigo, #B026FF)}
@@ -489,9 +489,9 @@ body{
   border-radius:3px;overflow:hidden;margin-bottom:10px;
 }
 .ltg-bar-fill{
-  height:100%;border-radius:3px;
+  height:100%;border-radius:3px;width:100%;transform-origin:left;
   background:linear-gradient(90deg,var(--amethyst),var(--violet));
-  transition:width .9s cubic-bezier(.4,0,.2,1);
+  transition:transform .9s cubic-bezier(.4,0,.2,1);
 }
 .ltg-row-actions{
   display:flex;gap:8px;align-items:center;
@@ -1138,7 +1138,7 @@ body{
             <span class="prog-name">${escapeHtml(g.title)}</span>
             <span class="prog-pct">${Math.round(pct)}%</span>
           </div>
-          <div class="prog-track"><div class="prog-fill ${FILL_CLASSES[i % 4]}" style="width:${pct}%"></div></div>
+          <div class="prog-track"><div class="prog-fill ${FILL_CLASSES[i % 4]}" style="transform:scaleX(${pct/100})"></div></div>
         </div>`;
     });
 
@@ -1205,7 +1205,7 @@ body{
     document.getElementById('grindTodayXP').innerHTML = 'Today: <b>+' + (todayXP + cloudTodayXP) + ' XP</b>';
     const pct = Math.min(100, (todayXP / 500) * 100);
     document.getElementById('grindXPLim').textContent = (todayXP + cloudTodayXP) + ' / 500';
-    document.getElementById('grindXPFill').style.width = pct + '%';
+    document.getElementById('grindXPFill').style.transform = 'scaleX(' + (pct/100) + ')';
   }
 
   // ──────────────────────────────────────────────
@@ -1676,7 +1676,7 @@ body{
           </div>
           <span class="ltg-pct-badge">${Math.round(pct)}%</span>
         </div>
-        <div class="ltg-bar-track"><div class="ltg-bar-fill" style="width:${pct}%"></div></div>
+        <div class="ltg-bar-track"><div class="ltg-bar-fill" style="transform:scaleX(${pct/100})"></div></div>
         <div class="ltg-row-actions">
           <input type="number" class="ltg-update-input" placeholder="Update current value" step="any" data-idx="${idx}">
           <button type="button" class="ltg-update-btn" data-idx="${idx}">Update</button>
