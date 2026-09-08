@@ -19,15 +19,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="NEXUS">
   <title>Calisthenics Strength — NEXUS</title>
-<<<<<<< HEAD
-
-=======
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script type="module" src="../scripts/app.js"></script>
-  <script src="../scripts/sync.js" defer></script>
-  <script src="../scripts/topbar.js" defer></script>
->>>>>>> 97637ac151207f33462553962126ce48909aa0b4
   <style>
     @media(max-width:600px) {
 
@@ -2010,7 +2001,7 @@
 
 <body>
   <header class="navbar" data-navbar>
-    <a class="logo" href="/index.html" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><img src="/icon-192.png" alt="NEXUS logo"></span><span class="logo-text">NEXUS</span></a>
+    <a class="logo" href="/index.html" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><img src="/icon-192.png" width="32" height="32" alt="NEXUS logo"></span><span class="logo-text">NEXUS</span></a>
     <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/index.html" class="nav-link"
         data-route="home">Home</a><a href="/index.html#goals-section" class="nav-link"
         data-route="goals">Goals</a><a href="/health.html" class="nav-link"
@@ -2958,13 +2949,9 @@
         const doneKey = 'done_' + currentDay + '_' + tk;
         const missedKey = 'missed_' + currentDay + '_' + tk;
         const isDone = gs(doneKey, false);
-<<<<<<< HEAD
-        if (!isDone) ss(missedKey, false);         ss(doneKey, !isDone);
-         persistGymWorkoutState();
-         writeHist(tk);
-=======
         if (!isDone) ss(missedKey, false);
         ss(doneKey, !isDone);
+        persistGymWorkoutState();
 
         if (!isDone) {
           // Auto-award XP for completing a workout
@@ -2988,7 +2975,6 @@
         }
 
         writeHist(tk);
->>>>>>> 97637ac151207f33462553962126ce48909aa0b4
         renderWorkout(); renderHistory(); renderHeatmap(); renderConsistencyChart(); syncGymDone();
       };
       window.toggleWorkoutMissed = function () {

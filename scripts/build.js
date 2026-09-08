@@ -1,14 +1,10 @@
 #!/usr/bin/env node
-<<<<<<< HEAD
-// NEXUS build: turn the source folders into the deployable dist/ folder.
-=======
 // =============================================================
 // NEXUS build script
 // Reads SUPABASE_URL and SUPABASE_KEY and substitutes the
 // __SUPABASE_URL__ / __SUPABASE_KEY__ placeholders in sync.js
 // (and auth.js if present), then writes a deployable dist/ folder.
 // =============================================================
->>>>>>> 97637ac151207f33462553962126ce48909aa0b4
 'use strict';
 
 const fs = require('fs');
@@ -16,27 +12,8 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
+const ENV_FILE = path.join(ROOT, '.env');
 
-<<<<<<< HEAD
-// Keep browser URLs stable while making the source layout easy to extend.
-// Add a file to one of these source folders and it is included automatically.
-const SOURCE_FOLDERS = [
-  ['src/pages', '.'],
-  ['src/scripts', 'scripts'],
-  ['src/styles', 'styles'],
-  ['src/data', 'data'],
-  ['public', '.'],
-];
-
-const ROOT_FILES = [
-  ['sw.js', 'sw.js'],
-  ['src/data/manifest.json', 'manifest.json'],
-];
-
-function copyDirectory(source, destination) {
-  if (!fs.existsSync(source)) return;
-  fs.cpSync(source, destination, { recursive: true });
-=======
 // Files that contain placeholder tokens to substitute
 const PLACEHOLDER_FILES = [
   'src/scripts/sync.js',
@@ -78,36 +55,19 @@ function loadEnvFile(filePath) {
     console.warn(`[build] Warning: Could not read ${filePath}: ${err.message}`);
   }
   return env;
->>>>>>> 97637ac151207f33462553962126ce48909aa0b4
 }
 
-function copyFile(source, destination) {
-  if (!fs.existsSync(source)) {
-    throw new Error(`Required build file is missing: ${path.relative(ROOT, source)}`);
+function loadCredentials() {
+  // 1. process.env wins (Vercel / CI / shells that already export the values).
+  // 2. .env fills the gaps for local dev.
+  const fileEnv = loadEnvFile(ENV_FILE);
+  const fromProcess = {};
+  for (const k of ['SUPABASE_URL', 'SUPABASE_KEY']) {
+    if (process.env[k]) fromProcess[k] = process.env[k];
   }
-  fs.mkdirSync(path.dirname(destination), { recursive: true });
-  fs.copyFileSync(source, destination);
+  return { ...fileEnv, ...fromProcess };
 }
 
-<<<<<<< HEAD
-function cleanOutput() {
-  fs.rmSync(DIST, { recursive: true, force: true });
-  fs.mkdirSync(DIST, { recursive: true });
-}
-
-function main() {
-  cleanOutput();
-
-  for (const [from, to] of SOURCE_FOLDERS) {
-    copyDirectory(path.join(ROOT, from), path.join(DIST, to));
-  }
-
-  for (const [from, to] of ROOT_FILES) {
-    copyFile(path.join(ROOT, from), path.join(DIST, to));
-  }
-
-  console.log('NEXUS build complete -> dist/');
-=======
 function ensureClean(dir) {
   try {
     if (fs.existsSync(dir)) {
@@ -133,7 +93,7 @@ function copyFileSafe(src, dest) {
 
 function copyDirRecursive(srcDir, destDir, ignoreRelPaths = new Set()) {
   if (!fs.existsSync(srcDir)) return;
-  
+
   const entries = fs.readdirSync(srcDir, { withFileTypes: true });
   for (const entry of entries) {
     const srcPath = path.join(srcDir, entry.name);
@@ -262,7 +222,6 @@ function main() {
     console.error('✗ Build failed with error:', err.message || err);
     process.exit(1);
   }
->>>>>>> 97637ac151207f33462553962126ce48909aa0b4
 }
 
 main();

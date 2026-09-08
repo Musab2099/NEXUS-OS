@@ -137,6 +137,8 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 32px;
+  height: 32px;
   color: currentColor;
   flex-shrink: 0;
 }
@@ -145,11 +147,13 @@ body {
 .logo-icon svg,
 .logo-container img,
 .logo-container svg {
-  height: clamp(1.5rem, 3vw, 2.25rem); /* Responsive fluid height */
-  width: auto; /* Preserves natural aspect ratio */
-  max-width: 100%;
-  object-fit: contain; /* Prevents warping inside flex/grid containers */
+  width: 32px;
+  height: 32px;
+  max-width: 32px;
+  max-height: 32px;
+  object-fit: contain; /* Preserves natural aspect ratio without warping */
   flex-shrink: 0; /* Prevents flex squishing */
+  display: block;
 }
 
 .nav-pill {

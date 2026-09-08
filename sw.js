@@ -1,6 +1,5 @@
 // NEXUS service worker
 // Bump CACHE_VERSION any time you change the cached file list or want to force-refresh clients.
-<<<<<<< HEAD
 const CACHE_VERSION = 'nexus-v17';
 const NETWORK_TIMEOUT_MS = 10000;
 
@@ -53,29 +52,6 @@ const CACHE_FILES = [
   '/icon-512.png',
   '/apple-touch-icon-180.png',
   '/favicon-32.png'
-=======
-const CACHE_VERSION = 'nexus-v18';
-
-const CACHE_FILES = [
-  './',
-  './src/pages/index.html',
-  './src/pages/health.html',
-  './src/pages/gym.html',
-  './src/pages/grind-log.html',
-  './src/pages/progression-tab.html',
-  './src/scripts/app.js',
-  './src/scripts/topbar.js',
-  './src/scripts/sync.js',
-  './src/scripts/event-horizon.js',
-  './src/styles/themes.css',
-  './src/styles/liquid-amethyst.css',
-  './src/styles/event-horizon.css',
-  './src/data/manifest.json',
-  './public/icon-192.png',
-  './public/icon-512.png',
-  './public/apple-touch-icon-180.png',
-  './public/favicon-32.png'
->>>>>>> 97637ac151207f33462553962126ce48909aa0b4
 ];
 
 self.addEventListener('install', (event) => {

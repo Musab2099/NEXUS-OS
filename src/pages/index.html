@@ -15,16 +15,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="NEXUS">
 <title>NEXUS — Ibrahim's OS</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<<<<<<< HEAD
-=======
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../styles/themes.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="../scripts/app.js"></script>
-  <script src="../scripts/sync.js" defer></script>
-  <script src="../scripts/topbar.js" defer></script>
->>>>>>> 97637ac151207f33462553962126ce48909aa0b4
 <style>
 /* ─── RESET ──────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -416,13 +406,8 @@ body{
 .meta-v{font-size:12px;font-weight:600}
 .v-v{color:var(--violet)}
 .v-g{color:#34D399}
-<<<<<<< HEAD
-.v-c{color:var(--cyan)}
-.v-m{color:var(--text-secondary)}
-=======
 .v-c{color:var(--indigo, #B026FF)}
-.v-m{color:var(--text-muted)}
->>>>>>> 97637ac151207f33462553962126ce48909aa0b4
+.v-m{color:var(--text-secondary)}
 
 /* ─── LTG GOALS (from original) ──────────────────────── */
 .section-eye{
@@ -756,7 +741,7 @@ body{
   <header class="navbar" data-navbar>
     <a class="logo" href="/index.html" aria-label="NEXUS home">
       <span class="logo-icon" aria-hidden="true">
-        <img src="/icon-192.png" alt="NEXUS logo">
+        <img src="/icon-192.png" width="32" height="32" alt="NEXUS logo">
       </span>
       <span class="logo-text">NEXUS</span>
     </a>
@@ -1206,10 +1191,6 @@ body{
       streak = Math.max(streak, workoutStreak);
     }
     document.getElementById('grindDay').textContent = 'Day ' + (streak || 0);
-=======
-
-    document.getElementById('grindDay').textContent = 'Day ' + streak;
->>>>>>> 97637ac151207f33462553962126ce48909aa0b4
     document.getElementById('grindBadge').textContent = streak >= 7 ? '🔥 On fire' : streak >= 3 ? '⚡ Rolling' : '💪 Keep going';
     const cloudWorkoutXP = cloudWorkoutLogs.reduce((sum, row) => {
       const log = row.data && row.data.session && Array.isArray(row.data.session.log) ? row.data.session.log : row.data && Array.isArray(row.data.log) ? row.data.log : [];
@@ -1259,11 +1240,7 @@ body{
       if (ringVal) ringVal.textContent = '—';
     }
 
-<<<<<<< HEAD
     if (sub) sub.textContent = sleep ? 'Last logged today' : 'Not logged yet';
-=======
-    document.getElementById('wellnessSub').innerHTML = sleep ? 'Last logged today' : '<a href="health.html" style="color:var(--violet);text-decoration:none;font-weight:600">Not logged yet. Log today\'s wellness &rarr;</a>';
->>>>>>> 97637ac151207f33462553962126ce48909aa0b4
 
     // Badges
     const badges = [];
@@ -1296,11 +1273,7 @@ body{
     let gymS = {}; try { gymS = JSON.parse(localStorage.getItem('ibrahim_gym_v1')) || {}; } catch { }
     const td = dateToKey(new Date());
     const isDone = isTrainDay && gymS['done_' + schedIdx + '_' + td];
-<<<<<<< HEAD
     subEl.textContent = isDone ? 'Completed ✓' : isTrainDay ? 'Today' : 'No workout today';
-=======
-    document.getElementById('gymDaySub').innerHTML = isDone ? 'Completed ✓' : isTrainDay ? '<a href="gym.html" style="color:var(--violet);text-decoration:none;font-weight:600">Today. Log workout &rarr;</a>' : 'No workout today';
->>>>>>> 97637ac151207f33462553962126ce48909aa0b4
 
     statsEl.innerHTML = `
       <div class="stat"><span class="stat-n" style="font-size:20px">—</span><span class="stat-k">Volume</span></div>
@@ -1322,12 +1295,8 @@ body{
     ];
 
     const started = SKILLS.filter(s => S[s.key] && ((S[s.key].level || 0) > 0)).length;
-<<<<<<< HEAD
     const subEl = document.getElementById('caliSub');
     if (subEl) subEl.textContent = (started ?? 0) + ' progressions active';
-=======
-    document.getElementById('caliSub').innerHTML = started > 0 ? started + ' progressions active' : '<a href="progression-tab.html" style="color:var(--violet);text-decoration:none;font-weight:600">Start your first progression &rarr;</a>';
->>>>>>> 97637ac151207f33462553962126ce48909aa0b4
 
     const listEl = document.getElementById('caliSkills');
     if (!listEl) return;
@@ -1497,9 +1466,6 @@ body{
       streak = Math.max(streak, workoutStreak);
     }
     document.getElementById('nexusStreak').textContent = (streak ?? 0) + ' day streak';
-=======
-    document.getElementById('nexusStreak').textContent = streak;
->>>>>>> 97637ac151207f33462553962126ce48909aa0b4
 
     const goals = getLongGoals();
     const done = goals.filter(g => goalProgress(g).pct >= 100).length;
@@ -1893,19 +1859,7 @@ body{
 
 })();
 </script>
-<<<<<<< HEAD
-=======
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  if (typeof initCloudSync !== 'function') return;
-  initCloudSync({
-    appKey: 'goals',
-    syncedKeys: ['long_goals_v1', 'day_window_v1', 'nexus_theme'],
-    onApplied: function () { window.dispatchEvent(new Event('storage')); }
-  });
-});
-</script>
->>>>>>> 97637ac151207f33462553962126ce48909aa0b4
+
 
 </body>
 </html>
