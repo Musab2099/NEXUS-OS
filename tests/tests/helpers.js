@@ -11,13 +11,13 @@
 // ─── Pages ────────────────────────────────────────────────────────────────────
 // All routable pages. `route` = data-route on the nav-link (null = no nav link).
 export const PAGES = [
-  { name: 'dashboard',     route: 'home',          url: '/index.html' },
-  { name: 'wellness',      route: 'wellness',       url: '/health.html' },
-  { name: 'gym',           route: 'gym',            url: '/gym.html' },
-  { name: 'calisthenics',  route: 'calisthenics',   url: '/progression-tab.html' },
-  { name: 'grind',         route: 'grind',          url: '/grind-log.html' },
-  { name: 'facescan',      route: null,             url: '/facescan.html' },
-  { name: 'live-workout',  route: null,             url: '/live-workout.html' },
+  { name: 'dashboard',     route: 'home',          url: '/src/pages/index.html' },
+  { name: 'wellness',      route: 'wellness',       url: '/src/pages/health.html' },
+  { name: 'gym',           route: 'gym',            url: '/src/pages/gym.html' },
+  { name: 'calisthenics',  route: 'calisthenics',   url: '/src/pages/progression-tab.html' },
+  { name: 'grind',         route: 'grind',          url: '/src/pages/grind-log.html' },
+  { name: 'facescan',      route: null,             url: '/src/pages/facescan.html' },
+  { name: 'live-workout',  route: null,             url: '/src/pages/live-workout.html' },
 ];
 
 // Pages reachable from the nav bar (have a data-route link)

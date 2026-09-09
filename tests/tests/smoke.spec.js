@@ -92,11 +92,11 @@ test.describe('Smoke — CSS design tokens', () => {
 
 test.describe('Smoke — static assets', () => {
   const assets = [
-    '/styles/themes.css',
-    '/styles/style.css',
-    '/scripts/topbar.js',
-    '/scripts/theme.js',
-    '/scripts/animations.js',
+    '/src/styles/themes.css',
+    '/src/styles/style.css',
+    '/src/scripts/topbar.js',
+    '/src/scripts/theme.js',
+    '/src/scripts/animations.js',
     '/sw.js',
     '/manifest.json',
   ];
