@@ -23,7 +23,6 @@ const PLACEHOLDER_FILES = [
 // Explicit root/standalone files to copy to dist
 const ROOT_PASSTHROUGH = [
   'sw.js',
-  'manifest.json',
 ];
 
 // Directories whose entire contents are copied to dist
@@ -129,6 +128,12 @@ function copyAllAssets(placeholderFiles) {
     const srcDir = path.join(ROOT, dir);
     const destDir = path.join(DIST, dir);
     copyDirRecursive(srcDir, destDir, placeholderSet);
+  }
+
+  // 3. Special case for manifest.json (source is in src/data, dest is root)
+  const manifestSrc = path.join(ROOT, 'src/data/manifest.json');
+  if (fs.existsSync(manifestSrc)) {
+    copyFileSafe(manifestSrc, path.join(DIST, 'manifest.json'));
   }
 }
 

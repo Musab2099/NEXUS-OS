@@ -7,13 +7,13 @@
   <meta name="theme-color" content="#07051A">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/styles/liquid-amethyst.css">
-  <link rel="stylesheet" href="/styles/themes.css">
-  <link rel="stylesheet" href="/styles/style.css">
+  <link rel="stylesheet" href="/src/styles/liquid-amethyst.css">
+  <link rel="stylesheet" href="/src/styles/themes.css">
+  <link rel="stylesheet" href="/src/styles/style.css">
 
   <link rel="manifest" href="/manifest.json">
-  <link rel="icon" href="/favicon-32.png" sizes="32x32">
-  <link rel="apple-touch-icon" href="/apple-touch-icon-180.png">
+  <link rel="icon" href="/public/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/public/apple-touch-icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1991,23 +1991,23 @@
       }
     </style>
   </noscript>
-  <script src="/scripts/theme.js" defer></script>
-  <script src="/scripts/workout-persistence.js" defer></script>
+  <script src="/src/scripts/theme.js" defer></script>
+  <script src="/src/scripts/workout-persistence.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="/scripts/topbar.js" defer></script>
-  <link rel="stylesheet" href="/styles/animations.css">
-  <script src="/scripts/animations.js" defer></script>
+  <script src="/src/scripts/topbar.js" defer></script>
+  <link rel="stylesheet" href="/src/styles/animations.css">
+  <script src="/src/scripts/animations.js" defer></script>
 </head>
 
 <body>
   <header class="navbar" data-navbar>
-    <a class="logo" href="/index.html" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><img src="/icon-192.png" width="32" height="32" alt="NEXUS logo"></span><span class="logo-text">NEXUS</span></a>
-    <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/index.html" class="nav-link"
-        data-route="home">Home</a><a href="/index.html#goals-section" class="nav-link"
-        data-route="goals">Goals</a><a href="/health.html" class="nav-link"
-        data-route="wellness">Wellness</a><a href="/gym.html" class="nav-link active" data-route="gym"
-        aria-current="page">Gym</a><a href="/progression-tab.html" class="nav-link"
-        data-route="calisthenics">Calisthenics</a><a href="/grind-log.html" class="nav-link"
+    <a class="logo" href="/src/pages/index.html" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><img src="/public/icon-192.png" width="32" height="32" alt="NEXUS logo"></span><span class="logo-text">NEXUS</span></a>
+    <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/src/pages/index.html" class="nav-link"
+        data-route="home">Home</a><a href="/src/pages/index.html#goals-section" class="nav-link"
+        data-route="goals">Goals</a><a href="/src/pages/health.html" class="nav-link"
+        data-route="wellness">Wellness</a><a href="/src/pages/gym.html" class="nav-link active" data-route="gym"
+        aria-current="page">Gym</a><a href="/src/pages/progression-tab.html" class="nav-link"
+        data-route="calisthenics">Calisthenics</a><a href="/src/pages/grind-log.html" class="nav-link"
         data-route="grind">Grind Log</a></nav>
     <div class="header-right"><span class="status-pill"><span class="status-pill-dot"
           aria-hidden="true"></span>ONLINE</span>
@@ -2028,7 +2028,7 @@
   </div>
 
   <div class="shell">
-    <a href="/index.html" class="back-btn">
+    <a href="/src/pages/index.html" class="back-btn">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
         stroke-linecap="round" stroke-linejoin="round">
         <polyline points="15 18 9 12 15 6"></polyline>
@@ -2249,7 +2249,7 @@
     </div>
 
     <div class="divider"><span>Skill Progressions</span></div>
-    <a href="/progression-tab.html" class="skills-cta">
+    <a href="/src/pages/progression-tab.html" class="skills-cta">
       <div class="skills-cta-emoji">🤸</div>
       <div class="skills-cta-body">
         <div class="skills-cta-title">Calisthenics Skill Tracker</div>

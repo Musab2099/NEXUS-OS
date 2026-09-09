@@ -1251,12 +1251,30 @@
       }
     }
   </style>
-  <link rel="stylesheet" href="/styles/animations.css">
-  <script src="/scripts/workout-persistence.js" defer></script>
-  <script src="/scripts/animations.js" defer></script>
+  <link rel="stylesheet" href="/src/styles/animations.css">
+  <script src="/src/scripts/workout-persistence.js" defer></script>
+  <script src="/src/scripts/animations.js" defer></script>
 </head>
 
 <body>
+  <header class="navbar" data-navbar>
+    <a class="logo" href="/src/pages/index.html" aria-label="NEXUS home">
+        <img src="/public/icon-192.png" width="32" height="32" alt="NEXUS logo">
+        <span class="logo-text">NEXUS</span>
+    </a>
+    <nav class="nav-pill">
+      <a href="/src/pages/index.html" class="nav-link" data-route="home">Home</a>
+      <a href="/src/pages/index.html#goals-section" class="nav-link" data-route="goals">Goals</a>
+      <a href="/src/pages/health.html" class="nav-link" data-route="wellness">Wellness</a>
+      <a href="/src/pages/gym.html" class="nav-link" data-route="gym">Gym</a>
+      <a href="/src/pages/progression-tab.html" class="nav-link" data-route="calisthenics">Calisthenics</a>
+      <a href="/src/pages/grind-log.html" class="nav-link" data-route="grind">Grind Log</a>
+    </nav>
+    <button class="theme-btn" data-theme-button aria-label="Switch Theme">
+      <span class="theme-icon">🌓</span>
+    </button>
+  </header>
+
   <!-- ============================================================
      VIEW 1 — DAY SELECT
      ============================================================ -->
