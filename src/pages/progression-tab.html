@@ -227,9 +227,11 @@
 
     .ov-bar-fill {
       height: 100%;
-      border-radius: 2px;
+      width: 100%;
+      transform-origin: left;
+      transform: scaleX(0);
       background: linear-gradient(90deg, #8A2BE2, #FF1493);
-      transition: width .4s ease;
+      transition: transform .4s ease;
     }
 
     /* SKILL TABS */
@@ -780,8 +782,8 @@
 <body>
   <!-- PRIMARY HEADER: the single shared navigation on every page -->
   <header class="navbar" data-navbar>
-    <a class="logo" href="/src/pages/index.html" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><img src="/public/icon-192.png" width="32" height="32" alt="NEXUS logo"></span><span class="logo-text">NEXUS</span></a>
-    <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/src/pages/index.html" class="nav-link" data-route="home">Home</a><a href="/src/pages/index.html#goals-section" class="nav-link" data-route="goals">Goals</a><a href="/src/pages/health.html" class="nav-link" data-route="wellness">Wellness</a><a href="/src/pages/gym.html" class="nav-link" data-route="gym">Gym</a><a href="/src/pages/progression-tab.html" class="nav-link active" data-route="calisthenics" aria-current="page">Calisthenics</a><a href="/src/pages/grind-log.html" class="nav-link" data-route="grind">Grind Log</a></nav>
+    <a class="logo" href="/" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><img src="/public/icon-192.png" width="32" height="32" alt="NEXUS logo"></span><span class="logo-text">NEXUS</span></a>
+    <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/" class="nav-link" data-route="home">Home</a><a href="/#goals-section" class="nav-link" data-route="goals">Goals</a><a href="/health" class="nav-link" data-route="wellness">Wellness</a><a href="/gym" class="nav-link" data-route="gym">Gym</a><a href="/skills" class="nav-link active" data-route="calisthenics" aria-current="page">Calisthenics</a><a href="/grind" class="nav-link" data-route="grind">Grind Log</a></nav>
     <div class="header-right"><span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span><div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button><div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button" data-theme-option="periwinkle" role="menuitemradio">Focus</button><button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div></div></div>
   </header>
   <!-- Ambient orb layer -->
@@ -791,7 +793,7 @@
     <div class="orb orb-3"></div>
   </div>
   <div class="shell">
-    <a href="/src/pages/index.html" class="back-btn">
+    <a href="/" class="back-btn">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
         stroke-linecap="round" stroke-linejoin="round">
         <polyline points="15 18 9 12 15 6"></polyline>
@@ -1062,7 +1064,7 @@
       <div class="ov-emoji">${sk.emoji}</div>
       <div class="ov-name">${sk.name}</div>
       <div class="ov-level">${levelName}</div>
-      <div class="ov-bar-track"><div class="ov-bar-fill" style="width:${pct}%"></div></div>
+      <div class="ov-bar-track"><div class="ov-bar-fill" style="transform: scaleX(${pct/100})"></div></div>
     </div>`;
         }).join('');
       }

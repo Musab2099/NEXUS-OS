@@ -5,7 +5,11 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/",        "destination": "/src/pages/index.html" },
+    { "source": "/health",  "destination": "/src/pages/health.html" },
+    { "source": "/gym",     "destination": "/src/pages/gym.html" },
+    { "source": "/grind",   "destination": "/src/pages/grind-log.html" },
+    { "source": "/skills",  "destination": "/src/pages/progression-tab.html" }
   ]
 }
 
