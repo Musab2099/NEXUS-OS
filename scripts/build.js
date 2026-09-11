@@ -39,6 +39,14 @@ const ROOT_PAGE_FILES = [
   'offline.html',
 ];
 
+// Directory aliases keep clean module URLs working on both Vercel and plain
+// static servers. Vercel handles these through vercel.json rewrites, while
+// static servers resolve the nested index.html files directly.
+const CLEAN_ROUTE_ALIASES = {
+  grind: 'grind-log.html',
+  skills: 'progression-tab.html',
+};
+
 // Directories whose entire contents are copied to dist
 const PASSTHROUGH_DIRS = [
   'src',
@@ -161,7 +169,16 @@ function copyAllAssets(placeholderFiles) {
     }
   }
 
-  // 4. Special case for manifest.json (source is in src/data, dest is root)
+  // 5. Add directory index aliases for clean routes. This also lets the
+  // local static test server serve /grind and /skills without Vercel rewrites.
+  for (const [route, page] of Object.entries(CLEAN_ROUTE_ALIASES)) {
+    const pagePath = path.join(DIST, page);
+    if (fs.existsSync(pagePath)) {
+      copyFileSafe(pagePath, path.join(DIST, route, 'index.html'));
+    }
+  }
+
+  // 6. Special case for manifest.json (source is in src/data, dest is root)
   const manifestSrc = path.join(ROOT, 'src/data/manifest.json');
   if (fs.existsSync(manifestSrc)) {
     copyFileSafe(manifestSrc, path.join(DIST, 'manifest.json'));

@@ -752,6 +752,7 @@
     <div class="card">
       <div class="card-eyebrow">Sleep Tracker</div>
       <div class="card-title" id="sleepHeadline">Log your rest</div>
+      <div class="sleep-date" id="wellnessDateLabel" aria-live="polite"></div>
       <div class="stats-row">
         <div class="stat-pill"><div class="stat-val" id="slLastNight">—</div><div class="stat-label">Last night</div></div>
         <div class="stat-pill"><div class="stat-val" id="slWeekAvg">—</div><div class="stat-label">7-day avg</div></div>
@@ -943,6 +944,7 @@
   function today(){const d=new Date();return`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
   function fmtDate(str){return new Date(str+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});}
   function fmtHrs(h){const hh=Math.floor(h),mm=Math.round((h-hh)*60);return mm===0?`${hh}h`:`${hh}h${pad2(mm)}m`;}
+  $('wellnessDateLabel').textContent=`Today · ${fmtDate(today())}`;
 
   /* TABS */
   const tabBtns=document.querySelectorAll('.tab-btn');
