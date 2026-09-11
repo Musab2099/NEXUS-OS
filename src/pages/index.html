@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#07051A">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/src/styles/themes.css">
-<link rel="stylesheet" href="/src/styles/style.css">
+<link rel="stylesheet" href="/styles/themes.css">
+<link rel="stylesheet" href="/styles/style.css">
 
 <link rel="manifest" href="/manifest.json">
-<link rel="icon" href="/public/favicon-32.png" sizes="32x32">
-<link rel="apple-touch-icon" href="/public/apple-touch-icon-180.png">
+<link rel="icon" href="/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="NEXUS">
@@ -656,6 +656,77 @@ body{
   margin: 0 0 24px;
   flex-wrap: wrap;
 }
+
+.manage-goals-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 8px;
+  font-size: 11px;
+}
+
+.grind-badge {
+  margin-bottom: 18px;
+}
+
+.card-caption {
+  margin: 4px 0 18px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.streak-caption {
+  margin-bottom: 16px;
+}
+
+.sleep-label {
+  margin-bottom: 4px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sleep-detail {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.sleep-quality {
+  margin-top: 2px;
+}
+
+.wellness-badges {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.gym-card-layout {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.gym-stats {
+  margin-top: 8px;
+}
+
+.heatmap-label {
+  margin-bottom: 7px;
+  color: var(--text-secondary);
+  font-size: 9px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
 .qa-btn {
   flex: 1;
   min-width: 100px;
@@ -709,30 +780,12 @@ body{
   .ring-hero-card{flex-direction:column;align-items:flex-start}
 }
 </style>
-<script>
-  (function () {
-    var savedTheme = 'nexus-dark';
-    try {
-      var storedTheme = localStorage.getItem('nexus-theme') || localStorage.getItem('nexus_theme');
-      var themeIndex = Number(localStorage.getItem('nexus-theme-index'));
-      var themeKeys = ['nexus-dark', 'periwinkle', 'arctic-white'];
-      if (storedTheme === 'amethyst') storedTheme = 'nexus-dark';
-      if (storedTheme === 'peri') storedTheme = 'periwinkle';
-      if (storedTheme === 'arctic' || storedTheme === 'ice') storedTheme = 'arctic-white';
-      if (themeKeys.indexOf(storedTheme) !== -1) savedTheme = storedTheme;
-      else if (Number.isInteger(themeIndex) && themeKeys[themeIndex]) savedTheme = themeKeys[themeIndex];
-    } catch (e) {
-      console.warn('[NEXUS] theme bootstrap preference read failed', e);
-    }
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    document.documentElement.setAttribute('data-initial-route', window.location.hash === '#goals-section' ? 'goals' : 'home');
-    document.documentElement.classList.add('js-loading', 'nexus-ready');
-  }());</script>
+<script src="/scripts/app.js"></script>
 <noscript><style>html:not(.nexus-ready) body{visibility:visible!important}</style></noscript>
-<script src="/src/scripts/theme.js" defer></script>
-<script src="/src/scripts/topbar.js" defer></script>
-<link rel="stylesheet" href="/src/styles/animations.css">
-<script src="/src/scripts/animations.js" defer></script>
+<script src="/scripts/theme.js" defer></script>
+<script src="/scripts/topbar.js" defer></script>
+<link rel="stylesheet" href="/styles/animations.css">
+<script src="/scripts/animations.js" defer></script>
 </head>
 <body>
 
@@ -741,7 +794,7 @@ body{
   <header class="navbar" data-navbar>
     <a class="logo" href="/" aria-label="NEXUS home">
       <span class="logo-icon" aria-hidden="true">
-        <img src="/public/icon-192.png" width="32" height="32" alt="NEXUS logo">
+        <img src="/icon-192.png" width="32" height="32" alt="NEXUS logo">
       </span>
       <span class="logo-text">NEXUS</span>
     </a>
@@ -754,7 +807,7 @@ body{
       <a href="/grind" class="nav-link" data-route="grind">Grind Log</a>
     </nav>
     <div class="header-right">
-      <button class="gh-nav-button" id="ghNavHeader" type="button" style="display: none !important;" aria-hidden="true">⌁ GitHub</button>
+      <button class="gh-nav-button" id="ghNavHeader" type="button" aria-hidden="true">⌁ GitHub</button>
       <span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span>
       <div class="theme-dropdown" data-theme-control>
         <button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button>
@@ -782,7 +835,7 @@ body{
     <p class="greeting-sub" id="greetingSub"><span id="greetingGoals">—</span></p>
   </header>
 
-  <div class="quick-actions reveal d0" style="animation-delay: 0s">
+  <div class="quick-actions reveal d0">
     <button class="qa-btn" id="qaWorkout" title="Log today's workout"><span>💪</span> Workout</button>
     <button class="qa-btn" id="qaSleep" title="Log 8h sleep"><span>😴</span> Sleep</button>
     <button class="qa-btn" id="qaMood" title="Log good mood"><span>😊</span> Mood</button>
@@ -790,8 +843,8 @@ body{
 
   <!-- ── BENTO GRID ── -->
   <main class="bento" aria-label="NEXUS dashboard">
-
-    <!-- DAY RING — 1 col -->
+    <!-- ── DAY RING ── -->
+      <!-- DAY RING — 1 col -->
     <article class="glass card ring-hero-card c-ring reveal d1" aria-label="Day ring module">
       <div class="ring-hero-svg">
         <svg viewBox="0 0 120 120">
@@ -826,6 +879,7 @@ body{
       </div>
     </article>
 
+    <!-- ── GOALS ── -->
     <!-- GOALS — 2 col -->
     <article class="glass card c-goals reveal d2" id="goals-section" aria-label="Goals module">
       <div class="card-top">
@@ -837,21 +891,22 @@ body{
       <div id="goalsCardBars"></div>
       <div class="div"></div>
       <div class="stats" id="goalsCardStats"></div>
-      <button type="button" class="btn-primary" style="width:100%; margin-top:16px; font-size:11px; padding:8px" onclick="document.getElementById('ltgCard').scrollIntoView({ behavior: 'smooth' })">Manage Goals &rarr;</button>
+      <button type="button" class="btn-primary manage-goals-btn" id="manageGoalsBtn">Manage Goals &rarr;</button>
     </article>
 
+    <!-- ── GRIND LOG ── -->
     <!-- GRIND LOG — 1 col -->
-    <article class="glass card c-grind reveal d3" aria-label="Grind log module" onclick="window.location='grind-log.html'">
+    <article class="glass card c-grind reveal d3" aria-label="Grind log module" onclick="window.location='/grind'">
       <div class="card-top">
         <span class="card-eyebrow">Grind Log</span>
         <div class="card-icon" aria-hidden="true">⚡</div>
       </div>
       <h2 class="card-h" id="grindDay">Day —</h2>
       <p class="card-sub">Current streak</p>
-      <span class="badge badge-g" id="grindBadge" style="margin-bottom:18px">—</span>
+      <span class="badge badge-g grind-badge" id="grindBadge">—</span>
 
       <div class="big-n" id="grindTotalXP">0</div>
-      <p style="font-size:10px;color:var(--text-secondary);letter-spacing:.14em;text-transform:uppercase;margin:4px 0 18px">Total XP earned</p>
+      <p class="card-caption">Total XP earned</p>
 
       <div>
         <div class="xp-header">
@@ -864,8 +919,9 @@ body{
       </div>
     </article>
 
+    <!-- ── WELLNESS ── -->
     <!-- WELLNESS — 1 col -->
-    <article class="glass card c-wellness reveal d4" aria-label="Wellness hub module" onclick="window.location='health.html'">
+    <article class="glass card c-wellness reveal d4" aria-label="Wellness hub module" onclick="window.location='/health'">
       <div class="card-top">
         <span class="card-eyebrow">Wellness Hub</span>
         <div class="card-icon" aria-hidden="true">💙</div>
@@ -887,36 +943,38 @@ body{
           </div>
         </div>
         <div>
-          <p style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:4px">Sleep</p>
-          <p style="font-size:11px;color:var(--text-secondary)" id="wellnessSleepTime">—</p>
-          <p style="font-size:11px;color:var(--text-secondary);margin-top:2px" id="wellnessSleepQuality">—</p>
+          <p class="sleep-label">Sleep</p>
+          <p class="sleep-detail" id="wellnessSleepTime">—</p>
+          <p class="sleep-detail sleep-quality" id="wellnessSleepQuality">—</p>
         </div>
       </div>
 
-      <div style="display:flex;gap:7px;flex-wrap:wrap" id="wellnessBadges"></div>
+      <div class="wellness-badges" id="wellnessBadges"></div>
     </article>
 
+    <!-- ── GYM ── -->
     <!-- GYM — 2 col -->
-    <article class="glass card c-gym reveal d5" aria-label="Gym tracker module" onclick="window.location='gym.html'">
+    <article class="glass card c-gym reveal d5" aria-label="Gym tracker module" onclick="window.location='/gym'">
       <div class="card-top">
         <span class="card-eyebrow">Gym Tracker</span>
         <div class="card-icon" aria-hidden="true">💪</div>
       </div>
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap">
+      <div class="gym-card-layout">
         <div>
           <h2 class="card-h" id="gymDayName">—</h2>
           <p class="card-sub" id="gymDaySub">—</p>
-          <div class="stats" style="margin-top:8px" id="gymStats"></div>
+          <div class="stats gym-stats" id="gymStats"></div>
         </div>
         <div>
-          <p style="font-size:9px;letter-spacing:.16em;color:var(--text-secondary);text-transform:uppercase;margin-bottom:7px">16-week heatmap</p>
+          <p class="heatmap-label">16-week heatmap</p>
           <div class="heatmap" id="heatmap" aria-label="Workout activity heatmap"></div>
         </div>
       </div>
     </article>
 
+    <!-- ── CALISTHENICS ── -->
     <!-- CALISTHENICS — 1 col -->
-    <article class="glass card c-calisthenics reveal d6" aria-label="Calisthenics module" onclick="window.location='progression-tab.html'">
+    <article class="glass card c-calisthenics reveal d6" aria-label="Calisthenics module" onclick="window.location='/skills'">
       <div class="card-top">
         <span class="card-eyebrow">Calisthenics</span>
         <div class="card-icon" aria-hidden="true">🤸</div>
@@ -926,6 +984,7 @@ body{
       <div class="skill-list" id="caliSkills"></div>
     </article>
 
+    <!-- ── HIGHLIGHTS ── -->
     <!-- HIGHLIGHTS — 1 col -->
     <article class="glass card c-skills reveal d7" aria-label="Weekly highlights">
       <div class="card-top">
@@ -934,9 +993,10 @@ body{
       </div>
       <h2 class="card-h">Highlights</h2>
       <p class="card-sub">7-day snapshot</p>
-      <div style="display:flex;flex-direction:column;gap:0" id="weeklyHighlights"></div>
+      <div class="meta-list" id="weeklyHighlights"></div>
     </article>
 
+    <!-- ── NEXUS PULSE ── -->
     <!-- NEXUS PULSE — 1 col -->
     <article class="glass card pulse-card c-pulse reveal d7" aria-label="NEXUS Pulse consistency score">
       <div class="card-top">
@@ -956,15 +1016,17 @@ body{
       </div>
     </article>
 
+    <!-- ── FACESCAN ── -->
     <!-- FACESCAN WEEKLY CHECK-IN — 1 col -->
-    <article class="glass card facescan-card c-facescan reveal d7" aria-label="FaceScan weekly check-in" onclick="window.location='facescan.html'">
+    <article class="glass card facescan-card c-facescan reveal d7" aria-label="FaceScan weekly check-in" onclick="window.location='/facescan'">
       <div class="card-top"><span class="card-eyebrow">Weekly Check-in</span><div class="card-icon" aria-hidden="true">◉</div></div>
       <h2 class="card-h">FaceScan AI</h2>
       <p class="card-sub" id="facescanSub">A quick weekly reflection</p>
       <div class="facescan-status"><span class="facescan-dot" id="facescanDot" aria-hidden="true"></span><span id="facescanStatus">No scan logged yet</span></div>
-      <button class="facescan-action" type="button" onclick="event.stopPropagation(); window.location='facescan.html'">Open check-in <span aria-hidden="true">↗</span></button>
+      <button class="facescan-action" type="button" onclick="event.stopPropagation(); window.location='/facescan'">Open check-in <span aria-hidden="true">↗</span></button>
     </article>
 
+    <!-- ── NEXUS STATS ── -->
     <!-- NEXUS STATS — 1 col -->
     <article class="glass card c-stat reveal d7" aria-label="NEXUS system stats">
       <div class="card-top">
@@ -972,9 +1034,9 @@ body{
         <div class="card-icon" aria-hidden="true">◈</div>
       </div>
       <div class="big-n" id="nexusStreak">—</div>
-      <p style="font-size:10px;color:var(--text-secondary);letter-spacing:.14em;text-transform:uppercase;margin:4px 0 16px">Day streak</p>
+      <p class="card-caption streak-caption">Day streak</p>
       <div class="div"></div>
-      <div style="display:flex;flex-direction:column;gap:0" id="nexusStats"></div>
+      <div class="meta-list" id="nexusStats"></div>
     </article>
 
   </main>
@@ -1071,36 +1133,35 @@ body{
   }
 
   // Workout activity remains local-first after cloud authentication removal.
-  let cloudWorkoutLogs = [];
+  let localWorkoutLogs = [];
   function dashboardDateKey(value) {
     const d = value instanceof Date ? value : new Date(value || Date.now());
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
-  function loadLocalWorkoutLogs() {
-    cloudWorkoutLogs = [];
+  function loadWorkoutLogsFromLocalStorage() {
+    localWorkoutLogs = [];
     for (let i = 0; i < localStorage.length; i += 1) {
       const key = localStorage.key(i);
       if (!key || key.indexOf('nexus_workout_') !== 0) continue;
       try {
         const stored = JSON.parse(localStorage.getItem(key));
         const data = stored && stored.data ? stored.data : stored;
-        cloudWorkoutLogs.push({ date: key.slice('nexus_workout_'.length), data: data || {} });
+        localWorkoutLogs.push({ date: key.slice('nexus_workout_'.length), data: data || {} });
       } catch (e) { }
     }
   }
   function getWorkoutActivity() {
-    loadLocalWorkoutLogs();
+    loadWorkoutLogsFromLocalStorage();
     const dates = new Set();
-    const xpByDate = {};
-    cloudWorkoutLogs.forEach(row => {
+    localWorkoutLogs.forEach(row => {
       if (!row || !row.date) return;
       const data = row.data || {};
       if (data.finished || data.done || (data.session && Array.isArray(data.session.log) && data.session.log.length)) dates.add(row.date);
     });
-    return { dates, xpByDate };
+    return { dates };
   }
   function renderDashboardWidgets() {
-    loadLocalWorkoutLogs();
+    loadWorkoutLogsFromLocalStorage();
     updateHeader(); updateGoalsCard(); updateGrindCard(); updateGymCard(); updateHighlights(); updateNexusStats(); updatePulse(); buildHeatmap();
   }
 
@@ -1191,20 +1252,20 @@ body{
     }
     document.getElementById('grindDay').textContent = 'Day ' + (streak || 0);
     document.getElementById('grindBadge').textContent = streak >= 7 ? '🔥 On fire' : streak >= 3 ? '⚡ Rolling' : '💪 Keep going';
-    const cloudWorkoutXP = cloudWorkoutLogs.reduce((sum, row) => {
+    const localWorkoutXP = localWorkoutLogs.reduce((sum, row) => {
       const log = row.data && row.data.session && Array.isArray(row.data.session.log) ? row.data.session.log : row.data && Array.isArray(row.data.log) ? row.data.log : [];
       return sum + log.reduce((inner, item) => inner + (Number(item.xp) || 0), 0);
     }, 0);
-    const cloudTotalXP = cloudWorkoutXP + total;
-    document.getElementById('grindTotalXP').textContent = cloudTotalXP.toLocaleString();
+    const totalXP = localWorkoutXP + total;
+    document.getElementById('grindTotalXP').textContent = totalXP.toLocaleString();
     const todayKey = dashboardDateKey(new Date());
-    const cloudTodayXP = cloudWorkoutLogs.filter(row => row.date === todayKey).reduce((sum, row) => {
+    const localTodayXP = localWorkoutLogs.filter(row => row.date === todayKey).reduce((sum, row) => {
       const log = row.data && row.data.session && Array.isArray(row.data.session.log) ? row.data.session.log : row.data && Array.isArray(row.data.log) ? row.data.log : [];
       return sum + log.reduce((inner, item) => inner + (Number(item.xp) || 0), 0);
     }, 0);
-    document.getElementById('grindTodayXP').innerHTML = 'Today: <b>+' + (todayXP + cloudTodayXP) + ' XP</b>';
+    document.getElementById('grindTodayXP').innerHTML = 'Today: <b>+' + (todayXP + localTodayXP) + ' XP</b>';
     const pct = Math.min(100, (todayXP / 500) * 100);
-    document.getElementById('grindXPLim').textContent = (todayXP + cloudTodayXP) + ' / 500';
+    document.getElementById('grindXPLim').textContent = (todayXP + localTodayXP) + ' / 500';
     document.getElementById('grindXPFill').style.transform = 'scaleX(' + (pct/100) + ')';
   }
 
@@ -1808,6 +1869,9 @@ body{
   document.getElementById('qaWorkout').addEventListener('click', quickLogWorkout);
   document.getElementById('qaSleep').addEventListener('click', quickLogSleep);
   document.getElementById('qaMood').addEventListener('click', quickLogMood);
+  document.getElementById('manageGoalsBtn').addEventListener('click', () => {
+    document.getElementById('ltgCard').scrollIntoView({ behavior: 'smooth' });
+  });
 
   // ──────────────────────────────────────────────
   // BOOT

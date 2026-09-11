@@ -1251,24 +1251,24 @@
       }
     }
   </style>
-  <link rel="stylesheet" href="/src/styles/animations.css">
-  <script src="/src/scripts/workout-persistence.js" defer></script>
-  <script src="/src/scripts/animations.js" defer></script>
+  <link rel="stylesheet" href="/styles/animations.css">
+  <script src="/scripts/workout-persistence.js" defer></script>
+  <script src="/scripts/animations.js" defer></script>
 </head>
 
 <body>
   <header class="navbar" data-navbar>
-    <a class="logo" href="/src/pages/index.html" aria-label="NEXUS home">
-        <img src="/public/icon-192.png" width="32" height="32" alt="NEXUS logo">
+    <a class="logo" href="/" aria-label="NEXUS home">
+        <img src="/icon-192.png" width="32" height="32" alt="NEXUS logo">
         <span class="logo-text">NEXUS</span>
     </a>
     <nav class="nav-pill">
-      <a href="/src/pages/index.html" class="nav-link" data-route="home">Home</a>
-      <a href="/src/pages/index.html#goals-section" class="nav-link" data-route="goals">Goals</a>
-      <a href="/src/pages/health.html" class="nav-link" data-route="wellness">Wellness</a>
-      <a href="/src/pages/gym.html" class="nav-link" data-route="gym">Gym</a>
-      <a href="/src/pages/progression-tab.html" class="nav-link" data-route="calisthenics">Calisthenics</a>
-      <a href="/src/pages/grind-log.html" class="nav-link" data-route="grind">Grind Log</a>
+      <a href="/" class="nav-link" data-route="home">Home</a>
+      <a href="/#goals-section" class="nav-link" data-route="goals">Goals</a>
+      <a href="/health" class="nav-link" data-route="wellness">Wellness</a>
+      <a href="/gym" class="nav-link" data-route="gym">Gym</a>
+      <a href="/skills" class="nav-link" data-route="calisthenics">Calisthenics</a>
+      <a href="/grind" class="nav-link" data-route="grind">Grind Log</a>
     </nav>
     <button class="theme-btn" data-theme-button aria-label="Switch Theme">
       <span class="theme-icon">🌓</span>
@@ -1542,13 +1542,13 @@
           { id: 'mw1', name: 'Wrist Circles', muscles: ['Wrists'], sets: 1, reps: '30s each direction', notes: 'Both directions — non-negotiable before wrist loading', isWarmup: true },
           { id: 'mw2', name: 'Scapular Push-Ups', muscles: ['Scapula'], sets: 1, reps: '15', notes: 'Protract and retract blades only — zero arm bend', isWarmup: true },
           { id: 'mw3', name: 'Arm Swings + Shoulder CARs', muscles: ['Shoulders'], sets: 1, reps: '10 each direction', notes: 'Full shoulder range of motion prep', isWarmup: true },
-          { id: 'm1', name: 'Dips', muscles: ['Chest', 'Triceps'], sets: 4, reps: '8–12', notes: 'Parallel bars · lean forward for chest emphasis', isCore: false },
+          { id: 'm1', name: 'Chair Dips', muscles: ['Chest', 'Triceps'], sets: 4, reps: '15–20', notes: 'Stable chair · controlled descent · shoulders down', isCore: false }
           { id: 'm2', name: 'Pike Push-Ups', muscles: ['Shoulders'], sets: 3, reps: '10–15', notes: 'Elevate feet for more difficulty' },
           { id: 'm3', name: 'Diamond Push-Ups', muscles: ['Triceps', 'Inner Chest'], sets: 3, reps: '10–15', notes: '' },
           { id: 'm4', name: 'Wide Push-Ups', muscles: ['Chest'], sets: 3, reps: '12–20', notes: 'Weighted vest or feet elevated' },
           { id: 'm5', name: 'Lateral Raise', muscles: ['Lateral Delts'], sets: 3, reps: '15', notes: 'Bands or dumbbells · controlled tempo' },
           { id: 'm6', name: 'Hollow Body Hold', muscles: ['Deep Core'], sets: 2, reps: '20–30s', notes: 'Arms extended · lower back pressed flat', isCore: true },
-          { id: 'm7', name: 'Ab Wheel Rollout', muscles: ['Full Core'], sets: 2, reps: '8–10', notes: 'Control the negative · don\'t arch', isCore: true },
+          { id: 'm7', name: 'Hanging Leg Raises', muscles: ['Full Core'], sets: 2, reps: '10–15', notes: 'Pull-up bar · controlled reps without swinging', isCore: true }
         ]
       },
       tuesday: {
@@ -1557,12 +1557,12 @@
           { id: 'tw1', name: 'Dead Hang', muscles: ['Shoulders', 'Grip'], sets: 2, reps: '30–45s', notes: 'Passive hang — shoulder decompression and grip activation', isWarmup: true },
           { id: 'tw2', name: 'Scapular Pull-Ups', muscles: ['Lats'], sets: 2, reps: '10', notes: 'Retract blades only, zero arm bend', isWarmup: true },
           { id: 'tw3', name: 'Cross-Body Arm Swings', muscles: ['Rear Delts'], sets: 1, reps: '20 each direction', notes: 'Posterior shoulder and rotator cuff prep', isWarmup: true },
-          { id: 't1', name: 'Pull-Ups', muscles: ['Lats', 'Biceps'], sets: 4, reps: '6–10', notes: 'Add weight or band · full ROM' },
-          { id: 't2', name: 'Chin-Ups', muscles: ['Biceps', 'Lower Lats'], sets: 3, reps: '8–12', notes: 'Supinated grip · squeeze at top' },
+          { id: 't1', name: 'Pull-Ups', muscles: ['Lats', 'Biceps'], sets: 4, reps: '3–5 AMRAP', notes: 'Full ROM · stop when form breaks' }
+          { id: 't2', name: 'Chin-Ups', muscles: ['Biceps', 'Lower Lats'], sets: 3, reps: '3–6 AMRAP', notes: 'Supinated grip · squeeze at top' }
           { id: 't3', name: 'Hollow Body Hold', muscles: ['Deep Core'], sets: 3, reps: '20–30s hold', rest: 45, notes: 'Focus on lower back pressed to floor, legs straight and low', isCore: true },
           { id: 't4', name: 'Scapular Push-ups', muscles: ['Scapula'], sets: 3, reps: '12–15', rest: 45, notes: 'In plank position, protract and retract shoulder blades without bending elbows — pure scapular control, zero equipment' },
           { id: 't5', name: 'Hammer Curls', muscles: ['Brachialis', 'Forearms'], sets: 3, reps: '12', notes: 'Neutral grip · DB or band' },
-          { id: 't6', name: 'Hanging Knee Raises', muscles: ['Lower Core', 'Hip Flexors'], sets: 2, reps: '12–15', notes: 'Dead hang · tuck knees to chest', isCore: true },
+          { id: 't6', name: 'Floor Leg Raises', muscles: ['Lower Core', 'Hip Flexors'], sets: 2, reps: '12–15', notes: 'Keep your lower back controlled against the floor', isCore: true }
           { id: 't7', name: 'Side Plank', muscles: ['Obliques', 'QL'], sets: 2, reps: '25–30s/side', notes: 'Each side = one set · stay rigid', isCore: true },
         ]
       },
@@ -1870,7 +1870,7 @@
       persistWorkoutState();
       clearInterval(S.elapsedTick);
       closeRest();
-      window.location.href = '/gym.html';
+      window.location.href = '/gym';
     }
 
     /* ── ELAPSED TIMER ──────────────────────────────────────────── */

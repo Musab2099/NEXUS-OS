@@ -1,29 +1,46 @@
-// NEXUS live workout persistence.
-// Workout state is intentionally local-first and remains available offline.
-(function () {
+// NEXUS live-workout persistence.
+// Workout sessions remain local-first so logging works without a connection.
+(function initializeWorkoutStore() {
   'use strict';
 
-  var PREFIX = 'nexus_workout_';
+  // ─── CONFIGURATION ───────────────────────────────────────────────
+  const STORAGE_PREFIX = 'nexus_workout_';
 
-  function safeJson(value, fallback) {
-    try { return value == null ? fallback : JSON.parse(value); } catch (e) { return fallback; }
-  }
-
-  function dateKey(value) {
-    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
-    var date = value instanceof Date ? value : new Date(value || Date.now());
-    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-  }
-
-  function localKey(date) { return PREFIX + dateKey(date); }
-
-  function readLocal(date) {
-    try { return safeJson(localStorage.getItem(localKey(date)), null); } catch (e) { return null; }
-  }
-
-  function writeLocal(date, value) {
+  // ─── STORAGE HELPERS ──────────────────────────────────────────────
+  function parseJson(value, fallback) {
     try {
-      localStorage.setItem(localKey(date), JSON.stringify(value));
+      return value == null ? fallback : JSON.parse(value);
+    } catch (error) {
+      return fallback;
+    }
+  }
+
+  function toDateKey(value) {
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+
+    const date = value instanceof Date ? value : new Date(value || Date.now());
+    return [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, '0'),
+      String(date.getDate()).padStart(2, '0'),
+    ].join('-');
+  }
+
+  function getStorageKey(date) {
+    return STORAGE_PREFIX + toDateKey(date);
+  }
+
+  function readWorkout(date) {
+    try {
+      return parseJson(window.localStorage.getItem(getStorageKey(date)), null);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function writeWorkout(date, value) {
+    try {
+      window.localStorage.setItem(getStorageKey(date), JSON.stringify(value));
       return true;
     } catch (error) {
       console.warn('[NEXUS workout] local save failed', error);
@@ -31,22 +48,29 @@
     }
   }
 
-  function save(date, workoutData) {
-    var key = dateKey(date);
-    var payload = { version: 1, date: key, savedAt: new Date().toISOString(), data: workoutData };
-    writeLocal(key, payload);
+  // ─── PUBLIC STORE ────────────────────────────────────────────────
+  function saveWorkout(date, workoutData) {
+    const dateKey = toDateKey(date);
+    const payload = {
+      version: 1,
+      date: dateKey,
+      savedAt: new Date().toISOString(),
+      data: workoutData,
+    };
+
+    writeWorkout(dateKey, payload);
     return Promise.resolve({ data: payload, error: null, local: true });
   }
 
-  function load(date) {
-    return Promise.resolve(readLocal(date));
+  function loadWorkout(date) {
+    return Promise.resolve(readWorkout(date));
   }
 
   window.NexusWorkoutStore = {
-    dateKey: dateKey,
-    key: localKey,
-    readLocal: readLocal,
-    save: save,
-    load: load
+    dateKey: toDateKey,
+    key: getStorageKey,
+    readLocal: readWorkout,
+    save: saveWorkout,
+    load: loadWorkout,
   };
 })();

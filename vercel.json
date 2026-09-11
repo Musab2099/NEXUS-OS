@@ -5,11 +5,10 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/",        "destination": "/src/pages/index.html" },
-    { "source": "/health",  "destination": "/src/pages/health.html" },
-    { "source": "/gym",     "destination": "/src/pages/gym.html" },
-    { "source": "/grind",   "destination": "/src/pages/grind-log.html" },
-    { "source": "/skills",  "destination": "/src/pages/progression-tab.html" }
+    { "source": "/health",  "destination": "/health.html" },
+    { "source": "/gym",     "destination": "/gym.html" },
+    { "source": "/grind",   "destination": "/grind-log.html" },
+    { "source": "/skills",  "destination": "/progression-tab.html" }
   ]
 }
 

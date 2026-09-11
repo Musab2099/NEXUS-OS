@@ -6,13 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#07051A">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/src/styles/liquid-amethyst.css">
-<link rel="stylesheet" href="/src/styles/themes.css">
-<link rel="stylesheet" href="/src/styles/style.css">
+<link rel="stylesheet" href="/styles/liquid-amethyst.css">
+<link rel="stylesheet" href="/styles/themes.css">
+<link rel="stylesheet" href="/styles/style.css">
 
 <link rel="manifest" href="/manifest.json">
-  <link rel="icon" href="/public/favicon-32.png" sizes="32x32">
-  <link rel="apple-touch-icon" href="/public/apple-touch-icon-180.png">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -753,36 +753,18 @@
       }
     }
   </style>
-<script>
-  (function () {
-    var savedTheme = 'nexus-dark';
-    try {
-      var storedTheme = localStorage.getItem('nexus-theme') || localStorage.getItem('nexus_theme');
-      var themeIndex = Number(localStorage.getItem('nexus-theme-index'));
-      var themeKeys = ['nexus-dark', 'periwinkle', 'arctic-white'];
-      if (storedTheme === 'amethyst') storedTheme = 'nexus-dark';
-      if (storedTheme === 'peri') storedTheme = 'periwinkle';
-      if (storedTheme === 'arctic' || storedTheme === 'ice') storedTheme = 'arctic-white';
-      if (themeKeys.indexOf(storedTheme) !== -1) savedTheme = storedTheme;
-      else if (Number.isInteger(themeIndex) && themeKeys[themeIndex]) savedTheme = themeKeys[themeIndex];
-    } catch (e) {
-      console.warn('[NEXUS] theme bootstrap preference read failed', e);
-    }
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    document.documentElement.setAttribute('data-initial-route', 'calisthenics');
-    document.documentElement.classList.add('js-loading', 'nexus-ready');
-  }());</script>
+<script src="/scripts/app.js"></script>
 <noscript><style>html:not(.nexus-ready) body{visibility:visible!important}</style></noscript>
-<script src="/src/scripts/theme.js" defer></script>
-<script src="/src/scripts/topbar.js" defer></script>
-<link rel="stylesheet" href="/src/styles/animations.css">
-<script src="/src/scripts/animations.js" defer></script>
+<script src="/scripts/theme.js" defer></script>
+<script src="/scripts/topbar.js" defer></script>
+<link rel="stylesheet" href="/styles/animations.css">
+<script src="/scripts/animations.js" defer></script>
 </head>
 
 <body>
   <!-- PRIMARY HEADER: the single shared navigation on every page -->
   <header class="navbar" data-navbar>
-    <a class="logo" href="/" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><img src="/public/icon-192.png" width="32" height="32" alt="NEXUS logo"></span><span class="logo-text">NEXUS</span></a>
+    <a class="logo" href="/" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><img src="/icon-192.png" width="32" height="32" alt="NEXUS logo"></span><span class="logo-text">NEXUS</span></a>
     <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/" class="nav-link" data-route="home">Home</a><a href="/#goals-section" class="nav-link" data-route="goals">Goals</a><a href="/health" class="nav-link" data-route="wellness">Wellness</a><a href="/gym" class="nav-link" data-route="gym">Gym</a><a href="/skills" class="nav-link active" data-route="calisthenics" aria-current="page">Calisthenics</a><a href="/grind" class="nav-link" data-route="grind">Grind Log</a></nav>
     <div class="header-right"><span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span><div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button><div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button" data-theme-option="periwinkle" role="menuitemradio">Focus</button><button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div></div></div>
   </header>

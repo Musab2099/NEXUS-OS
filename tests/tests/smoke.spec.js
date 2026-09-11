@@ -58,7 +58,7 @@ test.describe('Smoke — header contract', () => {
   }
 
   test('dashboard — all 6 nav links are present', async ({ page }) => {
-    await page.goto('/index.html');
+    await page.goto('/');
     const routes = ['home', 'goals', 'wellness', 'gym', 'calisthenics', 'grind'];
     for (const route of routes) {
       await expect(
@@ -73,7 +73,7 @@ test.describe('Smoke — header contract', () => {
 
 test.describe('Smoke — CSS design tokens', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/index.html');
+    await page.goto('/');
   });
 
   for (const varName of REQUIRED_CSS_VARS) {
@@ -92,11 +92,11 @@ test.describe('Smoke — CSS design tokens', () => {
 
 test.describe('Smoke — static assets', () => {
   const assets = [
-    '/src/styles/themes.css',
-    '/src/styles/style.css',
-    '/src/scripts/topbar.js',
-    '/src/scripts/theme.js',
-    '/src/scripts/animations.js',
+    '/styles/themes.css',
+    '/styles/style.css',
+    '/scripts/topbar.js',
+    '/scripts/theme.js',
+    '/scripts/animations.js',
     '/sw.js',
     '/manifest.json',
   ];

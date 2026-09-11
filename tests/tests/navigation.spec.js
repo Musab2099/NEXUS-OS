@@ -11,17 +11,17 @@ import { SEL, NAV_PAGES, collectErrors, waitForAnimations } from './helpers.js';
 
 // Expected destination URL for each data-route value
 const ROUTE_URLS = {
-  home:         '/index.html',
-  goals:        '/index.html',       // same page, scrolls to #goals-section
-  wellness:     '/health.html',
-  gym:          '/gym.html',
-  calisthenics: '/progression-tab.html',
-  grind:        '/grind-log.html',
+  home:         '/',
+  goals:        '/',                // same page, scrolls to #goals-section
+  wellness:     '/health',
+  gym:          '/gym',
+  calisthenics: '/skills',
+  grind:        '/grind',
 };
 
 test.describe('Navigation — links go to correct pages', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/index.html');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
   });
 
@@ -112,13 +112,13 @@ test.describe('Navigation — mobile layout', () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
   test('header is visible on mobile', async ({ page }) => {
-    await page.goto('/index.html');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     await expect(page.locator(SEL.header)).toBeVisible();
   });
 
   test('page does not overflow horizontally', async ({ page }) => {
-    await page.goto('/index.html');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
 
     const overflow = await page.evaluate(() => {
@@ -128,7 +128,7 @@ test.describe('Navigation — mobile layout', () => {
   });
 
   test('logo is visible on mobile', async ({ page }) => {
-    await page.goto('/index.html');
+    await page.goto('/');
     await expect(page.locator(SEL.logo)).toBeVisible();
   });
 });

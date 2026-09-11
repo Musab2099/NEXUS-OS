@@ -23,7 +23,7 @@ test.describe('PWA — Service Worker', () => {
   });
 
   test('service worker registers on page load', async ({ page }) => {
-    await page.goto('/index.html');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000); // SW registration is async
 
@@ -45,7 +45,7 @@ test.describe('PWA — Service Worker', () => {
       )) swErrors.push(m.text());
     });
 
-    await page.goto('/index.html');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
@@ -101,7 +101,7 @@ test.describe('PWA — Manifest', () => {
 
 test.describe('PWA — HTML meta tags', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/index.html');
+    await page.goto('/');
   });
 
   test('has <link rel="manifest">', async ({ page }) => {

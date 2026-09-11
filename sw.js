@@ -1,6 +1,6 @@
 // NEXUS service worker
 // Bump CACHE_VERSION any time you change the cached file list or want to force-refresh clients.
-const CACHE_VERSION = 'nexus-v17';
+const CACHE_VERSION = 'nexus-v18';
 const NETWORK_TIMEOUT_MS = 10000;
 
 function cacheResponse(request, response) {
@@ -38,6 +38,7 @@ const CACHE_FILES = [
   '/scripts/topbar.js',
   '/scripts/github-health.js',
   '/scripts/theme.js',
+  '/scripts/app.js',
   '/scripts/event-horizon.js',
   '/scripts/workout-persistence.js',
   '/scripts/animations.js',

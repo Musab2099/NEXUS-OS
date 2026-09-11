@@ -7,13 +7,13 @@
   <meta name="theme-color" content="#07051A">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="/src/styles/liquid-amethyst.css">
-  <link rel="stylesheet" href="/src/styles/themes.css">
-  <link rel="stylesheet" href="/src/styles/style.css">
+  <link rel="stylesheet" href="/styles/liquid-amethyst.css">
+  <link rel="stylesheet" href="/styles/themes.css">
+  <link rel="stylesheet" href="/styles/style.css">
 
   <link rel="manifest" href="/manifest.json">
-  <link rel="icon" href="/public/favicon-32.png" sizes="32x32">
-  <link rel="apple-touch-icon" href="/public/apple-touch-icon-180.png">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/apple-touch-icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1968,24 +1968,7 @@
       }
     }
   </style>
-  <script>
-    (function () {
-      var savedTheme = 'nexus-dark';
-      try {
-        var storedTheme = localStorage.getItem('nexus-theme') || localStorage.getItem('nexus_theme');
-        var themeIndex = Number(localStorage.getItem('nexus-theme-index'));
-        var themeKeys = ['nexus-dark', 'periwinkle', 'arctic-white'];
-        if (storedTheme === 'amethyst') storedTheme = 'nexus-dark';
-        if (storedTheme === 'peri') storedTheme = 'periwinkle';
-        if (storedTheme === 'arctic' || storedTheme === 'ice') storedTheme = 'arctic-white';
-        if (themeKeys.indexOf(storedTheme) !== -1) savedTheme = storedTheme;
-        else if (Number.isInteger(themeIndex) && themeKeys[themeIndex]) savedTheme = themeKeys[themeIndex];
-      } catch (e) { }
-      document.documentElement.setAttribute('data-theme', savedTheme);
-      document.documentElement.setAttribute('data-initial-route', 'gym');
-      document.documentElement.classList.add('js-loading', 'nexus-ready');
-    }());
-  </script>
+  <script src="/scripts/app.js"></script>
   <noscript>
     <style>
       html:not(.nexus-ready) body {
@@ -1993,17 +1976,17 @@
       }
     </style>
   </noscript>
-  <script src="/src/scripts/theme.js" defer></script>
-  <script src="/src/scripts/workout-persistence.js" defer></script>
+  <script src="/scripts/theme.js" defer></script>
+  <script src="/scripts/workout-persistence.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="/src/scripts/topbar.js" defer></script>
-  <link rel="stylesheet" href="/src/styles/animations.css">
-  <script src="/src/scripts/animations.js" defer></script>
+  <script src="/scripts/topbar.js" defer></script>
+  <link rel="stylesheet" href="/styles/animations.css">
+  <script src="/scripts/animations.js" defer></script>
 </head>
 
 <body>
   <header class="navbar" data-navbar>
-    <a class="logo" href="/" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><img src="/public/icon-192.png" width="32" height="32" alt="NEXUS logo"></span><span class="logo-text">NEXUS</span></a>
+    <a class="logo" href="/" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><img src="/icon-192.png" width="32" height="32" alt="NEXUS logo"></span><span class="logo-text">NEXUS</span></a>
     <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/" class="nav-link"
         data-route="home">Home</a><a href="/#goals-section" class="nav-link"
         data-route="goals">Goals</a><a href="/health" class="nav-link"
@@ -2086,7 +2069,7 @@
       <!-- Start Workout button routes to live tracker with current day pre-selected -->
       <div style="margin-top:10px; display:flex; justify-content:flex-end;">
         <button class="start-workout-btn" type="button"
-          onclick="window.location.href='/live-workout.html?day=' + getDayParamFromCurrentSelection()">
+          onclick="window.location.href='/live-workout?day=' + getDayParamFromCurrentSelection()">
           ▶ Start Workout
         </button>
       </div>
@@ -2391,7 +2374,7 @@
             {
               name: 'Push Strength', type: 'strength', duration: '35 min',
               exercises: [
-                { name: 'Dips (Parallel Bars)', sets: '4', reps: '8–12', rest: '90s', note: 'Lean slightly forward for chest emphasis — full range of motion', tempo: '3-0-1-0' },
+                { name: 'Chair Dips', sets: '4', reps: '15–20', rest: '90s', note: 'Use a stable chair — control the descent and keep shoulders down', tempo: '3-0-1-0' },
                 { name: 'Pike Push-Ups', sets: '3', reps: '10–15', rest: '60s', note: 'Hips high over wrists, elbows 45° from ribs — elevate feet to progress', tempo: '3-1-2-0' },
                 { name: 'Diamond Push-Ups', sets: '3', reps: '10–15', rest: '60s', note: 'Elbows track back — pure tricep isolation, chest to hands', tempo: '2-0-1-0' },
                 { name: 'Wide Push-Ups', sets: '3', reps: '12–20', rest: '60s', note: 'Weighted vest or feet elevated for progression', tempo: 'controlled' },
@@ -2402,7 +2385,7 @@
               name: 'Core Block', type: 'conditioning', duration: '10 min',
               exercises: [
                 { name: 'Hollow Body Hold', sets: '2', reps: '20–30s', rest: '45s', note: 'Arms extended, lower back pressed flat to floor — foundation of all skill work', metric: 'hold' },
-                { name: 'Ab Wheel Rollout', sets: '2', reps: '8–10', rest: '45s', note: 'Control the negative — do not let lower back arch at full extension' },
+                { name: 'Hanging Leg Raises', sets: '2', reps: '10–15', rest: '45s', note: 'Use the pull-up bar — raise legs with control without swinging' },
               ]
             },
           ]
@@ -2425,8 +2408,8 @@
             {
               name: 'Pull Strength', type: 'strength', duration: '35 min',
               exercises: [
-                { name: 'Pull-Ups', sets: '4', reps: '6–10', rest: '90s', note: 'Dead hang to chin-over-bar every rep — add weight or use band as needed' },
-                { name: 'Chin-Ups', sets: '3', reps: '8–12', rest: '60s', note: 'Supinated grip — more bicep involvement, elbows tucked in', tempo: '2-1-2-0' },
+                { name: 'Pull-Ups', sets: '4', reps: '3–5 AMRAP', rest: '90s', note: 'Dead hang to chin-over-bar every rep — stop when form breaks' },
+                { name: 'Chin-Ups', sets: '3', reps: '3–6 AMRAP', rest: '60s', note: 'Supinated grip — more bicep involvement, elbows tucked in', tempo: '2-1-2-0' },
                 { name: 'Hollow Body Hold', sets: '3', reps: '20–30s hold', rest: '45s', note: 'Focus on lower back pressed to floor, legs straight and low' },
                 { name: 'Scapular Push-ups', sets: '3', reps: '12–15', rest: '45s', note: 'In plank position, protract and retract shoulder blades without bending elbows — pure scapular control, zero equipment' },
                 { name: 'Hammer Curls', sets: '3', reps: '12', rest: '45s', note: 'Neutral grip, DB or band — brachialis and forearm development', tempo: '3-0-3-0' },
@@ -2435,7 +2418,7 @@
             {
               name: 'Core Block', type: 'conditioning', duration: '10 min',
               exercises: [
-                { name: 'Hanging Knee Raises', sets: '2', reps: '12–15', rest: '45s', note: 'Dead hang start — controlled tuck, no swinging or kipping' },
+                { name: 'Floor Leg Raises', sets: '2', reps: '12–15', rest: '45s', note: 'Keep your lower back controlled against the floor — no swinging' },
                 { name: 'Side Plank', sets: '2', reps: '25–30s each side', rest: '30s', note: 'Each side counts as one set — hips up, body rigid throughout', metric: 'hold' },
               ]
             },

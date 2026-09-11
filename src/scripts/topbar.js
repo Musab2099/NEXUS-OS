@@ -1,154 +1,157 @@
-// NEXUS primary header enhancement.
-// Every page owns the same static .navbar[data-navbar] markup in its HTML.
-// This script only wires interactions; it never injects or replaces navigation.
-(function () {
+// NEXUS shared header controller.
+// Pages own the static header markup; this file only wires behavior to it.
+(function initializeTopbar() {
   'use strict';
 
-  // Register the service worker independently of header enhancement so this
-  // shared script remains safe to reuse on utility entry points.
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('/sw.js').catch(function (error) {
-        console.warn('SW registration failed:', error);
+  // ─── SERVICE WORKER ───────────────────────────────────────────────
+  function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch((error) => {
+        console.warn('[NEXUS] service worker registration failed', error);
       });
     }, { once: true });
   }
 
-  var header = document.querySelector('.navbar[data-navbar]');
-  if (!header) return;
+  // ─── ROUTING ─────────────────────────────────────────────────────
+  function getCurrentPageName() {
+    const path = window.location.pathname.replace(/\\/g, '/');
+    const fileName = path.split('/').pop() || 'index.html';
 
-  var links = Array.prototype.slice.call(header.querySelectorAll('[data-route]'));
-  var themeControl = header.querySelector('[data-theme-control]');
-  var themeButton = header.querySelector('[data-theme-button]');
-  var themeMenu = header.querySelector('[data-theme-menu]');
+    if (fileName === 'index.html' || fileName === '' || fileName === 'index') return 'home';
+    if (fileName === 'health.html' || fileName === 'health') return 'wellness';
+    if (fileName === 'gym.html' || fileName === 'gym') return 'gym';
+    if (fileName === 'progression-tab.html' || fileName === 'progression-tab' || fileName === 'skills') return 'calisthenics';
+    if (fileName === 'grind-log.html' || fileName === 'grind-log' || fileName === 'grind') return 'grind';
+    if (fileName === 'facescan.html' || fileName === 'facescan') return 'home';
 
-  function pageName() {
-    var path = window.location.pathname.replace(/\\/g, '/');
-    var file = path.split('/').pop() || 'index.html';
-    if (file === 'index.html' || file === '') return 'home';
-    if (file === 'health.html') return 'wellness';
-    if (file === 'gym.html') return 'gym';
-    if (file === 'progression-tab.html') return 'calisthenics';
-    if (file === 'facescan.html') return 'home';
-    if (file === 'grind-log.html') return 'grind';
     return 'home';
   }
 
-  function activeRoute() {
-    if (pageName() === 'home' && window.location.hash === '#goals-section') return 'goals';
-    return pageName();
+  function getActiveRoute() {
+    const pageName = getCurrentPageName();
+    return pageName === 'home' && window.location.hash === '#goals-section' ? 'goals' : pageName;
   }
 
-  function setActiveRoute(route) {
-    links.forEach(function (link) {
-      var active = link.getAttribute('data-route') === route;
-      link.classList.toggle('active', active);
-      link.classList.toggle('is-active', active);
-      link.setAttribute('aria-current', active ? 'page' : 'false');
+  function setActiveRoute(links, route) {
+    links.forEach((link) => {
+      const isActive = link.getAttribute('data-route') === route;
+      link.classList.toggle('active', isActive);
+      link.classList.toggle('is-active', isActive);
+      link.setAttribute('aria-current', isActive ? 'page' : 'false');
     });
-    if (route) {
-      document.documentElement.setAttribute('data-initial-route', route);
-    }
-    if (typeof window.NexusUpdateNavIndicator === 'function') {
-      window.NexusUpdateNavIndicator();
-    }
+
+    if (route) document.documentElement.setAttribute('data-initial-route', route);
+    if (typeof window.NexusUpdateNavIndicator === 'function') window.NexusUpdateNavIndicator();
   }
 
-  function closeThemeMenu() {
+  // ─── THEME MENU ──────────────────────────────────────────────────
+  function closeThemeMenu(themeControl, themeButton) {
     if (!themeControl) return;
     themeControl.classList.remove('is-open');
     if (themeButton) themeButton.setAttribute('aria-expanded', 'false');
   }
 
-  function initThemeMenu() {
+  function markSelectedTheme(themeMenu, theme) {
+    themeMenu.querySelectorAll('[data-theme-option]').forEach((option) => {
+      const isSelected = option.getAttribute('data-theme-option') === theme;
+      option.setAttribute('aria-checked', String(isSelected));
+    });
+  }
+
+  function initializeThemeMenu(themeControl, themeButton, themeMenu) {
     if (!themeControl || !themeButton || !themeMenu) return;
 
-    themeButton.addEventListener('click', function () {
-      var open = !themeControl.classList.contains('is-open');
-      themeControl.classList.toggle('is-open', open);
-      themeButton.setAttribute('aria-expanded', String(open));
+    themeButton.addEventListener('click', () => {
+      const isOpen = !themeControl.classList.contains('is-open');
+      themeControl.classList.toggle('is-open', isOpen);
+      themeButton.setAttribute('aria-expanded', String(isOpen));
     });
 
-    themeMenu.querySelectorAll('[data-theme-option]').forEach(function (option) {
-      option.addEventListener('click', function () {
+    themeMenu.querySelectorAll('[data-theme-option]').forEach((option) => {
+      option.addEventListener('click', () => {
         if (window.NexusTheme) window.NexusTheme.set(option.getAttribute('data-theme-option'));
-        closeThemeMenu();
+        closeThemeMenu(themeControl, themeButton);
       });
     });
 
-    document.addEventListener('click', function (event) {
-      if (!themeControl.contains(event.target)) closeThemeMenu();
+    document.addEventListener('click', (event) => {
+      if (!themeControl.contains(event.target)) closeThemeMenu(themeControl, themeButton);
     });
 
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') closeThemeMenu();
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeThemeMenu(themeControl, themeButton);
     });
 
-    function refreshThemeOptions(theme) {
-      themeMenu.querySelectorAll('[data-theme-option]').forEach(function (option) {
-        var selected = option.getAttribute('data-theme-option') === theme;
-        option.setAttribute('aria-checked', String(selected));
-      });
-    }
-
-    refreshThemeOptions(window.NexusTheme ? window.NexusTheme.get() : 'nexus-dark');
-    window.addEventListener('nexus-theme-change', function (event) {
-      refreshThemeOptions(event.detail.theme);
+    markSelectedTheme(themeMenu, window.NexusTheme ? window.NexusTheme.get() : 'nexus-dark');
+    window.addEventListener('nexus-theme-change', (event) => {
+      markSelectedTheme(themeMenu, event.detail.theme);
     });
   }
 
-  links.forEach(function (link) {
-    link.addEventListener('click', function (event) {
-      var route = link.getAttribute('data-route');
-      var href = link.getAttribute('href') || '';
-      var isLocalGoals = route === 'goals' && pageName() === 'home';
-      if (isLocalGoals || (route === 'home' && pageName() === 'home' && href.indexOf('#') !== -1)) {
+  // ─── LOCAL ANCHOR NAVIGATION ─────────────────────────────────────
+  function initializeLocalLinks(links, setRoute) {
+    links.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        const route = link.getAttribute('data-route');
+        const href = link.getAttribute('href') || '';
+        const isHomePage = getCurrentPageName() === 'home';
+        const isLocalGoalsLink = route === 'goals' && isHomePage;
+        const isLocalHomeLink = route === 'home' && isHomePage && href.includes('#');
+
+        if (!isLocalGoalsLink && !isLocalHomeLink) return;
+
         event.preventDefault();
-        var target = document.querySelector(href.split('#')[1] ? '#' + href.split('#')[1] : '#');
+        const targetId = href.split('#')[1];
+        const target = targetId ? document.getElementById(targetId) : null;
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        if (href.indexOf('#') !== -1) history.replaceState(null, '', href);
-        setActiveRoute(route);
-      }
-    });
-  });
-
-  function afterInitialLayout(callback) {
-    var frame = window.requestAnimationFrame || function (next) {
-      return window.setTimeout(next, 16);
-    };
-    var fontReady = document.fonts && document.fonts.ready
-      ? Promise.resolve(document.fonts.ready).catch(function () { return undefined; })
-      : Promise.resolve();
-    var fontTimeout = new Promise(function (resolve) {
-      window.setTimeout(resolve, 1200);
-    });
-
-    Promise.race([fontReady, fontTimeout]).then(function () {
-      // Let the browser commit the font metrics before removing the critical
-      // first-paint layout guard. Two frames also covers standalone launches,
-      // where the safe-area/viewport geometry can settle one frame later.
-      frame(function () {
-        frame(callback);
+        if (href.includes('#')) window.history.replaceState(null, '', href);
+        setRoute(route);
       });
     });
   }
 
-  function initializeNavigation() {
-    setActiveRoute(activeRoute());
-    initThemeMenu();
-    window.addEventListener('hashchange', function () { setActiveRoute(activeRoute()); });
-    afterInitialLayout(function () {
-      setActiveRoute(activeRoute());
+  // ─── FIRST-PAINT RELEASE ─────────────────────────────────────────
+  function runAfterInitialLayout(callback) {
+    const requestFrame = window.requestAnimationFrame || ((next) => window.setTimeout(next, 16));
+    const fontsReady = document.fonts && document.fonts.ready
+      ? Promise.resolve(document.fonts.ready).catch(() => undefined)
+      : Promise.resolve();
+    const fontTimeout = new Promise((resolve) => window.setTimeout(resolve, 1200));
+
+    Promise.race([fontsReady, fontTimeout]).then(() => {
+      requestFrame(() => requestFrame(callback));
+    });
+  }
+
+  // ─── BOOT ────────────────────────────────────────────────────────
+  function initializeHeader() {
+    const header = document.querySelector('.navbar[data-navbar]');
+    if (!header) return;
+
+    const links = Array.from(header.querySelectorAll('[data-route]'));
+    const themeControl = header.querySelector('[data-theme-control]');
+    const themeButton = header.querySelector('[data-theme-button]');
+    const themeMenu = header.querySelector('[data-theme-menu]');
+    const refreshRoute = () => setActiveRoute(links, getActiveRoute());
+
+    refreshRoute();
+    initializeThemeMenu(themeControl, themeButton, themeMenu);
+    initializeLocalLinks(links, (route) => setActiveRoute(links, route));
+    window.addEventListener('hashchange', refreshRoute);
+
+    runAfterInitialLayout(() => {
+      refreshRoute();
       document.documentElement.classList.remove('js-loading');
     });
   }
 
-  // Defer the final active-link/layout pass until the document is complete.
-  // The static HTML/data-initial-route styles still provide the correct
-  // highlight while this guarded initialization is pending.
+  registerServiceWorker();
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeNavigation, { once: true });
+    document.addEventListener('DOMContentLoaded', initializeHeader, { once: true });
   } else {
-    initializeNavigation();
+    initializeHeader();
   }
 })();
