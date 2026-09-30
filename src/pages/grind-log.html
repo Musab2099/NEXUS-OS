@@ -675,6 +675,7 @@
 <script src="/scripts/app.js"></script>
 <noscript><style>html:not(.nexus-ready) body{visibility:visible!important}</style></noscript>
 <script src="/scripts/theme.js" defer></script>
+<script src="/scripts/sync.js"></script>
 <script src="/scripts/topbar.js" defer></script>
 <link rel="stylesheet" href="/styles/animations.css">
 <script src="/scripts/animations.js" defer></script>
@@ -684,7 +685,16 @@
   <header class="navbar" data-navbar>
     <a class="logo" href="/" aria-label="NEXUS home"><span class="logo-icon" aria-hidden="true"><img src="/icon-192.png" width="32" height="32" alt="NEXUS logo"></span><span class="logo-text">NEXUS</span></a>
     <nav class="nav-pill" aria-label="NEXUS navigation"><a href="/" class="nav-link" data-route="home">Home</a><a href="/#goals-section" class="nav-link" data-route="goals">Goals</a><a href="/health" class="nav-link" data-route="wellness">Wellness</a><a href="/gym" class="nav-link" data-route="gym">Gym</a><a href="/skills" class="nav-link" data-route="calisthenics">Calisthenics</a><a href="/grind" class="nav-link active" data-route="grind" aria-current="page">Grind Log</a></nav>
-    <div class="header-right"><span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span><div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button><div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button" data-theme-option="periwinkle" role="menuitemradio">Focus</button><button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div></div></div>
+    <div class="header-right">
+      <div class="theme-dropdown" data-theme-control>
+        <button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button>
+        <div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme">
+          <button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button>
+          <button type="button" data-theme-option="periwinkle" role="menuitemradio">Focus</button>
+          <button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button>
+        </div>
+      </div>
+    </div>
   </header>
   <!-- Ambient orb layer -->
   <div class="orbs" aria-hidden="true">
@@ -806,8 +816,13 @@
     function getRank(xp){for(let i=RANKS.length-1;i>=0;i--){if(xp>=RANKS[i].min)return{...RANKS[i],idx:i};}return{...RANKS[0],idx:0};}
 
     const LS_KEY='grind_log_v1';
+    /* Cross-device sync: state writes are mirrored to Supabase
+       (user_id: NEXUS_USER_ID) via window.NexusSync; localStorage stays as
+       the offline fallback only — sync.js queues writes while offline. */
+    const sync=()=>window.NexusSync||null;
     function load(){try{const r=localStorage.getItem(LS_KEY);return r?JSON.parse(r):{}}catch{return{}}}
-    function save(s){try{localStorage.setItem(LS_KEY,JSON.stringify(s))}catch(error){console.warn('[NEXUS grind] local state save failed',error)}}
+    function save(s){try{localStorage.setItem(LS_KEY,JSON.stringify(s))}catch(error){console.warn('[NEXUS grind] local state save failed',error)}
+      if(sync())sync().save(LS_KEY,s).catch(()=>{});}
     let S=load();
     function gs(key,def){return S[key]!=null?S[key]:def}
     function ss(key,val){S[key]=val;save(S)}
@@ -829,7 +844,8 @@
 
     // ─── GOALS ───
     function getLongGoals(){try{return JSON.parse(localStorage.getItem('long_goals_v1'))||[];}catch{return[];}}
-    function setLongGoals(goals){try{localStorage.setItem('long_goals_v1',JSON.stringify(goals));}catch(error){console.warn('[NEXUS grind] goal save failed',error)}}
+    function setLongGoals(goals){try{localStorage.setItem('long_goals_v1',JSON.stringify(goals));}catch(error){console.warn('[NEXUS grind] goal save failed',error)}
+      if(sync())sync().save('long_goals_v1',goals).catch(()=>{});}
     function goalPct(g){
       const cur=Number(g.current)||0,tgt=Number(g.target)||0,start=Number(g.start!=null?g.start:g.current)||0;
       let pct;
@@ -1045,6 +1061,24 @@
     window.addEventListener('storage',e=>{if(e.key==='long_goals_v1'){renderGoalDropdown();renderGoalContribs();}});
 
     render();
+
+    /* Cross-device hydration: pull grind state from Supabase
+       (user_id-filtered). Remote wins when present; localStorage is the
+       fallback when Supabase fails or returns empty, then re-render. */
+    (async function hydrateGrindFromCloud(){
+      const nx=sync();if(!nx)return;
+      try{
+        await nx.hydrate(LS_KEY,function(remote,local){
+          if(remote==null)return local;
+          const r=remote&&Array.isArray(remote.logs)?remote.logs:[];
+          const l=local&&Array.isArray(local.logs)?local.logs:[];
+          const seen=new Set(r.map(x=>x&&x.ts));
+          return Object.assign({},local||{},{logs:r.concat(l.filter(x=>x&&x.ts&&!seen.has(x.ts)))});
+        });
+      }catch(error){console.warn('[NEXUS grind] hydration failed',error);}
+      try{await nx.hydrate('long_goals_v1');}catch(error){console.warn('[NEXUS grind] goals hydration failed',error);}
+      S=load();render();
+    })();
   })();
   </script>
 </body>

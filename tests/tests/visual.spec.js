@@ -22,6 +22,27 @@ import {
   switchTheme, waitForAnimations, FREEZE_CSS,
 } from './helpers.js';
 
+// Visual baselines must not vary with Supabase availability or live user data.
+// Replace the sync runtime with a successful empty stub for this spec only.
+test.beforeEach(async ({ page }) => {
+  await page.route('**/scripts/sync.js*', route =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/javascript',
+      body: `window.NexusSync = {
+        USER_ID: 'nexus-ibrahim',
+        getStatus: () => 'synced',
+        isOnline: () => true,
+        onStatusChange: () => () => {},
+        save: () => Promise.resolve({ ok: true, queued: false }),
+        load: () => Promise.resolve({ data: null, source: 'empty', error: null }),
+        hydrate: () => Promise.resolve(null),
+        flush: () => Promise.resolve(true)
+      };`,
+    })
+  );
+});
+
 async function prepareForScreenshot(page) {
   await page.waitForLoadState('networkidle');
   // Freeze all animations for stable pixel-perfect screenshots

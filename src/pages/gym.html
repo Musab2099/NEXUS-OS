@@ -29,30 +29,6 @@
       }
     }
 
-    :root {
-      --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-      --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    }
-
-    [data-theme="nexus-dark"] {
-      --bg: #0A0813;
-      --bg-card: #12101F;
-      --text-1: #FFFFFF;
-      --text-2: #D4CFE5;
-      --text-3: #8A7FA8;
-      --text-4: #5A4E78;
-      --border: rgba(138, 43, 226, 0.18);
-      --border-strong: rgba(138, 43, 226, 0.40);
-      --amethyst: #8A2BE2;
-      --magenta: #FF1493;
-      --indigo: #B026FF;
-      --violet-muted: #6B4FA0;
-      --gray-rest: #4A445E;
-      --push: #FF1493;
-      --pull: #B026FF;
-      --legs: #8A2BE2;
-      --core: #6B4FA0;
-    }
 
     * {
       box-sizing: border-box;
@@ -77,9 +53,9 @@
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(60% 50% at 15% 8%, rgba(138, 43, 226, 0.20) 0%, transparent 60%),
-        radial-gradient(50% 40% at 85% 85%, rgba(255, 20, 147, 0.14) 0%, transparent 60%),
-        radial-gradient(35% 30% at 65% 18%, rgba(176, 38, 255, 0.10) 0%, transparent 55%);
+        radial-gradient(60% 50% at 15% 8%, var(--a1) 0%, transparent 60%),
+        radial-gradient(50% 40% at 85% 85%, var(--a3) 0%, transparent 60%),
+        radial-gradient(35% 30% at 65% 18%, var(--sbg) 0%, transparent 55%);
       filter: blur(44px);
       pointer-events: none;
       z-index: 0;
@@ -90,8 +66,6 @@
       content: '';
       position: fixed;
       inset: 0;
-      background-image: radial-gradient(rgba(255, 255, 255, 0.013) 1px, transparent 1px);
-      background-size: 3px 3px;
       pointer-events: none;
       z-index: 1;
     }
@@ -140,10 +114,10 @@
     }
 
     .back-btn:hover {
-      background: rgba(176, 38, 255, 0.18);
+      background: var(--bdr-hov);
       color: var(--text-primary);
-      border-color: rgba(176, 38, 255, 0.50);
-      box-shadow: 0 0 14px rgba(176, 38, 255, 0.30);
+      border-color: var(--bdr-hov);
+      box-shadow: 0 0 14px var(--bdr-hov);
     }
 
     .hero {
@@ -166,7 +140,7 @@
       font-size: 26px;
       font-weight: 800;
       letter-spacing: -0.025em;
-      background: linear-gradient(135deg, #fff 30%, rgba(255, 255, 255, 0.55) 100%);
+      background: linear-gradient(135deg, var(--t1) 30%, rgba(255, 255, 255, 0.55) 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -203,10 +177,10 @@
     }
 
     .schedule-btn:hover {
-      background: rgba(176, 38, 255, 0.18);
+      background: var(--bdr-hov);
       color: var(--text-primary);
-      border-color: rgba(176, 38, 255, 0.50);
-      box-shadow: 0 0 12px rgba(176, 38, 255, 0.30);
+      border-color: var(--bdr-hov);
+      box-shadow: 0 0 12px var(--bdr-hov);
     }
 
     .today-pill {
@@ -216,7 +190,7 @@
       padding: 10px 14px;
       border-radius: 14px;
       border: 1.5px solid var(--day-color, var(--border-strong));
-      background: rgba(138, 43, 226, 0.06);
+      background: var(--sbg);
       margin-bottom: 18px;
     }
 
@@ -256,7 +230,7 @@
       content: '';
       flex: 1;
       height: 1px;
-      background: rgba(138, 43, 226, 0.22);
+      background: var(--border);
     }
 
     .divider span {
@@ -300,12 +274,12 @@
     }
 
     .day-tab:hover {
-      background: rgba(176, 38, 255, 0.12);
-      box-shadow: 0 0 10px rgba(176, 38, 255, 0.20);
+      background: var(--sbg);
+      box-shadow: 0 0 10px var(--sbg);
     }
 
     .day-tab.active {
-      background: linear-gradient(135deg, rgba(138, 43, 226, 0.25), rgba(255, 20, 147, 0.20));
+      background: linear-gradient(135deg, var(--sbg), var(--sbg));
       border-color: var(--tab-color, var(--border-strong));
       color: var(--text-primary);
       box-shadow: 0 0 14px -2px var(--tab-color, transparent);
@@ -368,31 +342,30 @@
       padding: 7px 12px;
       border-radius: 9px;
       margin-bottom: 8px;
-      border-left: 3px solid var(--border);
-      background: rgba(138, 43, 226, 0.05);
+      background: var(--sbg);
     }
 
     .phase-warmup {
-      border-left-color: rgba(107, 79, 160, 0.50);
+      border-left-color: var(--bar4);
     }
 
     .phase-skill {
-      border-left-color: #B026FF;
-      background: rgba(176, 38, 255, 0.07);
+      border-left-color: var(--a2);
+      background: var(--sbg);
     }
 
     .phase-strength {
       border-left-color: var(--push);
-      background: rgba(255, 20, 147, 0.05);
+      background: var(--sbg);
     }
 
     .phase-conditioning {
-      border-left-color: #FF1493;
-      background: rgba(255, 20, 147, 0.07);
+      border-left-color: var(--a3);
+      background: var(--sbg);
     }
 
     .phase-cooldown {
-      border-left-color: rgba(107, 79, 160, 0.35);
+      border-left-color: var(--bar4);
     }
 
     .phase-header-left {
@@ -415,15 +388,15 @@
     }
 
     .phase-skill .phase-name {
-      color: #C77DFF;
+      color: var(--a2);
     }
 
     .phase-strength .phase-name {
-      color: #FF8EC0;
+      color: var(--push);
     }
 
     .phase-conditioning .phase-name {
-      color: #FF6BB0;
+      color: var(--a3);
     }
 
     .phase-duration {
@@ -441,8 +414,8 @@
     /* ── SUPERSET GROUPS ── */
     .superset-group {
       border-radius: 11px;
-      border: 1px solid rgba(138, 43, 226, 0.22);
-      background: rgba(138, 43, 226, 0.03);
+      border: 1px solid var(--border);
+      background: var(--sbg);
       overflow: hidden;
     }
 
@@ -451,8 +424,8 @@
       align-items: center;
       gap: 8px;
       padding: 5px 12px;
-      background: rgba(138, 43, 226, 0.08);
-      border-bottom: 1px solid rgba(138, 43, 226, 0.14);
+      background: var(--sbg);
+      border-bottom: 1px solid var(--border);
     }
 
     .ss-label {
@@ -460,7 +433,7 @@
       font-weight: 800;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: #9B59D0;
+      color: var(--a2);
       font-family: var(--mono);
     }
 
@@ -476,7 +449,7 @@
       border-left: none;
       border-right: none;
       border-top: none;
-      border-bottom: 1px solid rgba(138, 43, 226, 0.10) !important;
+      border-bottom: 1px solid var(--sbg) !important;
       box-shadow: none !important;
     }
 
@@ -485,7 +458,7 @@
     }
 
     .superset-group .ex-row.done {
-      box-shadow: inset 0 0 0 1px rgba(176, 38, 255, 0.30) !important;
+      box-shadow: inset 0 0 0 1px var(--bdr-hov) !important;
     }
 
     .ss-pos {
@@ -495,8 +468,8 @@
       width: 17px;
       height: 17px;
       border-radius: 5px;
-      background: rgba(176, 38, 255, 0.18);
-      color: #C77DFF;
+      background: var(--bdr-hov);
+      color: var(--a2);
       font-size: 9px;
       font-weight: 800;
       font-family: var(--mono);
@@ -512,7 +485,7 @@
       gap: 12px;
       padding: 11px 12px;
       border-radius: 10px;
-      background: rgba(138, 43, 226, 0.04);
+      background: var(--sbg);
       border: 1px solid transparent;
       transition: background .15s, border-color .15s, box-shadow .18s;
       cursor: pointer;
@@ -520,13 +493,13 @@
     }
 
     .ex-row:hover {
-      background: rgba(176, 38, 255, 0.10);
+      background: var(--sbg);
     }
 
     .ex-row.done {
-      background: rgba(176, 38, 255, 0.12);
-      border-color: rgba(176, 38, 255, 0.40);
-      box-shadow: 0 0 12px rgba(176, 38, 255, 0.18);
+      background: var(--sbg);
+      border-color: var(--bdr-hov);
+      box-shadow: 0 0 12px var(--bdr-hov);
     }
 
     .ex-row.done .ex-name {
@@ -535,8 +508,8 @@
     }
 
     .ex-row.skill-ex {
-      border-color: rgba(176, 38, 255, 0.40);
-      background: rgba(138, 43, 226, 0.09);
+      border-color: var(--bdr-hov);
+      background: var(--sbg);
     }
 
     .ex-check {
@@ -546,7 +519,7 @@
       margin-top: 1px;
       border: 1.5px solid var(--border-strong);
       border-radius: 7px;
-      background: rgba(0, 0, 0, 0.25);
+      background: var(--bg-card);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -554,15 +527,15 @@
     }
 
     .ex-row.done .ex-check {
-      background: linear-gradient(135deg, #8A2BE2 0%, #FF1493 100%);
+      background: linear-gradient(135deg, var(--a1) 0%, var(--a3) 100%);
       border-color: transparent;
-      box-shadow: 0 0 10px rgba(176, 38, 255, 0.50);
+      box-shadow: 0 0 10px var(--bdr-hov);
     }
 
     .ex-check-tick {
       display: none;
       font-size: 12px;
-      color: #fff;
+      color: var(--t1);
     }
 
     .ex-row.done .ex-check-tick {
@@ -601,8 +574,8 @@
       padding: 1px 6px;
       border-radius: 4px;
       margin-left: 7px;
-      background: rgba(138, 43, 226, 0.12);
-      border: 1px solid rgba(138, 43, 226, 0.22);
+      background: var(--sbg);
+      border: 1px solid var(--border);
       color: var(--text-secondary);
       font-size: 9px;
       font-weight: 700;
@@ -624,12 +597,12 @@
 
     .ex-badge.skill {
       background: linear-gradient(135deg, rgba(176, 38, 255, 0.25), rgba(138, 43, 226, 0.30));
-      color: #C77DFF;
+      color: var(--a2);
     }
 
     .ex-badge.hiit {
       background: rgba(255, 20, 147, 0.18);
-      color: #FF6BAA;
+      color: var(--a3);
     }
 
     /* ── DONE BAR ── */
@@ -661,13 +634,13 @@
       padding: 10px 18px;
       border-radius: 10px;
       border: 1px solid transparent;
-      background: linear-gradient(135deg, #8A2BE2 0%, #FF1493 100%);
-      color: #fff;
+      background: linear-gradient(135deg, var(--a1) 0%, var(--a3) 100%);
+      color: var(--t1);
       font-family: inherit;
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 4px 18px rgba(176, 38, 255, 0.45), 0 0 16px rgba(255, 20, 147, 0.30);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       -webkit-tap-highlight-color: transparent;
       transition: transform .1s, box-shadow .18s, filter .18s;
     }
@@ -675,7 +648,7 @@
     .done-btn:hover {
       transform: translateY(-1px);
       filter: brightness(1.12);
-      box-shadow: 0 6px 24px rgba(176, 38, 255, 0.60), 0 0 22px rgba(255, 20, 147, 0.45);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
 
     .done-btn:active {
@@ -683,18 +656,18 @@
     }
 
     .done-btn.is-done {
-      background: linear-gradient(135deg, rgba(138, 43, 226, 0.30), rgba(255, 20, 147, 0.30));
-      color: #fff;
-      box-shadow: 0 0 14px rgba(176, 38, 255, 0.35);
-      border: 1px solid rgba(176, 38, 255, 0.50);
+      background: linear-gradient(135deg, var(--sbg), var(--sbg));
+      color: var(--t1);
+      box-shadow: 0 0 14px var(--a1);
+      border: 1px solid var(--bdr-hov);
     }
 
     .missed-btn {
       padding: 10px 16px;
       border-radius: 10px;
-      border: 1px solid rgba(107, 79, 160, 0.45);
-      background: rgba(107, 79, 160, 0.12);
-      color: #B026FF;
+      border: 1px solid var(--bar4);
+      background: var(--sbg);
+      color: var(--a2);
       font-family: inherit;
       font-size: 13px;
       font-weight: 700;
@@ -704,9 +677,9 @@
     }
 
     .missed-btn:hover {
-      background: rgba(107, 79, 160, 0.22);
-      border-color: rgba(107, 79, 160, 0.70);
-      box-shadow: 0 0 12px rgba(107, 79, 160, 0.35);
+      background: var(--sbg);
+      border-color: var(--bar4);
+      box-shadow: 0 0 12px var(--bar4);
     }
 
     .missed-btn:active {
@@ -714,9 +687,9 @@
     }
 
     .missed-btn.is-missed {
-      background: rgba(107, 79, 160, 0.25);
-      border-color: rgba(107, 79, 160, 0.70);
-      box-shadow: 0 0 14px rgba(107, 79, 160, 0.40);
+      background: var(--sbg);
+      border-color: var(--bar4);
+      box-shadow: 0 0 14px var(--bar4);
     }
 
     /* ── START WORKOUT BUTTON ── */
@@ -726,13 +699,13 @@
       padding: 13px;
       border: none;
       border-radius: 10px;
-      background: linear-gradient(135deg, #8A2BE2 0%, #FF1493 100%);
-      color: #fff;
+      background: linear-gradient(135deg, var(--a1) 0%, var(--a3) 100%);
+      color: var(--t1);
       font-family: inherit;
       font-size: 14px;
       font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 4px 18px rgba(176, 38, 255, 0.45);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       letter-spacing: 0.06em;
       text-transform: uppercase;
       -webkit-tap-highlight-color: transparent;
@@ -742,7 +715,7 @@
     .start-workout-btn:hover {
       transform: translateY(-1px);
       filter: brightness(1.12);
-      box-shadow: 0 6px 24px rgba(176, 38, 255, 0.60);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
 
     .start-workout-btn:active {
@@ -755,9 +728,9 @@
       font-weight: 700;
       padding: 3px 8px;
       border-radius: 6px;
-      background: rgba(138, 43, 226, 0.10);
-      border: 1px solid rgba(138, 43, 226, 0.30);
-      color: #C77DFF;
+      background: var(--sbg);
+      border: 1px solid var(--a1);
+      color: var(--a2);
       font-family: var(--mono);
       cursor: pointer;
       flex-shrink: 0;
@@ -768,15 +741,15 @@
     }
 
     .ex-pr-btn:hover {
-      background: linear-gradient(135deg, rgba(138, 43, 226, 0.30), rgba(255, 20, 147, 0.30));
-      border-color: rgba(176, 38, 255, 0.55);
+      background: linear-gradient(135deg, var(--sbg), var(--sbg));
+      border-color: var(--a1);
       opacity: 1;
     }
 
     .ex-pr-btn.has-pr {
       opacity: 1;
-      background: linear-gradient(135deg, rgba(138, 43, 226, 0.25), rgba(255, 20, 147, 0.25));
-      box-shadow: 0 0 10px rgba(176, 38, 255, 0.30);
+      background: linear-gradient(135deg, var(--sbg), rgba(255, 20, 147, 0.25));
+      box-shadow: 0 0 10px var(--bdr-hov);
     }
 
     /* ── SKILLS CTA ── */
@@ -785,8 +758,8 @@
       align-items: center;
       gap: 16px;
       padding: 18px 20px;
-      background: linear-gradient(135deg, rgba(138, 43, 226, 0.10), rgba(255, 20, 147, 0.06));
-      border: 1px solid rgba(176, 38, 255, 0.30);
+      background: linear-gradient(135deg, var(--sbg), var(--sbg));
+      border: 1px solid var(--bdr-hov);
       border-radius: 16px;
       text-decoration: none;
       color: inherit;
@@ -797,9 +770,9 @@
     }
 
     .skills-cta:hover {
-      background: linear-gradient(135deg, rgba(138, 43, 226, 0.18), rgba(255, 20, 147, 0.10));
-      border-color: rgba(176, 38, 255, 0.55);
-      box-shadow: 0 0 20px rgba(176, 38, 255, 0.25);
+      background: linear-gradient(135deg, var(--sbg), var(--sbg));
+      border-color: var(--a1);
+      box-shadow: 0 0 20px var(--a1);
       transform: translateY(-1px);
     }
 
@@ -870,7 +843,7 @@
       width: 36px;
       height: 4px;
       border-radius: 2px;
-      background: rgba(138, 43, 226, 0.30);
+      background: var(--a1);
       margin: 0 auto 18px;
     }
 
@@ -910,14 +883,14 @@
     }
 
     .sched-day-btn:hover {
-      background: rgba(176, 38, 255, 0.12);
+      background: var(--sbg);
     }
 
     .sched-day-btn.selected {
-      background: linear-gradient(135deg, rgba(138, 43, 226, 0.30), rgba(255, 20, 147, 0.25));
-      border-color: rgba(176, 38, 255, 0.60);
+      background: linear-gradient(135deg, var(--sbg), var(--sbg));
+      border-color: var(--a1);
       color: var(--text-primary);
-      box-shadow: 0 0 12px rgba(176, 38, 255, 0.30);
+      box-shadow: 0 0 12px var(--bdr-hov);
     }
 
     .sched-day-order {
@@ -966,8 +939,8 @@
       padding: 11px;
       border-radius: 10px;
       border: none;
-      background: linear-gradient(135deg, #8A2BE2, #FF1493);
-      color: #fff;
+      background: linear-gradient(135deg, var(--a1), var(--a3));
+      color: var(--t1);
       font-family: inherit;
       font-size: 13px;
       font-weight: 700;
@@ -1000,7 +973,7 @@
       letter-spacing: -0.03em;
       line-height: 1;
       font-variant-numeric: tabular-nums;
-      background: linear-gradient(135deg, #fff 0%, #C77DFF 100%);
+      background: linear-gradient(135deg, var(--t1) 0%, var(--a2) 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -1017,11 +990,11 @@
     }
 
     .weight-delta.down {
-      color: #C77DFF;
+      color: var(--a2);
     }
 
     .weight-delta.up {
-      color: #8A7FA8;
+      color: var(--text-secondary);
     }
 
     .weight-goal-row {
@@ -1038,7 +1011,7 @@
 
     .weight-bar-track {
       height: 8px;
-      background: rgba(138, 43, 226, 0.12);
+      background: var(--sbg);
       border-radius: 4px;
       overflow: hidden;
       margin-bottom: 16px;
@@ -1050,8 +1023,8 @@
       transform-origin: left;
       transform: scaleX(0);
       transition: transform .4s ease;
-      background: linear-gradient(90deg, #8A2BE2 0%, #B026FF 50%, #FF1493 100%);
-      box-shadow: 0 0 10px rgba(176, 38, 255, 0.40);
+      background: linear-gradient(90deg, var(--a1) 0%, var(--a2) 50%, var(--a3) 100%);
+      box-shadow: 0 0 10px var(--bdr-hov);
     }
 
     .weight-input-row {
@@ -1073,13 +1046,13 @@
     }
 
     .weight-input:focus {
-      border-color: rgba(176, 38, 255, 0.50);
-      box-shadow: 0 0 10px rgba(176, 38, 255, 0.30);
+      border-color: var(--bdr-hov);
+      box-shadow: 0 0 10px var(--bdr-hov);
     }
 
     .weight-save-btn {
-      background: linear-gradient(135deg, #8A2BE2 0%, #FF1493 100%);
-      color: #fff;
+      background: linear-gradient(135deg, var(--a1) 0%, var(--a3) 100%);
+      color: var(--t1);
       border: none;
       border-radius: 10px;
       padding: 11px 18px;
@@ -1087,7 +1060,7 @@
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(176, 38, 255, 0.40);
+      box-shadow: 0 4px 14px var(--bdr-hov);
       transition: transform .12s, box-shadow .18s, filter .18s;
     }
 
@@ -1144,8 +1117,8 @@
     }
 
     .log-input:focus {
-      border-color: rgba(176, 38, 255, 0.50);
-      box-shadow: 0 0 10px rgba(176, 38, 255, 0.30);
+      border-color: var(--bdr-hov);
+      box-shadow: 0 0 10px var(--bdr-hov);
     }
 
     .log-food {
@@ -1168,8 +1141,8 @@
       padding: 11px;
       border: none;
       border-radius: 10px;
-      background: linear-gradient(135deg, #8A2BE2 0%, #FF1493 100%);
-      color: #fff;
+      background: linear-gradient(135deg, var(--a1) 0%, var(--a3) 100%);
+      color: var(--t1);
       font-family: inherit;
       font-size: 13px;
       font-weight: 700;
@@ -1200,22 +1173,22 @@
       font-family: var(--mono);
       padding: 5px 10px;
       border-radius: 999px;
-      background: rgba(138, 43, 226, 0.06);
+      background: var(--sbg);
       border: 1px solid var(--border);
       color: var(--text-secondary);
     }
 
     .log-target-pill.hit {
-      background: linear-gradient(135deg, rgba(138, 43, 226, 0.22), rgba(255, 20, 147, 0.22));
-      border-color: rgba(176, 38, 255, 0.50);
-      color: #fff;
+      background: linear-gradient(135deg, var(--border), rgba(255, 20, 147, 0.22));
+      border-color: var(--bdr-hov);
+      color: var(--t1);
       box-shadow: 0 0 10px rgba(176, 38, 255, 0.25);
     }
 
     .log-target-pill.miss {
       background: rgba(107, 79, 160, 0.18);
-      border-color: rgba(107, 79, 160, 0.50);
-      color: #B026FF;
+      border-color: var(--bar4);
+      color: var(--a2);
     }
 
     /* ── HEATMAP ── */
@@ -1245,7 +1218,7 @@
       width: 14px;
       height: 14px;
       border-radius: 3px;
-      background: rgba(138, 43, 226, 0.10);
+      background: var(--sbg);
       cursor: default;
       transition: transform .1s;
       position: relative;
@@ -1257,7 +1230,7 @@
     }
 
     .heatmap-cell.cell-done {
-      background: #8A2BE2;
+      background: var(--a1);
       box-shadow: 0 0 6px rgba(138, 43, 226, 0.65);
     }
 
@@ -1308,7 +1281,7 @@
     }
 
     .heatmap-stat {
-      background: rgba(138, 43, 226, 0.06);
+      background: var(--sbg);
       border-radius: 10px;
       padding: 10px 12px;
     }
@@ -1355,7 +1328,7 @@
       font-weight: 800;
       font-variant-numeric: tabular-nums;
       letter-spacing: -0.03em;
-      background: linear-gradient(135deg, #fff 0%, #C77DFF 100%);
+      background: linear-gradient(135deg, var(--t1) 0%, var(--a2) 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -1370,7 +1343,7 @@
     .consistency-streak {
       font-size: 14px;
       font-weight: 700;
-      color: #C77DFF;
+      color: var(--a2);
     }
 
     /* ── HISTORY ── */
@@ -1420,13 +1393,13 @@
     }
 
     .hist-done-pill.done {
-      background: linear-gradient(135deg, rgba(138, 43, 226, 0.25), rgba(255, 20, 147, 0.25));
-      color: #fff;
+      background: linear-gradient(135deg, var(--sbg), rgba(255, 20, 147, 0.25));
+      color: var(--t1);
     }
 
     .hist-done-pill.missed {
       background: rgba(107, 79, 160, 0.22);
-      color: #B026FF;
+      color: var(--a2);
     }
 
     /* ── REST TIMER ── */
@@ -1441,10 +1414,10 @@
       gap: 16px;
       padding: 14px 20px;
       background: rgba(10, 8, 19, 0.98);
-      border: 1px solid rgba(176, 38, 255, 0.40);
+      border: 1px solid var(--bdr-hov);
       border-radius: 20px;
       backdrop-filter: blur(32px);
-      box-shadow: 0 0 0 1px rgba(176, 38, 255, 0.12), 0 0 40px rgba(176, 38, 255, 0.25), 0 24px 60px rgba(0, 0, 0, 0.75);
+      box-shadow: 0 0 0 1px var(--sbg), 0 0 40px rgba(176, 38, 255, 0.25), 0 24px 60px rgba(0, 0, 0, 0.75);
       min-width: 280px;
       transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
     }
@@ -1527,7 +1500,7 @@
       padding: 4px 9px;
       border-radius: 6px;
       border: 1px solid var(--border);
-      background: rgba(138, 43, 226, 0.06);
+      background: var(--sbg);
       color: var(--text-secondary);
       font-size: 11px;
       font-weight: 700;
@@ -1537,14 +1510,14 @@
     }
 
     .rest-preset:hover {
-      background: rgba(176, 38, 255, 0.18);
-      border-color: rgba(176, 38, 255, 0.40);
+      background: var(--bdr-hov);
+      border-color: var(--bdr-hov);
     }
 
     .rest-preset.active {
       background: linear-gradient(135deg, rgba(138, 43, 226, 0.32), rgba(255, 20, 147, 0.32));
       border-color: rgba(176, 38, 255, 0.55);
-      color: #fff;
+      color: var(--t1);
     }
 
     .rest-skip {
@@ -1561,7 +1534,7 @@
 
     .rest-skip:hover {
       color: var(--text-primary);
-      background: rgba(176, 38, 255, 0.18);
+      background: var(--bdr-hov);
     }
 
     /* ── PR MODAL ── */
@@ -1661,8 +1634,8 @@
     }
 
     .pr-input:focus {
-      border-color: rgba(176, 38, 255, 0.50);
-      box-shadow: 0 0 10px rgba(176, 38, 255, 0.30);
+      border-color: var(--bdr-hov);
+      box-shadow: 0 0 10px var(--bdr-hov);
     }
 
     .pr-input::placeholder {
@@ -1688,8 +1661,8 @@
       padding: 9px 16px;
       border-radius: 9px;
       border: none;
-      background: linear-gradient(135deg, #8A2BE2 0%, #FF1493 100%);
-      color: #fff;
+      background: linear-gradient(135deg, var(--a1) 0%, var(--a3) 100%);
+      color: var(--t1);
       font-size: 12px;
       font-weight: 700;
       cursor: pointer;
@@ -1713,7 +1686,7 @@
       align-items: center;
       gap: 10px;
       padding: 10px 13px;
-      background: rgba(138, 43, 226, 0.04);
+      background: var(--sbg);
       border-radius: 10px;
       border: 1px solid var(--border);
       margin-bottom: 6px;
@@ -1759,9 +1732,9 @@
       gap: 4px;
       padding: 2px 8px;
       border-radius: 6px;
-      background: linear-gradient(135deg, rgba(138, 43, 226, 0.25), rgba(255, 20, 147, 0.25));
-      border: 1px solid rgba(176, 38, 255, 0.50);
-      color: #fff;
+      background: linear-gradient(135deg, var(--sbg), rgba(255, 20, 147, 0.25));
+      border: 1px solid var(--bdr-hov);
+      color: var(--t1);
       font-size: 9.5px;
       font-weight: 700;
       font-family: var(--mono);
@@ -1786,7 +1759,7 @@
     }
 
     .pr-del:hover {
-      color: #C77DFF;
+      color: var(--a2);
     }
 
     .pr-empty {
@@ -1806,7 +1779,7 @@
     }
 
     .meas-stat-card {
-      background: rgba(138, 43, 226, 0.06);
+      background: var(--sbg);
       border-radius: 12px;
       padding: 13px 15px;
       position: relative;
@@ -1849,11 +1822,11 @@
     }
 
     .meas-stat-delta.pos {
-      color: #C77DFF;
+      color: var(--a2);
     }
 
     .meas-stat-delta.neg {
-      color: #8A7FA8;
+      color: var(--text-secondary);
     }
 
     .meas-stat-delta.flat {
@@ -1887,7 +1860,7 @@
       align-items: center;
       gap: 10px;
       padding: 9px 12px;
-      background: rgba(138, 43, 226, 0.04);
+      background: var(--sbg);
       border-radius: 9px;
       margin-bottom: 5px;
       border: 1px solid var(--border);
@@ -1924,7 +1897,7 @@
     }
 
     .meas-del:hover {
-      color: #C77DFF;
+      color: var(--a2);
     }
 
     /* ── RESPONSIVE ── */
@@ -1977,7 +1950,8 @@
     </style>
   </noscript>
   <script src="/scripts/theme.js" defer></script>
-  <script src="/scripts/workout-persistence.js" defer></script>
+  <script src="/scripts/sync.js"></script>
+  <script src="/scripts/workout-persistence.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="/scripts/topbar.js" defer></script>
   <link rel="stylesheet" href="/styles/animations.css">
@@ -1994,14 +1968,14 @@
         aria-current="page">Gym</a><a href="/skills" class="nav-link"
         data-route="calisthenics">Calisthenics</a><a href="/grind" class="nav-link"
         data-route="grind">Grind Log</a></nav>
-    <div class="header-right"><span class="status-pill"><span class="status-pill-dot"
-          aria-hidden="true"></span>ONLINE</span>
-      <div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button
-          aria-haspopup="menu" aria-expanded="false">THEME</button>
-        <div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button"
-            data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button"
-            data-theme-option="periwinkle" role="menuitemradio">Focus</button><button type="button"
-            data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div>
+    <div class="header-right">
+      <div class="theme-dropdown" data-theme-control>
+        <button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button>
+        <div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme">
+          <button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button>
+          <button type="button" data-theme-option="periwinkle" role="menuitemradio">Focus</button>
+          <button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button>
+        </div>
       </div>
     </div>
   </header>
@@ -2025,7 +1999,7 @@
       <div class="hero-eyebrow">Summer 2026</div>
       <div class="hero-title">Ibrahim's Calisthenics Grind 💪</div>
       <!-- ✏️ UPDATED: removed "Skill Block" from subtitle — skills are now in the live tracker -->
-      <div class="hero-sub">Push · Pull · Legs · Full Body · 4 days/week · Recomp</div>
+      <div class="hero-sub">Push · Pull · Legs · Arms + Aesthetics · 4 days/week · Recomp</div>
     </div>
 
     <div class="hero-row">
@@ -2094,11 +2068,11 @@
       <div style="display:flex;gap:14px;margin-top:8px;flex-wrap:wrap">
         <div
           style="display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);color:var(--text-secondary)">
-          <div style="width:10px;height:10px;border-radius:2px;background:#8A2BE2"></div>all done
+          <div style="width:10px;height:10px;border-radius:2px;background:var(--a1)"></div>all done
         </div>
         <div
           style="display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);color:var(--text-secondary)">
-          <div style="width:10px;height:10px;border-radius:2px;background:#B026FF"></div>partial
+          <div style="width:10px;height:10px;border-radius:2px;background:var(--a2)"></div>partial
         </div>
         <div
           style="display:flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);color:var(--text-secondary)">
@@ -2132,7 +2106,7 @@
       </div>
       <div class="heatmap-legend">
         <div class="heatmap-legend-item">
-          <div class="heatmap-legend-dot" style="background:#8A2BE2"></div>Done
+          <div class="heatmap-legend-dot" style="background:var(--a1)"></div>Done
         </div>
         <div class="heatmap-legend-item">
           <div class="heatmap-legend-dot" style="background:#0F0B1A;border:1px solid rgba(74,68,94,0.3)"></div>Missed
@@ -2199,17 +2173,17 @@
     <div class="divider"><span>Body Measurements 📏</span></div>
     <div class="card">
       <div class="meas-top-row">
-        <div class="meas-stat-card" style="--meas-color:#B026FF">
+        <div class="meas-stat-card" style="--meas-color:var(--a2)">
           <div class="meas-stat-label">Arms</div>
           <div class="meas-stat-val" id="measVal_arms">—</div>
           <div class="meas-stat-delta" id="measDelta_arms"></div>
         </div>
-        <div class="meas-stat-card" style="--meas-color:#8A2BE2">
+        <div class="meas-stat-card" style="--meas-color:var(--a1)">
           <div class="meas-stat-label">Chest</div>
           <div class="meas-stat-val" id="measVal_chest">—</div>
           <div class="meas-stat-delta" id="measDelta_chest"></div>
         </div>
-        <div class="meas-stat-card" style="--meas-color:#C77DFF">
+        <div class="meas-stat-card" style="--meas-color:var(--a2)">
           <div class="meas-stat-label">Waist</div>
           <div class="meas-stat-val" id="measVal_waist">—</div>
           <div class="meas-stat-delta" id="measDelta_waist"></div>
@@ -2256,7 +2230,7 @@
     <div class="rest-timer-ring-wrap">
       <svg width="62" height="62" viewBox="0 0 62 62">
         <circle cx="31" cy="31" r="25" fill="none" stroke="rgba(138,43,226,0.18)" stroke-width="5" />
-        <circle id="rtArc" cx="31" cy="31" r="25" fill="none" stroke="#B026FF" stroke-width="5" stroke-linecap="round"
+        <circle id="rtArc" cx="31" cy="31" r="25" fill="none" stroke="var(--a2)" stroke-width="5" stroke-linecap="round"
           stroke-dasharray="157.1" stroke-dashoffset="0"
           style="transform:rotate(-90deg);transform-origin:31px 31px;transition:stroke-dashoffset 0.45s linear,stroke 0.5s ease" />
       </svg>
@@ -2325,17 +2299,34 @@
       const DOW_NAMES_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       const DEFAULT_SCHEDULE = [1, 2, 4, 5]; // Mon, Tue, Thu, Fri
 
+      /* Cross-device sync: all five storage keys are mirrored to Supabase
+         (user_id: NEXUS_USER_ID) via window.NexusSync. localStorage remains
+         the offline fallback — sync.js writes it locally, upserts remotely,
+         and queues the write if the network is down. */
+      function sync() { return window.NexusSync || null; }
       function load() { try { const r = localStorage.getItem(LS); return r ? JSON.parse(r) : {}; } catch { return {}; } }
-      function save(s) { try { localStorage.setItem(LS, JSON.stringify(s)); } catch { } }
+      function save(s) {
+        try { localStorage.setItem(LS, JSON.stringify(s)); } catch { }
+        if (sync()) sync().save(LS, s).catch(() => { });
+      }
       function loadPR() { try { return JSON.parse(localStorage.getItem(PR_LS)) || {}; } catch { return {}; } }
-      function savePR(d) { try { localStorage.setItem(PR_LS, JSON.stringify(d)); } catch { } }
+      function savePR(d) {
+        try { localStorage.setItem(PR_LS, JSON.stringify(d)); } catch { }
+        if (sync()) sync().save(PR_LS, d).catch(() => { });
+      }
       function loadMeas() { try { return JSON.parse(localStorage.getItem(MEAS_LS)) || []; } catch { return []; } }
-      function saveMeas(d) { try { localStorage.setItem(MEAS_LS, JSON.stringify(d)); } catch { } }
+      function saveMeas(d) {
+        try { localStorage.setItem(MEAS_LS, JSON.stringify(d)); } catch { }
+        if (sync()) sync().save(MEAS_LS, d).catch(() => { });
+      }
       function getSchedule() {
         try { const s = JSON.parse(localStorage.getItem(SCHED_LS)); if (Array.isArray(s) && s.length === 4) return s; }
         catch { } return DEFAULT_SCHEDULE;
       }
-      function saveScheduleLS(days) { try { localStorage.setItem(SCHED_LS, JSON.stringify(days)); } catch { } }
+      function saveScheduleLS(days) {
+        try { localStorage.setItem(SCHED_LS, JSON.stringify(days)); } catch { }
+        if (sync()) sync().save(SCHED_LS, days).catch(() => { });
+      }
 
       let S = load();
       function gs(k, d) { return S[k] != null ? S[k] : d; }
@@ -2343,7 +2334,7 @@
 
       /* ─────────────────────────── WORKOUT METADATA ────────────────────────── */
       /* ✏️ UPDATED: removed "Skills" from labels, renamed day C to "Legs + Core" */
-      const WORKOUT_LABELS = ['Push + Core', 'Pull + Core', 'Legs + Core', 'Full Body'];
+      const WORKOUT_LABELS = ['Push + Core', 'Pull + Core', 'Legs + Core', 'Arms + Aesthetics'];
       const WORKOUT_EMOJIS = ['🔴', '🔵', '🦵', '🟡'];
       const WORKOUT_COLORS = ['var(--push)', 'var(--pull)', 'var(--legs)', 'var(--core)'];
 
@@ -2366,26 +2357,33 @@
             {
               name: 'Warm-Up', type: 'warmup', duration: '8 min',
               exercises: [
-                { name: 'Wrist Circles', sets: '1', reps: '30s each direction', rest: '—', note: 'Both directions — non-negotiable before any wrist loading', metric: 'duration' },
+                { name: 'Wrist Circles', sets: '1', reps: '30s each direction', rest: '—', note: 'Both directions — prepare wrists for loading', metric: 'duration' },
                 { name: 'Scapular Push-Ups', sets: '1', reps: '15', rest: '—', note: 'Protract and retract blades only — zero arm bend' },
-                { name: 'Arm Swings + Shoulder CARs', sets: '1', reps: '10 each direction', rest: '—', note: 'Full shoulder range of motion prep — controlled articular rotations' },
+                { name: 'Shoulder CARs', sets: '1', reps: '10 each direction', rest: '—', note: 'Controlled articular rotations through full shoulder range' },
+                { name: 'Arm Swings', sets: '1', reps: '20', rest: '—', note: 'Dynamic shoulder and chest mobility' },
+              ]
+            },
+            {
+              name: 'Skills', type: 'skill', duration: '8 min',
+              exercises: [
+                { name: 'Planche Leans', sets: '5', reps: '8–10s hold', rest: '30s', note: 'Protracted scapula, bodyweight shifted over wrists. Progress to Tuck Planche when 5×10s is consistent', metric: 'hold' },
+                { name: 'Chest-to-Wall Handstand Hold', sets: '3', reps: '30–45s', rest: '45s', note: 'Progress to kick-up practice when stable', metric: 'hold' },
               ]
             },
             {
               name: 'Push Strength', type: 'strength', duration: '35 min',
               exercises: [
-                { name: 'Chair Dips', sets: '4', reps: '15–20', rest: '90s', note: 'Use a stable chair — control the descent and keep shoulders down', tempo: '3-0-1-0' },
-                { name: 'Pike Push-Ups', sets: '3', reps: '10–15', rest: '60s', note: 'Hips high over wrists, elbows 45° from ribs — elevate feet to progress', tempo: '3-1-2-0' },
-                { name: 'Diamond Push-Ups', sets: '3', reps: '10–15', rest: '60s', note: 'Elbows track back — pure tricep isolation, chest to hands', tempo: '2-0-1-0' },
-                { name: 'Wide Push-Ups', sets: '3', reps: '12–20', rest: '60s', note: 'Weighted vest or feet elevated for progression', tempo: 'controlled' },
-                { name: 'Lateral Raise', sets: '3', reps: '15', rest: '45s', note: 'Bands or DBs — pinky up at top, no momentum, medial delt focus', tempo: 'controlled' },
+                { name: 'Pseudo-Planche Push-Ups', sets: '4', reps: '8–10', rest: '90s', note: 'Hands beside hips, lean bodyweight forward' },
+                { name: 'Chest Dips (deep ROM)', sets: '4', reps: '8–12', rest: '90s', note: 'Slight forward lean, full depth for chest emphasis' },
+                { name: 'Pike Push-Ups', sets: '3', reps: '10–12', rest: '60s' },
+                { name: 'Lateral Raise', sets: '3', reps: '15–20', rest: '45s' },
+                { name: 'Diamond Push-Ups', sets: '3', reps: '12–15', rest: '60s' },
               ]
             },
             {
               name: 'Core Block', type: 'conditioning', duration: '10 min',
               exercises: [
-                { name: 'Hollow Body Hold', sets: '2', reps: '20–30s', rest: '45s', note: 'Arms extended, lower back pressed flat to floor — foundation of all skill work', metric: 'hold' },
-                { name: 'Hanging Leg Raises', sets: '2', reps: '10–15', rest: '45s', note: 'Use the pull-up bar — raise legs with control without swinging' },
+                { name: 'Hollow Body Hold', sets: '3', reps: '30–45s', rest: '45s', metric: 'hold' },
               ]
             },
           ]
@@ -2406,20 +2404,33 @@
               ]
             },
             {
+              name: 'Skills', type: 'skill', duration: '10 min',
+              exercises: [
+                { name: 'Tuck Front Lever Hold', sets: '4', reps: '6–8s hold', rest: '45s', note: 'Progress path: Tuck → Advanced Tuck → One-Leg → Straddle → Full', metric: 'hold' },
+                { name: 'Explosive Pull-Ups', sets: '3', reps: '4–5', rest: '90s', note: 'Maximum height each rep, aim chest-to-bar. This is muscle-up prep' },
+              ]
+            },
+            {
               name: 'Pull Strength', type: 'strength', duration: '35 min',
               exercises: [
-                { name: 'Pull-Ups', sets: '4', reps: '3–5 AMRAP', rest: '90s', note: 'Dead hang to chin-over-bar every rep — stop when form breaks' },
-                { name: 'Chin-Ups', sets: '3', reps: '3–6 AMRAP', rest: '60s', note: 'Supinated grip — more bicep involvement, elbows tucked in', tempo: '2-1-2-0' },
-                { name: 'Hollow Body Hold', sets: '3', reps: '20–30s hold', rest: '45s', note: 'Focus on lower back pressed to floor, legs straight and low' },
-                { name: 'Scapular Push-ups', sets: '3', reps: '12–15', rest: '45s', note: 'In plank position, protract and retract shoulder blades without bending elbows — pure scapular control, zero equipment' },
-                { name: 'Hammer Curls', sets: '3', reps: '12', rest: '45s', note: 'Neutral grip, DB or band — brachialis and forearm development', tempo: '3-0-3-0' },
+                { name: 'Pull-Ups', sets: '4', reps: '6–8', rest: '90s', note: 'Controlled tempo, not AMRAP. Quality over grinding' },
+                { name: 'Chin-Ups', sets: '3', reps: '8–10', rest: '75s' },
+                { name: 'Australian Rows', sets: '3', reps: '12–15', rest: '60s' },
+                { name: 'Hammer Curls', sets: '3', reps: '12', rest: '45s' },
+              ]
+            },
+            {
+              name: 'Shoulder Health', type: 'conditioning', duration: '8 min',
+              exercises: [
+                { name: 'Scapular Pull-Ups', sets: '2', reps: '12', rest: '45s' },
+                { name: 'Face Pulls / Band Pull-Aparts', sets: '3', reps: '15', rest: '30s' },
               ]
             },
             {
               name: 'Core Block', type: 'conditioning', duration: '10 min',
               exercises: [
-                { name: 'Floor Leg Raises', sets: '2', reps: '12–15', rest: '45s', note: 'Keep your lower back controlled against the floor — no swinging' },
-                { name: 'Side Plank', sets: '2', reps: '25–30s each side', rest: '30s', note: 'Each side counts as one set — hips up, body rigid throughout', metric: 'hold' },
+                { name: 'Hanging Leg Raises (straight legs)', sets: '3', reps: '10–12', rest: '60s' },
+                { name: 'Tuck L-Sit Hold', sets: '2', reps: '10–15s', rest: '45s', note: 'Keep knees bent toward your chest and shoulders pushed down — use support if needed', metric: 'hold' },
               ]
             },
           ]
@@ -2435,7 +2446,7 @@
               name: 'Warm-Up', type: 'warmup', duration: '8 min',
               exercises: [
                 { name: 'Hip Circles + Leg Swings', sets: '1', reps: '20 each direction', rest: '—', note: 'Full hip joint mobility prep — forward/back and lateral swings' },
-                { name: 'Glute Bridge Walkout', sets: '1', reps: '10', rest: '—', note: 'Posterior chain activation before loading — feet walk out slowly' },
+                { name: 'Glute Bridges', sets: '1', reps: '15', rest: '—', note: 'Squeeze glutes hard at the top of each rep — controlled posterior chain activation before loading' },
                 { name: 'Ankle CARs + Calf Raises', sets: '1', reps: '10 each + 20', rest: '—', note: 'Ankle prep for single-leg movements' },
               ]
             },
@@ -2443,17 +2454,18 @@
               name: 'Leg Strength', type: 'strength', duration: '40 min',
               exercises: [
                 { name: 'Bulgarian Split Squat', sets: '4', reps: '8–10 each leg', rest: '90s', note: 'Rear foot elevated — drive through front heel, work progressively toward pistol squat', tempo: '3-0-1-0' },
-                { name: 'Nordic Curl Negatives', sets: '3', reps: '5–8', rest: '90s', note: 'Anchor feet, lower as slowly as possible — highest ROI hamstring exercise', tempo: 'max eccentric' },
+                { name: 'Shrimp Squats', sets: '3', reps: '5–8', rest: '90s', note: 'Anchor feet, lower as slowly as possible — highest ROI hamstring exercise', tempo: 'max eccentric' },
                 { name: 'Jump Squats', sets: '3', reps: '8–10', rest: '60s', note: 'Explosive output — land soft with full depth, track jump height', tempo: 'explosive' },
-                { name: 'Hip Thrust', sets: '3', reps: '15', rest: '60s', note: 'Add weight when bodyweight feels easy — full glute contraction at top', tempo: '1-1-1-1' },
+                { name: 'Pistol Squat Progressions', sets: '3', reps: '15', rest: '60s', note: 'Add weight when bodyweight feels easy — full glute contraction at top', tempo: '1-1-1-1' },
                 { name: 'Single-Leg Calf Raise', sets: '3', reps: '15–20', rest: '30s', note: 'On a step for full range — deep stretch at bottom, full plantarflexion at top', tempo: '2-1-1-1' },
               ]
             },
             {
               name: 'Core Block', type: 'conditioning', duration: '10 min',
               exercises: [
-                { name: 'Dragon Flag Negatives', sets: '2', reps: '5–8', rest: '60s', note: 'Slow eccentric only — full body tension, do not let hips drop at any point' },
-                { name: 'Dead Bug', sets: '2', reps: '10 each side', rest: '45s', note: 'Opposite arm and leg — lower back flat the entire time, controlled breathing' },
+                { name: 'Reverse Crunches', sets: '3', reps: '12–15', rest: '60s', note: 'Curl the pelvis toward the ribs with control — avoid swinging or using momentum' },
+                { name: 'Tuck L-Sit Hold', sets: '2', reps: '10–15s', rest: '45s', note: 'Keep knees bent toward your chest and shoulders pushed down — use support if needed', metric: 'hold' },
+                { name: 'Dead Bug', sets: '2', reps: '10 each side', rest: '45s', note: 'Keep your lower back pressed into the floor — move slowly and stay controlled' },
               ]
             },
           ]
@@ -2463,29 +2475,50 @@
            DAY D  —  Full Body + Core  [Fri]
         ═══════════════════════════════════════════════════════════════════════ */
         {
-          name: 'Full Body', color: 'var(--core)', emoji: '🟡', duration: '50–60 min',
+          name: 'Arms + Aesthetics', color: 'var(--core)', emoji: '🟡', duration: '50–60 min',
           phases: [
             {
               name: 'Warm-Up', type: 'warmup', duration: '8 min',
               exercises: [
-                { name: 'Full Body Joint Circuit', sets: '1', reps: '2 rounds', rest: '—', note: 'Wrists → shoulders → hips → ankles, 30s per joint — do not skip this', metric: 'duration' },
+                { name: 'Full Body Joint Circuit', sets: '1', reps: '2 rounds', rest: '—', note: 'Light, 5 min — prepare wrists, shoulders, hips, and ankles', metric: 'duration' },
               ]
             },
             {
-              name: 'Athletic Strength', type: 'strength', duration: '35 min',
+              name: 'Skills', type: 'skill', duration: '12 min',
               exercises: [
-                { name: 'Burpee Pull-Up', sets: '3', reps: '5–8', rest: '90s', note: 'Or muscle-up attempt on a good day — full power output, don\'t pace early' },
-                { name: 'Archer Push-Ups', sets: '3', reps: '10–15', rest: '60s', note: 'Decline or clap variation — unilateral horizontal push, hips stay square', tempo: '3-1-2-0' },
-                { name: 'Explosive Pull-Ups', sets: '3', reps: '6–10', rest: '60s', note: 'Wide, L-sit, or explosive style — vary each session for fresh stimulus', tempo: 'explosive' },
-                { name: 'Single-Leg RDL', sets: '3', reps: '10 each leg', rest: '60s', note: 'DB or bodyweight — hinge deep, feel full hamstring stretch, brace core', tempo: '3-1-1-0' },
-                { name: 'Dip-to-Row Superset', sets: '3', reps: '10 + 10', rest: '75s', note: 'Dips immediately into rows with no rest — 75s rest after each pair' },
+                { name: 'Handstand Kick-Up Practice / Freestanding Attempts', sets: '1', reps: '5–6 attempts', rest: 'As needed', note: 'Focus on balance, not reps. Stop a set if form degrades' },
+                { name: 'Muscle-Up Negative OR Muscle-Up Attempt (false grip)', sets: '3', reps: '2–3', rest: '2 min', note: 'If no muscle-up yet, do slow negatives from top position' },
               ]
             },
             {
-              name: 'Core Block', type: 'conditioning', duration: '10 min',
+              name: 'Chest + Triceps', type: 'strength', duration: '15 min',
               exercises: [
-                { name: 'L-Sit Hold', sets: '2', reps: '15s holds', rest: '45s', note: 'Parallettes or floor — arms locked, legs parallel, compress hard into hip flexors', metric: 'hold' },
-                { name: 'Russian Twist', sets: '2', reps: '20 reps', rest: '30s', note: 'Weighted for progression — controlled rotation, feet off floor, full ROM' },
+                { name: 'Archer Push-Ups', sets: '3', reps: '8–10 each side', rest: '75s' },
+                { name: 'Tricep Dips / Ring Dips', sets: '3', reps: '10–12', rest: '75s' },
+                { name: 'Bodyweight Skull Crushers', sets: '2', reps: '10–12', rest: '60s', note: 'Hands on floor, lower forehead to ground with elbows tracking forward' },
+              ]
+            },
+            {
+              name: 'Biceps + Forearms', type: 'strength', duration: '12 min',
+              exercises: [
+                { name: 'Chin-Ups', sets: '3', reps: '8–10', rest: '75s', note: 'Controlled, full squeeze at top, slow negative' },
+                { name: 'Hammer Curls', sets: '3', reps: '12–15', rest: '45s' },
+                { name: 'Zottman Curls', sets: '2', reps: '12', rest: '45s', note: 'Curl up supinated, rotate to pronated at top, lower overhand' },
+              ]
+            },
+            {
+              name: 'Shoulders', type: 'strength', duration: '12 min',
+              exercises: [
+                { name: 'Pike Push-Ups', sets: '3', reps: '10–12', rest: '60s' },
+                { name: 'Lateral Raise', sets: '3', reps: '15–20', rest: '45s' },
+                { name: 'Rear Delt Row / Face Pull', sets: '3', reps: '15', rest: '30s' },
+              ]
+            },
+            {
+              name: 'Core Finisher', type: 'conditioning', duration: '8 min',
+              exercises: [
+                { name: 'Tuck L-Sit Hold', sets: '2', reps: '10–15s', rest: '45s', note: 'Keep knees bent toward your chest and shoulders pushed down — stop before form breaks', metric: 'hold' },
+                { name: 'Reverse Crunches', sets: '2', reps: '12–15', rest: '45s', note: 'Controlled reps with a full squeeze at the top' },
               ]
             },
           ]
@@ -2550,7 +2583,7 @@
           const isSel = selIdx !== -1;
           return `<button type="button" class="sched-day-btn${isSel ? ' selected' : ''}" onclick="toggleSchedDay(${i})">${name}<span class="sched-day-order">${isSel ? 'Day ' + 'ABCD'[selIdx] : ''}</span></button>`;
         }).join('');
-        const labels = ['Push+Core', 'Pull+Core', 'Legs+Core', 'Full Body'];
+        const labels = ['Push+Core', 'Pull+Core', 'Legs+Core', 'Arms+Aesthetics'];
         const preview = schedPendingDays.length === 4
           ? schedPendingDays.map((dow, i) => `<strong>${DOW_NAMES_SHORT[dow]}</strong>=<strong>${labels[i]}</strong>`).join(' · ')
           : '<em>Select ' + (4 - schedPendingDays.length) + ' more day' + (schedPendingDays.length === 3 ? '' : 's') + '</em>';
@@ -2612,7 +2645,7 @@
         const arc = document.getElementById('rtArc');
         if (!arc) return;
         arc.style.strokeDashoffset = RT_CIRC * (1 - pct);
-        arc.style.stroke = pct > 0.5 ? '#B026FF' : pct > 0.25 ? '#6B4FA0' : '#4A445E';
+        arc.style.stroke = pct > 0.5 ? 'var(--a2)' : pct > 0.25 ? 'var(--bar4)' : 'var(--border)';
         document.getElementById('rtNum').textContent = Math.max(0, rtRemaining);
         const msgs = ['Go! 🔥', 'Almost! 💪', 'Rest 😤', 'Recover 💪'];
         document.getElementById('rtMsg').textContent = msgs[pct > 0.66 ? 3 : pct > 0.33 ? 2 : pct > 0.1 ? 1 : 0];
@@ -2690,11 +2723,11 @@
         const area = line + ` L${pts[pts.length - 1][0]},${H} L${pts[0][0]},${H} Z`;
         return `<svg viewBox="0 0 200 36" style="width:100%;height:36px;margin-bottom:2px" preserveAspectRatio="none">
         <defs><linearGradient id="prGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#FF1493" stop-opacity="0.30"/><stop offset="100%" stop-color="#FF1493" stop-opacity="0"/>
+          <stop offset="0%" stop-color="var(--a3)" stop-opacity="0.30"/><stop offset="100%" stop-color="var(--a3)" stop-opacity="0"/>
         </linearGradient></defs>
         <path d="${area}" fill="url(#prGrad)"/>
-        <path d="${line}" fill="none" stroke="#B026FF" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
-        <circle cx="${pts[pts.length - 1][0]}" cy="${pts[pts.length - 1][1]}" r="3" fill="#FF1493"/>
+        <path d="${line}" fill="none" stroke="var(--a2)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+        <circle cx="${pts[pts.length - 1][0]}" cy="${pts[pts.length - 1][1]}" r="3" fill="var(--a3)"/>
       </svg>`;
       }
       function renderPRModal(exName) {
@@ -3084,9 +3117,9 @@
           weeks.push('W' + (8 - w));
           data.push(scheduled > 0 ? Math.round((done / scheduled) * 100) : 0);
           if (scheduled === 0) colors.push('rgba(138,43,226,0.10)');
-          else if (done === scheduled) colors.push('#FF1493');
-          else if (done > 0) colors.push('#B026FF');
-          else if (missed > 0) colors.push('#0F0B1A');
+          else if (done === scheduled) colors.push('var(--a3)');
+          else if (done > 0) colors.push('var(--a2)');
+          else if (missed > 0) colors.push('var(--bg-main)');
           else colors.push('rgba(138,43,226,0.10)');
         }
         const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -3117,8 +3150,8 @@
             responsive: true, maintainAspectRatio: false,
             plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.y + '% completed' } } },
             scales: {
-              y: { min: 0, max: 100, ticks: { stepSize: 25, color: 'rgba(138,43,226,0.55)', font: { size: 10, family: 'ui-monospace,monospace' }, callback: v => v + '%' }, grid: { color: 'rgba(138,43,226,0.12)' }, border: { display: false } },
-              x: { ticks: { color: 'rgba(138,43,226,0.55)', font: { size: 10, family: 'ui-monospace,monospace' } }, grid: { display: false }, border: { display: false } }
+              y: { min: 0, max: 100, ticks: { stepSize: 25, color: 'var(--text-secondary)', font: { size: 10, family: 'ui-monospace,monospace' }, callback: v => v + '%' }, grid: { color: 'var(--border)' }, border: { display: false } },
+              x: { ticks: { color: 'var(--text-secondary)', font: { size: 10, family: 'ui-monospace,monospace' } }, grid: { display: false }, border: { display: false } }
             }
           }
         });
@@ -3199,13 +3232,13 @@
         document.getElementById('wChart').innerHTML = `
         <svg viewBox="0 0 100 ${H}" preserveAspectRatio="none" style="width:100%;height:80px;display:block">
           <defs><linearGradient id="wGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#FF1493" stop-opacity="0.35"/>
-            <stop offset="100%" stop-color="#FF1493" stop-opacity="0"/>
+            <stop offset="0%" stop-color="var(--a3)" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="var(--a3)" stop-opacity="0"/>
           </linearGradient></defs>
           <path d="${area}" fill="url(#wGrad)"/>
-          <path d="${line}" fill="none" stroke="#B026FF" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+          <path d="${line}" fill="none" stroke="var(--a2)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
           <line x1="0" y1="${goalY}" x2="100" y2="${goalY}" stroke="rgba(199,125,255,0.55)" stroke-width="1" stroke-dasharray="2 3"/>
-          <circle cx="${pts[pts.length - 1][0].toFixed(1)}" cy="${pts[pts.length - 1][1].toFixed(1)}" r="2.5" fill="#FF1493"/>
+          <circle cx="${pts[pts.length - 1][0].toFixed(1)}" cy="${pts[pts.length - 1][1].toFixed(1)}" r="2.5" fill="var(--a3)"/>
         </svg>
         <div style="font-size:10px;color:var(--text-secondary);font-family:var(--mono);text-align:right;margin-top:2px">— 175 lb goal</div>`;
       }
@@ -3262,12 +3295,11 @@
        function syncGymDone() {
         const tk = todayKey(); let doneCount = 0;
         for (let d = 0; d < 4; d++) { if (gs('done_' + d + '_' + tk, false)) doneCount++; }
-        try {
-          const raw = localStorage.getItem('ibrahim_gym_done') || '{}';
-          const parsed = JSON.parse(raw);
-          parsed[tk] = doneCount;
-          localStorage.setItem('ibrahim_gym_done', JSON.stringify(parsed));
-        } catch { }
+        let parsed = {};
+        try { parsed = JSON.parse(localStorage.getItem('ibrahim_gym_done')) || {}; } catch { }
+        parsed[tk] = doneCount;
+        try { localStorage.setItem('ibrahim_gym_done', JSON.stringify(parsed)); } catch { }
+        if (sync()) sync().save('ibrahim_gym_done', parsed).catch(() => { });
       }
 
       const REMOTE_RENDER_KEYS = [LS, PR_LS, MEAS_LS, SCHED_LS, 'ibrahim_gym_done'];
@@ -3305,6 +3337,19 @@
         } catch (error) {
           console.warn('[NEXUS gym] cloud hydration failed', error);
         }
+
+        /* Cross-device hydration: pull all five tracker keys from Supabase
+           (user_id-filtered). Remote wins when present; localStorage is only
+           the fallback when Supabase fails or the key doesn't exist yet. */
+        const nx = sync();
+        if (!nx) return;
+        await nx.hydrate(LS, function (remote, local) { return remote != null ? remote : local; })
+          .then(function () { renderHistory(); renderHeatmap(); renderConsistencyChart(); })
+          .catch(function (error) { console.warn('[NEXUS gym] state hydration failed', error); });
+        await nx.hydrate(PR_LS).catch(function (error) { console.warn('[NEXUS gym] PR hydration failed', error); });
+        await nx.hydrate(MEAS_LS).then(function () { renderMeasurements(); }).catch(function (error) { console.warn('[NEXUS gym] measurement hydration failed', error); });
+        await nx.hydrate(SCHED_LS).then(function () { updateDayTabLabels(); renderSchedPicker(); }).catch(function (error) { console.warn('[NEXUS gym] schedule hydration failed', error); });
+        await nx.hydrate('ibrahim_gym_done').then(function () { renderHeatmap(); }).catch(function (error) { console.warn('[NEXUS gym] done-map hydration failed', error); });
       }
 
       function init() {

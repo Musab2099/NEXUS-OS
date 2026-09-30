@@ -143,6 +143,10 @@ body {
   flex-shrink: 0;
 }
 
+.navbar .logo img,
+.navbar .logo svg,
+.logo img,
+.logo svg,
 .logo-icon img,
 .logo-icon svg,
 .logo-container img,
@@ -235,38 +239,6 @@ html[data-initial-route] .nav-link:not(.active):not(.is-active) {
   justify-content: flex-end;
   gap: 10px;
   min-width: max-content;
-}
-
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 28px;
-  padding: 6px 9px;
-  color: var(--green, #10B981);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: .11em;
-  line-height: 1;
-  white-space: nowrap;
-  background: color-mix(in srgb, currentColor 9%, transparent);
-  border: 1px solid color-mix(in srgb, currentColor 28%, transparent);
-  border-radius: 999px;
-}
-
-.status-pill-dot {
-  width: 6px;
-  height: 6px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: currentColor;
-  box-shadow: 0 0 8px currentColor;
-  animation: nexus-online-pulse 2.2s ease-in-out infinite;
-}
-
-@keyframes nexus-online-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: .35; }
 }
 
 .theme-dropdown {
@@ -424,12 +396,6 @@ html[data-initial-route] .nav-link:not(.active):not(.is-active) {
     gap: 6px;
   }
 
-  .status-pill {
-    min-height: 30px;
-    padding: 7px 8px;
-    font-size: 8px;
-    letter-spacing: .08em;
-  }
 
   .theme-toggle {
     min-height: 30px;
@@ -449,9 +415,6 @@ html[data-initial-route] .nav-link:not(.active):not(.is-active) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .status-pill-dot {
-    animation: none;
-  }
 }
 
 /* Keep in-page destinations visible below the sticky header. */

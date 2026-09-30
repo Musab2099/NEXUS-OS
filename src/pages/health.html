@@ -652,8 +652,6 @@
     }
 
     /* GITHUB HEALTH INTEL */
-    .gh-nav-button{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border-strong);border-radius:999px;background:rgba(176,38,255,.08);color:var(--text-secondary);padding:6px 10px;font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .18s;}
-    .gh-nav-button:hover{color:var(--text-primary);border-color:rgba(176,38,255,.55);background:rgba(176,38,255,.16);box-shadow:0 0 14px rgba(176,38,255,.22);}
     .gh-config-card{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;padding:16px 18px;background:linear-gradient(135deg,rgba(124,58,237,.13),rgba(217,70,239,.08));border:1px solid rgba(167,139,250,.22);border-radius:16px;}
     .gh-config-copy{min-width:0}.gh-config-copy .card-eyebrow{margin-bottom:5px}.gh-config-copy p{color:var(--text-secondary);font-size:12px;line-height:1.55;}
     .gh-config-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
@@ -679,6 +677,7 @@
 <script src="/scripts/app.js"></script>
 <noscript><style>html:not(.nexus-ready) body{visibility:visible!important}</style></noscript>
 <script src="/scripts/theme.js" defer></script>
+<script src="/scripts/sync.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="/scripts/topbar.js" defer></script>
 <script src="/scripts/github-health.js" defer></script>
@@ -692,7 +691,16 @@
     <nav class="nav-pill" aria-label="NEXUS navigation">
       <a href="/" class="nav-link" data-route="home">Home</a><a href="/#goals-section" class="nav-link" data-route="goals">Goals</a><a href="/health" class="nav-link active" data-route="wellness" aria-current="page">Wellness</a><a href="/gym" class="nav-link" data-route="gym">Gym</a><a href="/skills" class="nav-link" data-route="calisthenics">Calisthenics</a><a href="/grind" class="nav-link" data-route="grind">Grind Log</a>
     </nav>
-    <div class="header-right"><button class="gh-nav-button" id="ghNavRefresh" type="button" style="display:none">↻ Refresh</button><button class="gh-nav-button" id="ghNavConfigure" type="button" style="display: none !important;">⌁ GitHub</button><span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span><div class="theme-dropdown" data-theme-control><button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button><div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme"><button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button><button type="button" data-theme-option="periwinkle" role="menuitemradio">Focus</button><button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button></div></div></div>
+    <div class="header-right">
+      <div class="theme-dropdown" data-theme-control>
+        <button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button>
+        <div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme">
+          <button type="button" data-theme-option="nexus-dark" role="menuitemradio">NEXUS Dark</button>
+          <button type="button" data-theme-option="periwinkle" role="menuitemradio">Focus</button>
+          <button type="button" data-theme-option="arctic-white" role="menuitemradio">Arctic White</button>
+        </div>
+      </div>
+    </div>
   </header>
   <!-- Ambient orb layer -->
   <div class="orbs" aria-hidden="true">
@@ -938,7 +946,12 @@
   'use strict';
   const $=id=>document.getElementById(id);
   const get=k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}};
-  const set=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(error){console.warn('[NEXUS wellness] local state save failed',error);}};
+  /* Cross-device sync: every wellness key written locally is also mirrored to
+     Supabase (user_id: NEXUS_USER_ID) via window.NexusSync. localStorage is
+     the offline fallback only — sync.js queues remote writes while offline. */
+  const sync=()=>window.NexusSync||null;
+  const set=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(error){console.warn('[NEXUS wellness] local state save failed',error);}
+    if(k!=='wellness:tab'&&sync())sync().save(k,v).catch(()=>{});};
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const pad2=n=>String(n).padStart(2,'0');
   function today(){const d=new Date();return`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
@@ -1034,8 +1047,9 @@
       let S = {};
       try { S = JSON.parse(localStorage.getItem('grind_log_v1')) || {}; } catch (e) {}
       if (!Array.isArray(S.logs)) S.logs = [];
-      S.logs.push({ name: 'All daily habits completed', xp: 25, cat: 'focus', date: today(), ts: Date.now() });
+      S.logs.push({ name: 'All daily habits → grind XP synergy', xp: 25, cat: 'focus', date: today(), ts: Date.now() });
       localStorage.setItem('grind_log_v1', JSON.stringify(S));
+      if (sync()) sync().save('grind_log_v1', S).catch(() => {});
       window.dispatchEvent(new Event('storage'));
       if (typeof window.nexusChime === 'function') window.nexusChime();
     } catch (e) {}
@@ -1256,6 +1270,26 @@
 
   /* INIT */
   renderSleep();renderHabits();loadTodayRec();renderRecHist();refreshRing();renderDreams();loadTodayJournal();renderJHist();
+
+  /* Cross-device hydration: pull wellness keys from Supabase
+     (user_id-filtered). Remote wins when present; localStorage is the
+     fallback when Supabase fails or returns empty, then re-render. */
+  (async function hydrateWellnessFromCloud(){
+    const nx=sync();if(!nx)return;
+    const KEYS=['wellness:sleep','wellness:recovery','wellness:dreams','wellness:journal'];
+    for(const k of KEYS){
+      try{
+        await nx.hydrate(k,function(remote,local){
+          if(remote==null)return local;
+          if(k==='wellness:journal')return remote;
+          const r=Array.isArray(remote)?remote:[];const l=Array.isArray(local)?local:[];
+          const seen=new Set(r.map(x=>x&&x.date));
+          return r.concat(l.filter(x=>x&&x.date&&!seen.has(x.date)));
+        });
+      }catch(error){console.warn('[NEXUS wellness] hydration failed for '+k,error);}
+    }
+    renderSleep();renderHabits();loadTodayRec();renderRecHist();renderDreams();loadTodayJournal();renderJHist();
+  })();
   if(activeTab==='journal')renderMoodTrendChart();
 })();
 </script>

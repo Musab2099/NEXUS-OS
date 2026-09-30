@@ -139,13 +139,18 @@
     all('.nx-anim-card').forEach(function (card) {
       if (card.dataset.nxTiltReady === 'true') return;
       card.dataset.nxTiltReady = 'true';
+      var rect = card.getBoundingClientRect();
+      var updateRect = function () { rect = card.getBoundingClientRect(); };
+      window.addEventListener('resize', updateRect, { passive: true });
+
       card.addEventListener('pointermove', function (event) {
         if (event.pointerType === 'touch') return;
-        var rect = card.getBoundingClientRect();
         var x = (event.clientX - rect.left) / rect.width - .5;
         var y = (event.clientY - rect.top) / rect.height - .5;
-        card.style.willChange = 'transform';
-        card.style.transform = 'perspective(800px) rotateX(' + (-y * 5) + 'deg) rotateY(' + (x * 5) + 'deg) translateY(-4px)';
+        window.requestAnimationFrame(function () {
+          card.style.willChange = 'transform';
+          card.style.transform = 'perspective(800px) rotateX(' + (-y * 5) + 'deg) rotateY(' + (x * 5) + 'deg) translateY(-4px)';
+        });
       });
       card.addEventListener('pointerleave', function () {
         card.style.transform = '';
@@ -261,13 +266,15 @@
     var observer = new MutationObserver(function () {
       if (!initialized) { initialized = true; return; }
       target.classList.remove('nx-milestone-flash');
-      void target.offsetWidth;
-      target.classList.add('nx-milestone-flash');
+      window.requestAnimationFrame(function () {
+        target.classList.add('nx-milestone-flash');
+      });
       particleBurst(target, 'nx-xp-particle', 10);
       if (source.id === 'rankName') {
         source.classList.remove('nx-rank-unlock');
-        void source.offsetWidth;
-        source.classList.add('nx-rank-unlock');
+        window.requestAnimationFrame(function () {
+          source.classList.add('nx-rank-unlock');
+        });
       }
     });
     observer.observe(source, { attributes: true, childList: true, characterData: true, subtree: true });
@@ -326,8 +333,9 @@
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
             entry.target.classList.remove('nx-chart-enter');
-            void entry.target.offsetWidth;
-            entry.target.classList.add('nx-chart-enter');
+            window.requestAnimationFrame(function () {
+              entry.target.classList.add('nx-chart-enter');
+            });
           }
         });
       }, { threshold: .12 });
@@ -371,8 +379,9 @@
         var el = record.target.nodeType === 1 ? record.target : record.target.parentElement;
         if (!el || !el.matches || !el.matches(selector)) return;
         el.classList.remove('nx-number-pop', 'nx-number-up', 'nx-number-down');
-        void el.offsetWidth;
-        el.classList.add('nx-number-pop', 'nx-number-up');
+        window.requestAnimationFrame(function () {
+          el.classList.add('nx-number-pop', 'nx-number-up');
+        });
       });
     });
     observer.observe(document.body, { childList: true, characterData: true, subtree: true });
@@ -433,8 +442,8 @@
       };
 
       update();
-      window.addEventListener('resize', update, { passive: true });
-      nav.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', function () { window.requestAnimationFrame(update); }, { passive: true });
+      nav.addEventListener('scroll', function () { window.requestAnimationFrame(update); }, { passive: true });
       var observer = new MutationObserver(update);
       observer.observe(nav, { attributes: true, subtree: true, attributeFilter: ['class', 'aria-current'] });
       nav.querySelectorAll('.nav-link').forEach(function (link) {

@@ -5,12 +5,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/health",  "destination": "/health.html" },
-    { "source": "/gym",     "destination": "/gym.html" },
-    { "source": "/grind",   "destination": "/grind-log.html" },
-    { "source": "/skills",  "destination": "/progression-tab.html" },
-    { "source": "/grind/",  "destination": "/grind-log.html" },
-    { "source": "/skills/", "destination": "/progression-tab.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
 

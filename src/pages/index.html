@@ -188,29 +188,63 @@ body{
 .c-wellness    {grid-column:span 1}
 .c-gym         {grid-column:span 2}  .c-calisthenics{grid-column:span 1}
   .c-skills      {grid-column:span 1}  .c-stat      {grid-column:span 1}
-  .c-pulse, .c-facescan {grid-column:span 1}
+  .c-pulse {grid-column:span 2}
+  .c-streak,.c-facescan {grid-column:span 1}
 
   .pulse-card, .facescan-card { min-height: 220px; }
-  .pulse-layout { display:flex; align-items:center; gap:18px; }
-  .pulse-ring { position:relative; width:118px; height:118px; flex:0 0 auto; }
+  .pulse-layout { display:flex; align-items:center; gap:26px; }
+  .pulse-ring { position:relative; width:148px; height:148px; flex:0 0 auto; }
   .pulse-ring svg { width:100%; height:100%; transform:rotate(-90deg); overflow:visible; }
   .pulse-ring circle { fill:none; stroke-linecap:round; }
   .pulse-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  .pulse-score { color:var(--text-primary); font-size:28px; font-weight:900; line-height:1; font-variant-numeric:tabular-nums; }
-  .pulse-unit { margin-top:5px; color:var(--text-secondary); font-size:9px; letter-spacing:.16em; text-transform:uppercase; }
-  .pulse-copy { min-width:0; }
+  .pulse-score { color:var(--text-primary); font-size:40px; font-weight:900; line-height:1; font-variant-numeric:tabular-nums; }
+  .pulse-unit { margin-top:5px; color:var(--text-secondary); font-size:9px; letter-spacing:.13em; text-transform:uppercase; }
+  .pulse-copy { min-width:0; flex:1; }
   .pulse-copy h2 { margin-bottom:5px; }
   .pulse-copy p { color:var(--text-secondary); font-size:11px; line-height:1.55; }
-  .pulse-breakdown { display:grid; gap:7px; margin-top:13px; }
+  .pulse-breakdown { display:grid; gap:8px; margin-top:14px; }
   .pulse-line { display:flex; justify-content:space-between; gap:12px; color:var(--text-secondary); font-size:10px; }
-  .pulse-line strong { color:var(--text-primary); font-variant-numeric:tabular-nums; }
+  .pulse-line strong { color:var(--text-primary); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .ovr-progression { margin-top:17px; padding-top:14px; border-top:1px solid color-mix(in srgb,var(--border) 75%,transparent); }
+  .ovr-rank-row,.ovr-xp-label,.ovr-xp-foot { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .ovr-rank-row { margin-bottom:9px; }
+  .ovr-level { color:var(--a2); font-size:9px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+  .ovr-rank { display:inline-flex; align-items:center; gap:6px; padding:4px 9px; border:1px solid color-mix(in srgb,var(--a2) 35%,var(--border)); border-radius:999px; background:color-mix(in srgb,var(--a1) 12%,transparent); color:var(--text-primary); font-size:9px; font-weight:800; letter-spacing:.09em; }
+  .ovr-xp-label,.ovr-xp-foot { color:var(--text-secondary); font-size:9px; }
+  .ovr-xp-label strong { color:var(--text-primary); font-size:10px; font-variant-numeric:tabular-nums; }
+  .ovr-xp-track { height:7px; margin:7px 0; overflow:hidden; border-radius:999px; background:color-mix(in srgb,var(--text-primary) 8%,transparent); }
+  .ovr-xp-fill { width:100%; height:100%; border-radius:inherit; transform:scaleX(0); transform-origin:left; background:var(--ag); transition:transform .7s cubic-bezier(.2,.8,.2,1); }
+  .ovr-xp-foot span:last-child { text-align:right; }
+  .week-strip { margin:18px 0 16px; padding:17px 20px; border-radius:18px; }
+  .week-strip-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:13px; }
+  .week-strip-title { margin-top:4px; font-size:16px; font-weight:750; letter-spacing:-.02em; }
+  .week-strip-summary { color:var(--text-secondary); font-size:11px; text-align:right; }
+  .week-days { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; }
+  .week-day { display:grid; justify-items:center; gap:7px; padding:9px 4px; border:1px solid var(--border); border-radius:13px; background:var(--sbg); color:var(--text-secondary); }
+  .week-day.is-today { border-color:color-mix(in srgb,var(--a2) 55%,var(--border)); background:color-mix(in srgb,var(--a1) 16%,var(--sbg)); color:var(--text-primary); }
+  .week-day.is-future { opacity:.56; }
+  .week-day-label { font-size:9px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; }
+  .week-day-date { font-size:14px; font-weight:750; font-variant-numeric:tabular-nums; }
+  .week-day-mark { width:7px; height:7px; border-radius:50%; background:color-mix(in srgb,var(--text-secondary) 24%,transparent); }
+  .week-day.has-activity .week-day-mark { background:var(--a2); box-shadow:0 0 10px color-mix(in srgb,var(--a2) 70%,transparent); }
+  .week-day.is-today.has-activity .week-day-mark { background:var(--a3); }
+  .streak-list { display:grid; gap:8px; }
+  .streak-row { display:flex; align-items:center; gap:9px; min-width:0; padding:8px 9px; border:1px solid color-mix(in srgb,var(--border) 72%,transparent); border-radius:11px; background:color-mix(in srgb,var(--sbg) 72%,transparent); }
+  .streak-row-icon { width:24px; text-align:center; font-size:14px; flex:0 0 auto; }
+  .streak-row-name { min-width:0; flex:1; overflow:hidden; color:var(--text-secondary); font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+  .streak-row-value { color:var(--text-primary); font-size:11px; font-weight:800; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .streak-empty { color:var(--text-secondary); font-size:11px; line-height:1.5; padding:6px 2px; }
+  .c-streak { cursor:default; }
+  .c-streak:hover { transform:translateY(-2px); }
+  .c-streak .streak-row { transition:background .18s ease; }
+  .c-streak .streak-row:hover { background:var(--sbg); }
   .facescan-card { position:relative; overflow:hidden; }
   .facescan-card::after { content:''; position:absolute; right:-32px; bottom:-42px; width:150px; height:150px; border:1px solid color-mix(in srgb,var(--cyan) 28%,transparent); border-radius:50%; box-shadow:0 0 0 18px color-mix(in srgb,var(--cyan) 5%,transparent),0 0 40px color-mix(in srgb,var(--cyan) 16%,transparent); pointer-events:none; }
   .facescan-status { display:flex; align-items:center; gap:7px; color:var(--text-secondary); font-size:11px; margin:12px 0 18px; }
   .facescan-dot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 10px currentColor; }
   .facescan-dot.is-overdue { background:var(--cyan); }
   .facescan-action { position:relative; z-index:1; display:inline-flex; align-items:center; gap:7px; border:1px solid color-mix(in srgb,var(--cyan) 38%,var(--glass-border)); border-radius:10px; padding:9px 12px; background:color-mix(in srgb,var(--cyan) 9%,transparent); color:var(--text-primary); font-size:11px; font-weight:700; }
-  @media (max-width:520px){ .pulse-layout{align-items:flex-start; flex-direction:column;} .pulse-ring{width:104px;height:104px;} }
+  @media (max-width:520px){ .pulse-layout{align-items:center; flex-direction:row; gap:14px;} .pulse-ring{width:104px;height:104px;} }
 
 
 /* ─── CARD SHELL ─────────────────────────────────────── */
@@ -663,10 +697,57 @@ body{
   padding: 8px;
   font-size: 11px;
 }
-
 .grind-badge {
   margin-bottom: 18px;
 }
+
+/* Dashboard sync status — compact, theme-token based, and readable on mobile. */
+.sync-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--sbg);
+  color: var(--text-secondary);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .025em;
+  white-space: nowrap;
+  transition: color .18s ease, border-color .18s ease, background .18s ease;
+}
+.sync-status-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--a2);
+  box-shadow: 0 0 8px currentColor;
+}  .sync-status-badge[data-sync-state="synced"] { color: var(--green); }
+.sync-status-badge[data-sync-state="synced"] .sync-status-dot {
+  background: var(--green);
+  color: var(--green);
+}
+.sync-status-badge[data-sync-state="offline"] { color: var(--text-secondary); }
+.sync-status-badge[data-sync-state="offline"] .sync-status-dot {
+  background: var(--a3);
+  color: var(--a3);
+}
+.sync-status-badge[data-sync-state="pending"] { color: var(--a2); }
+.sync-status-badge[data-sync-state="pending"] .sync-status-dot {
+  background: var(--a2);
+  color: var(--a2);
+  animation: syncPulse 1.1s ease-in-out infinite;
+}
+@keyframes syncPulse {
+  50% { opacity: .42; transform: scale(.78); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sync-status-badge[data-sync-state="pending"] .sync-status-dot { animation: none; }
+}
+
 
 .card-caption {
   margin: 4px 0 18px;
@@ -769,20 +850,36 @@ body{
 /* ─── RESPONSIVE ─────────────────────────────────────── */
 @media(max-width:780px){
   .bento{grid-template-columns:1fr 1fr}
-  .c-goals,.c-gym{grid-column:span 2}
-  .c-ring,.c-grind,.c-wellness,.c-calisthenics,.c-skills,.c-stat{grid-column:span 1}
+  .c-goals,.c-gym,.c-pulse{grid-column:span 2}
+  .c-ring,.c-grind,.c-wellness,.c-calisthenics,.c-skills,.c-stat,.c-streak,.c-facescan{grid-column:span 1}
 }
 @media(max-width:520px){
   .bento{grid-template-columns:1fr}
-  .c-goals,.c-gym,.c-ring,.c-grind,.c-wellness,.c-calisthenics,.c-skills,.c-stat{grid-column:span 1}
+  .c-goals,.c-gym,.c-ring,.c-grind,.c-wellness,.c-calisthenics,.c-skills,.c-stat,.c-pulse,.c-streak,.c-facescan{grid-column:span 1}
   .greeting-h1{font-size:26px}
   .big-n{font-size:34px}
   .ring-hero-card{flex-direction:column;align-items:flex-start}
+  .week-strip{padding:14px 12px}
+  .week-days{gap:5px}
+  .week-day{padding:8px 2px;border-radius:10px}
+  .week-day-label{font-size:8px}
+  .week-day-date{font-size:12px}
+  .week-strip-summary{max-width:45%;font-size:10px}
+  .pulse-layout{align-items:center;gap:18px}
+  .pulse-ring{width:116px;height:116px}
+  .pulse-score{font-size:32px}
+}
+@media(max-width:360px){
+  .pulse-layout{align-items:flex-start;flex-direction:column}
+  .pulse-ring{width:106px;height:106px}
+  .pulse-copy{width:100%}
 }
 </style>
 <script src="/scripts/app.js"></script>
 <noscript><style>html:not(.nexus-ready) body{visibility:visible!important}</style></noscript>
 <script src="/scripts/theme.js" defer></script>
+<script src="/scripts/sync.js"></script>
+<script src="/scripts/workout-persistence.js"></script>
 <script src="/scripts/topbar.js" defer></script>
 <link rel="stylesheet" href="/styles/animations.css">
 <script src="/scripts/animations.js" defer></script>
@@ -807,8 +904,10 @@ body{
       <a href="/grind" class="nav-link" data-route="grind">Grind Log</a>
     </nav>
     <div class="header-right">
-      <button class="gh-nav-button" id="ghNavHeader" type="button" aria-hidden="true">⌁ GitHub</button>
-      <span class="status-pill"><span class="status-pill-dot" aria-hidden="true"></span>ONLINE</span>
+      <div class="sync-status-badge" id="syncStatusBadge" data-sync-state="pending" role="status" aria-live="polite" aria-atomic="true" aria-label="Cloud sync status: Syncing" title="Cloud sync status">
+        <span class="sync-status-dot" aria-hidden="true"></span>
+        <span id="syncStatusLabel">Checking sync…</span>
+      </div>
       <div class="theme-dropdown" data-theme-control>
         <button class="theme-toggle" type="button" data-theme-button aria-haspopup="menu" aria-expanded="false">THEME</button>
         <div class="dropdown-menu" data-theme-menu role="menu" aria-label="Choose theme">
@@ -834,6 +933,11 @@ body{
     <h1 class="greeting-h1">Welcome back, <span class="name">Ibrahim.</span></h1>
     <p class="greeting-sub" id="greetingSub"><span id="greetingGoals">—</span></p>
   </header>
+
+  <section class="week-strip glass reveal d0" aria-label="Current week activity">
+    <div class="week-strip-heading"><div><p class="card-eyebrow">Your week</p><h2 class="week-strip-title" id="weekStripTitle">This week</h2></div><span class="week-strip-summary" id="weekStripSummary">Loading activity…</span></div>
+    <div class="week-days" id="weekDays" role="list" aria-label="Activity by day this week"></div>
+  </section>
 
   <div class="quick-actions reveal d0">
     <button class="qa-btn" id="qaWorkout" title="Log today's workout"><span>💪</span> Workout</button>
@@ -876,6 +980,32 @@ body{
         </div>
         <div class="ring-remaining" id="dayRingRemaining">—</div>
         <div class="ring-hours" id="ringHoursLabel">8:00 AM – 12:00 AM window</div>
+      </div>
+    </article>
+
+    <!-- ── NEXUS PULSE ── -->
+    <article class="glass card pulse-card c-pulse reveal d1" aria-label="NEXUS composite progress score">
+      <div class="card-top">
+        <span class="card-eyebrow">NEXUS Rating</span>
+        <div class="card-icon" aria-hidden="true">◌</div>
+      </div>
+      <div class="pulse-layout">
+        <div class="pulse-ring">
+          <svg viewBox="0 0 120 120" role="img" aria-label="Composite progress score out of 100">
+            <defs><linearGradient id="pulseGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="var(--a1)"/><stop offset="100%" stop-color="var(--a3)"/></linearGradient></defs>
+            <circle cx="60" cy="60" r="54" stroke="color-mix(in srgb,var(--text-primary) 9%,transparent)" stroke-width="7"/>
+            <circle id="pulseRingFill" cx="60" cy="60" r="54" stroke="url(#pulseGrad)" stroke-width="7" stroke-dasharray="339.3" stroke-dashoffset="339.3"/>
+          </svg>
+          <div class="pulse-center"><span class="pulse-score" id="pulseScore">0</span><span class="pulse-unit">OVR</span></div>
+        </div>
+        <div class="pulse-copy"><h2 class="card-h">Overall rating</h2><p id="pulseSummary">Your rating grows with the work you log.</p><div class="pulse-breakdown" id="pulseBreakdown"></div>
+          <div class="ovr-progression" aria-label="XP and rank progression">
+            <div class="ovr-rank-row"><span class="ovr-level" id="ovrLevel">LEVEL 1</span><span class="ovr-rank" id="ovrRank">✦ ROOKIE</span></div>
+            <div class="ovr-xp-label"><span>Next level</span><strong id="ovrLevelProgress">0 / 500 XP</strong></div>
+            <div class="ovr-xp-track" role="progressbar" id="ovrXpBar" aria-label="Progress to next level" aria-valuemin="0" aria-valuemax="500" aria-valuenow="0"><div class="ovr-xp-fill" id="ovrXpFill"></div></div>
+            <div class="ovr-xp-foot"><span id="ovrTotalXp">0 XP earned</span><span id="ovrNextRank">Starting rank</span></div>
+          </div>
+        </div>
       </div>
     </article>
 
@@ -966,7 +1096,7 @@ body{
           <div class="stats gym-stats" id="gymStats"></div>
         </div>
         <div>
-          <p class="heatmap-label">16-week heatmap</p>
+          <p class="heatmap-label">16-week activity</p>
           <div class="heatmap" id="heatmap" aria-label="Workout activity heatmap"></div>
         </div>
       </div>
@@ -996,24 +1126,12 @@ body{
       <div class="meta-list" id="weeklyHighlights"></div>
     </article>
 
-    <!-- ── NEXUS PULSE ── -->
-    <!-- NEXUS PULSE — 1 col -->
-    <article class="glass card pulse-card c-pulse reveal d7" aria-label="NEXUS Pulse consistency score">
-      <div class="card-top">
-        <span class="card-eyebrow">NEXUS Pulse</span>
-        <div class="card-icon" aria-hidden="true">◌</div>
-      </div>
-      <div class="pulse-layout">
-        <div class="pulse-ring">
-          <svg viewBox="0 0 120 120" role="img" aria-label="Weekly consistency score">
-            <defs><linearGradient id="pulseGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="var(--amethyst)"/><stop offset="100%" stop-color="var(--cyan)"/></linearGradient></defs>
-            <circle cx="60" cy="60" r="54" stroke="color-mix(in srgb,var(--text-primary) 9%,transparent)" stroke-width="7"/>
-            <circle id="pulseRingFill" cx="60" cy="60" r="54" stroke="url(#pulseGrad)" stroke-width="7" stroke-dasharray="339.3" stroke-dashoffset="339.3"/>
-          </svg>
-          <div class="pulse-center"><span class="pulse-score" id="pulseScore">0</span><span class="pulse-unit">score</span></div>
-        </div>
-        <div class="pulse-copy"><h2 class="card-h">Consistency</h2><p id="pulseSummary">Building your weekly signal…</p><div class="pulse-breakdown" id="pulseBreakdown"></div></div>
-      </div>
+    <!-- ── HABIT & ACTIVITY STREAKS ── -->
+    <article class="glass card c-streak reveal d7" aria-label="Habit and activity streaks">
+      <div class="card-top"><span class="card-eyebrow">Consistency</span><div class="card-icon" aria-hidden="true">🔥</div></div>
+      <h2 class="card-h">Current streaks</h2>
+      <p class="card-sub" id="streakCardSub">From your logged days</p>
+      <div class="streak-list" id="streakList" aria-live="polite"></div>
     </article>
 
     <!-- ── FACESCAN ── -->
@@ -1122,6 +1240,33 @@ body{
   function storeSet(k, v) {
     try { localStorage.setItem(k, JSON.stringify(v)); }
     catch (error) { console.warn('[NEXUS dashboard] local state save failed', error); }
+    /* Cross-device sync: dashboard writes (goals, quick logs) are mirrored to
+       Supabase (user_id: NEXUS_USER_ID) via window.NexusSync. localStorage
+       stays the offline fallback only — sync.js queues writes while offline. */
+    const nx = window.NexusSync;
+    if (k !== 'day_window_v1' && nx) nx.save(k, v).catch(() => { });
+  }
+
+  /* Dashboard sync status — driven solely by NexusSync's public status API. */
+  const syncStatusBadge = document.getElementById('syncStatusBadge');
+  const syncStatusLabel = document.getElementById('syncStatusLabel');
+  const SYNC_STATUS_LABELS = { synced: 'Synced', offline: 'Offline', pending: 'Syncing' };
+  function renderSyncStatus(status) {
+    if (!syncStatusBadge || !syncStatusLabel) return;
+    const state = Object.prototype.hasOwnProperty.call(SYNC_STATUS_LABELS, status) ? status : 'offline';
+    syncStatusBadge.dataset.syncState = state;
+    syncStatusLabel.textContent = SYNC_STATUS_LABELS[state];
+    syncStatusBadge.setAttribute('aria-label', 'Cloud sync status: ' + SYNC_STATUS_LABELS[state]);
+    syncStatusBadge.title = 'Cloud sync status: ' + SYNC_STATUS_LABELS[state];
+  }
+  function bindSyncStatus() {
+    const nx = window.NexusSync;
+    if (nx && typeof nx.getStatus === 'function') {
+      renderSyncStatus(nx.getStatus());
+      if (typeof nx.onStatusChange === 'function') nx.onStatusChange(renderSyncStatus);
+    } else {
+      renderSyncStatus('offline');
+    }
   }
 
   function pad2(n) { return String(n).padStart(2, '0'); }
@@ -1162,7 +1307,7 @@ body{
   }
   function renderDashboardWidgets() {
     loadWorkoutLogsFromLocalStorage();
-    updateHeader(); updateGoalsCard(); updateGrindCard(); updateGymCard(); updateHighlights(); updateNexusStats(); updatePulse(); buildHeatmap();
+    updateHeader(); updateGoalsCard(); updateGrindCard(); updateGymCard(); updateHighlights(); updateNexusStats(); updatePulse(); updateOvrProgress(); buildHeatmap(); renderWeekStrip(); renderStreaks();
   }
 
   // ──────────────────────────────────────────────
@@ -1416,61 +1561,178 @@ body{
   // ──────────────────────────────────────────────
   // NEXUS STATS
   // ──────────────────────────────────────────────
+  function activityData() {
+    const gym = storeGet('ibrahim_gym_v1') || {};
+    const gymDone = storeGet('ibrahim_gym_done') || {};
+    const grind = storeGet('grind_log_v1') || {};
+    const cali = storeGet('cali_skills_v1') || {};
+    const storedHabits = storeGet('wellness:habits');
+    const habits = Array.isArray(storedHabits) ? storedHabits : [];
+    const dates = new Map();
+    const add = (date, source) => {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) return;
+      if (!dates.has(date)) dates.set(date, new Set());
+      dates.get(date).add(source);
+    };
+    Object.keys(gym).forEach(key => { const m = key.match(/^done_\d+_(\d{4}-\d{2}-\d{2})$/); if (m && gym[key]) add(m[1], 'gym'); });
+    Object.keys(gymDone).forEach(key => { if (gymDone[key]) add(key, 'gym'); });
+    (Array.isArray(grind.logs) ? grind.logs : []).forEach(log => add(log && log.date, 'grind'));
+    Object.keys(cali).forEach(skill => (cali[skill] && Array.isArray(cali[skill].sessions) ? cali[skill].sessions : []).forEach(session => add(session && session.date, 'skills')));
+    localWorkoutLogs.forEach(row => {
+      const data = row && row.data || {};
+      if (data.finished || data.done || (data.session && Array.isArray(data.session.log) && data.session.log.length) || Array.isArray(data.log) && data.log.length) add(row.date, 'workout');
+    });
+    for (let i = 0; i < 112; i++) {
+      const day = shiftDateKey(dateToKey(new Date()), -i);
+      const done = storeGet('wellness:done:' + day);
+      if (Array.isArray(done) && habits.some(habit => done.includes(habit.id))) add(day, 'habits');
+    }
+    return { dates, habits, gym, grind, cali };
+  }
+
+  function shiftDateKey(key, amount) {
+    const parts = key.split('-').map(Number);
+    const date = new Date(parts[0], parts[1] - 1, parts[2], 12);
+    date.setDate(date.getDate() + amount);
+    return dateToKey(date);
+  }
+
+  function activityCountFor(day, data) { return data.dates.has(day) ? data.dates.get(day).size : 0; }
+
+  function renderWeekStrip() {
+    const el = document.getElementById('weekDays');
+    const summary = document.getElementById('weekStripSummary');
+    const title = document.getElementById('weekStripTitle');
+    if (!el) return;
+    const now = new Date();
+    const mondayOffset = (now.getDay() + 6) % 7;
+    const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - mondayOffset, 12);
+    const data = activityData();
+    const activeDays = [];
+    el.innerHTML = '';
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(monday); date.setDate(monday.getDate() + i);
+      const key = dateToKey(date);
+      const count = activityCountFor(key, data);
+      const isToday = key === dateToKey(now);
+      const isFuture = date > new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+      if (count) activeDays.push(key);
+      const cell = document.createElement('div');
+      cell.className = 'week-day' + (isToday ? ' is-today' : '') + (isFuture ? ' is-future' : '') + (count ? ' has-activity' : '');
+      cell.setAttribute('role', 'listitem');
+      cell.title = count ? count + ' activity type' + (count === 1 ? '' : 's') + ' logged' : isFuture ? 'Upcoming' : 'No activity logged';
+      cell.innerHTML = '<span class="week-day-label">' + date.toLocaleDateString(undefined, { weekday: 'short' }) + '</span><span class="week-day-date">' + date.getDate() + '</span><span class="week-day-mark" aria-hidden="true"></span>';
+      el.appendChild(cell);
+    }
+    if (title) title.textContent = now.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    if (summary) summary.textContent = activeDays.length + ' active day' + (activeDays.length === 1 ? '' : 's') + ' this week';
+  }
+
+  function activityStreak(hasDate) {
+    let cursor = dateToKey(new Date());
+    if (!hasDate(cursor)) cursor = shiftDateKey(cursor, -1);
+    let streak = 0;
+    for (let i = 0; i < 365 && hasDate(cursor); i++) { streak++; cursor = shiftDateKey(cursor, -1); }
+    return streak;
+  }
+
+  function renderStreaks() {
+    const el = document.getElementById('streakList');
+    if (!el) return;
+    const data = activityData();
+    const logs = Array.isArray(data.grind.logs) ? data.grind.logs : [];
+    const activityHas = source => day => data.dates.has(day) && data.dates.get(day).has(source);
+    const items = [
+      { icon: '⚡', name: 'Grind log', streak: activityStreak(day => logs.some(log => log.date === day)) },
+      { icon: '💪', name: 'Gym & workouts', streak: activityStreak(day => activityHas('gym')(day) || activityHas('workout')(day)) },
+      { icon: '🤸', name: 'Skill practice', streak: activityStreak(activityHas('skills')) }
+    ];
+    data.habits.forEach(habit => {
+      if (!habit || !habit.id) return;
+      const streak = activityStreak(day => { const done = storeGet('wellness:done:' + day); return Array.isArray(done) && done.includes(habit.id); });
+      items.push({ icon: habit.icon || '✓', name: habit.name || 'Habit', streak });
+    });
+    el.innerHTML = items.map(item => '<div class="streak-row"><span class="streak-row-icon" aria-hidden="true">' + escapeHtml(item.icon) + '</span><span class="streak-row-name">' + escapeHtml(item.name) + '</span><span class="streak-row-value">' + item.streak + 'd</span></div>').join('');
+    const count = items.filter(item => item.streak > 0).length;
+    const sub = document.getElementById('streakCardSub');
+    if (sub) sub.textContent = count ? count + ' active streak' + (count === 1 ? '' : 's') : 'Log an activity to start a streak';
+  }
+
+  const NEXUS_RANKS = [
+    { name: 'ROOKIE', min: 0 }, { name: 'GRINDER', min: 1000 }, { name: 'HUSTLER', min: 3000 },
+    { name: 'FOCUSED', min: 6000 }, { name: 'ELITE', min: 12000 }, { name: 'ASCENDANT', min: 25000 }, { name: 'LEGEND', min: 50000 }
+  ];
+
+  function getProgressXP() {
+    const grind = storeGet('grind_log_v1') || {};
+    const logs = Array.isArray(grind.logs) ? grind.logs : [];
+    return Math.max(0, Math.floor(logs.reduce((sum, log) => sum + (Number(log && log.xp) || 0), 0)));
+  }
+
+  function updateOvrProgress() {
+    const totalXP = getProgressXP();
+    const levelSize = 500;
+    const level = Math.floor(totalXP / levelSize) + 1;
+    const xpIntoLevel = totalXP % levelSize;
+    const rankIndex = NEXUS_RANKS.reduce((index, rank, i) => totalXP >= rank.min ? i : index, 0);
+    const rank = NEXUS_RANKS[rankIndex];
+    const nextRank = NEXUS_RANKS[rankIndex + 1];
+    const levelEl = document.getElementById('ovrLevel');
+    const rankEl = document.getElementById('ovrRank');
+    const progressEl = document.getElementById('ovrLevelProgress');
+    const bar = document.getElementById('ovrXpBar');
+    const fill = document.getElementById('ovrXpFill');
+    const totalEl = document.getElementById('ovrTotalXp');
+    const nextRankEl = document.getElementById('ovrNextRank');
+    if (!levelEl || !rankEl || !progressEl || !bar || !fill || !totalEl || !nextRankEl) return;
+    levelEl.textContent = 'LEVEL ' + level;
+    rankEl.textContent = '✦ ' + rank.name;
+    progressEl.textContent = xpIntoLevel.toLocaleString() + ' / ' + levelSize.toLocaleString() + ' XP';
+    bar.setAttribute('aria-valuenow', String(xpIntoLevel));
+    fill.style.transform = 'scaleX(' + (xpIntoLevel / levelSize) + ')';
+    totalEl.textContent = totalXP.toLocaleString() + ' XP earned';
+    nextRankEl.textContent = nextRank ? (nextRank.min - totalXP).toLocaleString() + ' XP to ' + nextRank.name : 'Top rank reached';
+  }
+
   function updatePulse() {
-    const weekDates = [];
-    for (let i = 0; i < 7; i++) { const d = new Date(); d.setDate(d.getDate() - i); weekDates.push(dateToKey(d)); }
-    let gym = {}; try { gym = JSON.parse(localStorage.getItem('ibrahim_gym_v1')) || {}; } catch { }
-    let doneMap = {}; try { doneMap = JSON.parse(localStorage.getItem('ibrahim_gym_done')) || {}; } catch { }
-    const gymDays = new Set();
-    weekDates.forEach(key => { for (let s = 0; s < 4; s++) if (gym['done_' + s + '_' + key] || doneMap[key]) gymDays.add(key); });
-    const gymPts = Math.min(25, Math.round(gymDays.size / 4 * 25));
-
-    let cali = {}; try { cali = JSON.parse(localStorage.getItem('cali_skills_v1')) || {}; } catch { }
-    const caliDays = new Set();
-    Object.keys(cali).forEach(key => (cali[key] && Array.isArray(cali[key].sessions) ? cali[key].sessions : []).forEach(session => { if (weekDates.includes(session.date)) caliDays.add(session.date); }));
-    const caliPts = Math.min(25, Math.round(caliDays.size / 4 * 25));
-
-    let grind = {}; try { grind = JSON.parse(localStorage.getItem('grind_log_v1')) || {}; } catch { }
-    const grindDates = new Set(Array.isArray(grind.logs) ? grind.logs.map(log => log.date) : []);
-    const gymDates = new Set();
-    const caliDates = new Set();
-    const todayKey = dateToKey(new Date());
-    const gymCursor = new Date();
-    for (let i = 0; i < 365; i++) {
-      const key = dateToKey(gymCursor);
-      for (let slot = 0; slot < 4; slot++) if (gym['done_' + slot + '_' + key]) gymDates.add(key);
-      gymCursor.setDate(gymCursor.getDate() - 1);
-    }
-    Object.keys(cali).forEach(key => (cali[key] && Array.isArray(cali[key].sessions) ? cali[key].sessions : []).forEach(session => { if (session.date) caliDates.add(session.date); }));
-    const hasActivity = key => grindDates.has(key) || gymDates.has(key) || caliDates.has(key);
-    let streak = 0; const cursor = new Date();
-    if (!hasActivity(todayKey)) cursor.setDate(cursor.getDate() - 1);
-    for (let i = 0; i < 365; i++) {
-      const key = dateToKey(cursor);
-      if (!hasActivity(key)) break;
-      streak++;
-      cursor.setDate(cursor.getDate() - 1);
-    }
-    const streakPts = Math.min(50, Math.round(Math.min(streak, 14) / 14 * 50));
-    const score = Math.max(0, Math.min(100, gymPts + caliPts + streakPts));
+    const now = dateToKey(new Date());
+    const last7 = Array.from({ length: 7 }, (_, i) => shiftDateKey(now, -i));
+    const data = activityData();
+    const workoutDays = new Set();
+    const skillDays = new Set();
+    const grindDays = new Set();
+    const gymDone = storeGet('ibrahim_gym_done') || {};
+    last7.forEach(day => {
+      if (data.dates.has(day) && (data.dates.get(day).has('gym') || data.dates.get(day).has('workout'))) workoutDays.add(day);
+      if (data.dates.has(day) && data.dates.get(day).has('skills')) skillDays.add(day);
+      if (data.dates.has(day) && data.dates.get(day).has('grind')) grindDays.add(day);
+    });
+    Object.keys(gymDone).forEach(day => { if (last7.includes(day) && gymDone[day]) workoutDays.add(day); });
+    const workoutPts = Math.round(Math.min(1, workoutDays.size / 4) * 25);
+    const skills = Object.keys(data.cali).filter(key => data.cali[key] && Number(data.cali[key].level) > 0);
+    const skillLevels = skills.map(key => Math.min(1, Math.max(0, Number(data.cali[key].level) / (key === 'handstand' ? 6 : 5))));
+    const skillProgress = skillLevels.length ? skillLevels.reduce((sum, level) => sum + level, 0) / skillLevels.length : 0;
+    const skillPts = Math.round(skillProgress * 25);
+    const grindPts = Math.round(Math.min(1, grindDays.size / 5) * 25);
+    const habitsDone = data.habits.reduce((sum, habit) => sum + last7.filter(day => { const done = storeGet('wellness:done:' + day); return Array.isArray(done) && done.includes(habit.id); }).length, 0);
+    const habitCapacity = data.habits.length * 7;
+    const habitPts = habitCapacity ? Math.round(Math.min(1, habitsDone / habitCapacity) * 25) : 0;
+    const score = Math.max(0, Math.min(100, workoutPts + skillPts + grindPts + habitPts));
     const scoreEl = document.getElementById('pulseScore');
     const ring = document.getElementById('pulseRingFill');
     const breakdown = document.getElementById('pulseBreakdown');
     if (!scoreEl || !ring || !breakdown) return;
     const circumference = 339.3;
-    const targetOffset = circumference * (1 - score / 100);
     const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) { scoreEl.textContent = score; ring.style.strokeDashoffset = targetOffset; }
+    if (prefersReduced) { scoreEl.textContent = score; ring.style.strokeDashoffset = circumference * (1 - score / 100); }
     else {
-      const start = performance.now();
-      const from = Number(scoreEl.textContent) || 0;
-      scoreEl.classList.add('is-counting');
-      function tick(now) { const p = Math.min(1, (now - start) / 800); const eased = 1 - Math.pow(1 - p, 3); scoreEl.textContent = Math.round(from + (score - from) * eased); ring.style.strokeDashoffset = circumference - circumference * ((score * eased) / 100); if (p < 1) requestAnimationFrame(tick); else scoreEl.classList.remove('is-counting'); }
+      const start = performance.now(); const from = Number(scoreEl.textContent) || 0;
+      function tick(time) { const progress = Math.min(1, (time - start) / 650); const eased = 1 - Math.pow(1 - progress, 3); scoreEl.textContent = Math.round(from + (score - from) * eased); ring.style.strokeDashoffset = circumference * (1 - score * eased / 100); if (progress < 1) requestAnimationFrame(tick); }
       requestAnimationFrame(tick);
     }
-    var pulseSummaryEl = document.getElementById('pulseSummary');
-    if (pulseSummaryEl) pulseSummaryEl.textContent = score >= 80 ? 'Your systems are locked in.' : score >= 50 ? 'Good momentum — keep the signal alive.' : 'One focused action can move the score today.';
-    breakdown.innerHTML = '<div class="pulse-line"><span>Gym this week</span><strong>' + gymDays.size + ' / 4 · ' + gymPts + ' pts</strong></div><div class="pulse-line"><span>Skill sessions</span><strong>' + caliDays.size + ' / 4 · ' + caliPts + ' pts</strong></div><div class="pulse-line"><span>Daily streak <span class="streak-flame" aria-hidden="true">🔥</span></span><strong>' + streak + ' days · ' + streakPts + ' pts</strong></div>';
+    const summary = document.getElementById('pulseSummary');
+    if (summary) summary.textContent = score >= 80 ? 'Your recent systems are working in sync.' : score >= 50 ? 'Solid momentum. Keep showing up across the week.' : 'A few consistent sessions will move this score.';
+    breakdown.innerHTML = '<div class="pulse-line"><span>Workouts · target 4 days</span><strong>' + workoutPts + ' / 25</strong></div><div class="pulse-line"><span>Skill progress · ' + skills.length + ' active</span><strong>' + skillPts + ' / 25</strong></div><div class="pulse-line"><span>Grind · target 5 days</span><strong>' + grindPts + ' / 25</strong></div><div class="pulse-line"><span>Habits · last 7 days</span><strong>' + habitPts + ' / 25</strong></div>';
   }
 
   function updateFaceScanCard() {
@@ -1550,6 +1812,8 @@ body{
     let gymS = {}; try { gymS = JSON.parse(localStorage.getItem('ibrahim_gym_v1')) || {}; } catch { }
     const el = document.getElementById('heatmap');
     if (!el) return;
+    const data = activityData();
+    const doneMap = storeGet('ibrahim_gym_done') || {};
     el.innerHTML = '';
     const cols = 16, rows = 7;
     for (let c = 0; c < cols; c++) {
@@ -1561,11 +1825,13 @@ body{
         const d = new Date();
         d.setDate(d.getDate() - ((cols - 1 - c) * 7 + (6 - r)));
         const key = dateToKey(d);
-        let lvl = 0;
-        for (let s = 0; s < 4; s++) {
-          if (gymS['done_' + s + '_' + key]) lvl += 1;
-        }
+        const sources = data.dates.get(key);
+        let lvl = sources ? sources.size : 0;
+        if (doneMap[key]) lvl = Math.max(1, lvl);
+        for (let s = 0; s < 4; s++) if (gymS['done_' + s + '_' + key]) lvl = Math.max(lvl, s + 1);
         cell.className = 'hm-c' + (lvl > 0 ? ' l' + Math.min(lvl, 4) : '');
+        cell.title = key + (lvl ? ' · ' + lvl + ' activity source' + (lvl === 1 ? '' : 's') : ' · no activity');
+        cell.setAttribute('aria-label', cell.title);
         col.appendChild(cell);
       }
       el.appendChild(col);
@@ -1691,7 +1957,6 @@ body{
     return Array.isArray(g) ? g : [];
   }
   function setLongGoals(list) { storeSet('long_goals_v1', list); }
-
   function goalProgress(g) {
     const cur = Number(g.current) || 0;
     const tgt = Number(g.target) || 0;
@@ -1824,6 +2089,13 @@ body{
   // ──────────────────────────────────────────────
   // QUICK ACTIONS
   // ──────────────────────────────────────────────
+  function refreshActivityWidgets() {
+    updatePulse();
+    buildHeatmap();
+    renderWeekStrip();
+    renderStreaks();
+  }
+
   function quickLogWorkout() {
     const dow = new Date().getDay();
     let sched = [1, 2, 3, 4];
@@ -1849,6 +2121,8 @@ body{
     updateGymCard();
     updateGrindCard();
     updateNexusStats();
+    updateOvrProgress();
+    refreshActivityWidgets();
   }
   function quickLogSleep() {
     const td = getActiveDate();
@@ -1876,6 +2150,8 @@ body{
   // ──────────────────────────────────────────────
   // BOOT
   // ──────────────────────────────────────────────
+  bindSyncStatus();
+  loadWorkoutLogsFromLocalStorage();
   updateHeader();
   updateDayRing();
   updateGoalsCard();
@@ -1886,8 +2162,11 @@ body{
   updateHighlights();
   updateNexusStats();
   updatePulse();
+  updateOvrProgress();
   updateFaceScanCard();
   buildHeatmap();
+  renderWeekStrip();
+  renderStreaks();
   renderLongGoals();
 
   setInterval(() => {
@@ -1896,7 +2175,11 @@ body{
     updateGrindCard();
     updateWellnessCard();    updateGymCard();
     updatePulse();
+    updateOvrProgress();
     updateFaceScanCard();
+    buildHeatmap();
+    renderWeekStrip();
+    renderStreaks();
    }, 60 * 1000);
 
 
@@ -1913,11 +2196,42 @@ body{
     updateCaliCard();
     updateHighlights();     updateNexusStats();
      updatePulse();
+     updateOvrProgress();
      updateFaceScanCard();
+     buildHeatmap();
+     renderWeekStrip();
+     renderStreaks();
      updateHeader();
    });
 
-  // Dashboard state is rendered directly from local storage.
+  // Dashboard state is rendered directly from local storage, then hydrated
+  // from Supabase (user_id-filtered) for cross-device consistency.
+
+  /* Cross-device hydration: pull tracker state from Supabase
+     (user_id: NEXUS_USER_ID). Remote wins when present; localStorage is the
+     fallback when Supabase fails or returns empty, then re-render. */
+  (async function hydrateDashboardFromCloud() {
+    const nx = window.NexusSync;
+    if (!nx) return;
+    const KEYS = ['long_goals_v1', 'grind_log_v1', 'ibrahim_gym_v1', 'ibrahim_gym_done', 'gym_schedule_v1', 'cali_skills_v1', 'wellness:habits'];
+    await Promise.all(KEYS.map(async key => {
+      try { await nx.load(key); }
+      catch (error) { console.warn('[NEXUS dashboard] load failed for ' + key, error); }
+    }));
+    const recentHabitDays = Array.from({ length: 30 }, (_, i) => shiftDateKey(getActiveDate(), -i));
+    await Promise.all(recentHabitDays.map(async day => {
+        try { await nx.load('wellness:done:' + day); }
+        catch (error) { console.warn('[NEXUS dashboard] habit history load failed for ' + day, error); }
+    }));
+    if (window.NexusWorkoutStore && typeof window.NexusWorkoutStore.load === 'function') {
+      const recentWorkoutDays = Array.from({ length: 14 }, (_, i) => shiftDateKey(dateToKey(new Date()), -i));
+      await Promise.all(recentWorkoutDays.map(day => window.NexusWorkoutStore.load(day).catch(error => { console.warn('[NEXUS dashboard] workout load failed for ' + day, error); return null; })));
+    }
+    loadWorkoutLogsFromLocalStorage();
+    renderDashboardWidgets();
+    updateWellnessCard();
+    updateCaliCard();
+  })();
 
 })();
 </script>

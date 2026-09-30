@@ -1,12 +1,19 @@
-// NEXUS live-workout persistence.
-// Workout sessions remain local-first so logging works without a connection.
+// ============================================================================
+// NEXUS live-workout persistence (src/scripts/workout-persistence.js)
+//
+// WHAT CHANGED / WHY (cross-device workout sync fix):
+// Workout sessions were localStorage-only. They now save and load through the
+// shared sync engine's `nexus_state` key/value table, scoped to the single
+// NEXUS_USER_ID. This avoids the legacy workout_logs table whose user_id is
+// UUID/auth-scoped. The local per-date entry remains an offline fallback, and
+// NexusSync queues failed writes for its online-event retry. Public method
+// names and signatures remain unchanged.
+// ============================================================================
 (function initializeWorkoutStore() {
   'use strict';
 
-  // ─── CONFIGURATION ───────────────────────────────────────────────
   const STORAGE_PREFIX = 'nexus_workout_';
 
-  // ─── STORAGE HELPERS ──────────────────────────────────────────────
   function parseJson(value, fallback) {
     try {
       return value == null ? fallback : JSON.parse(value);
@@ -17,7 +24,6 @@
 
   function toDateKey(value) {
     if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
-
     const date = value instanceof Date ? value : new Date(value || Date.now());
     return [
       date.getFullYear(),
@@ -48,9 +54,9 @@
     }
   }
 
-  // ─── PUBLIC STORE ────────────────────────────────────────────────
   function saveWorkout(date, workoutData) {
     const dateKey = toDateKey(date);
+    const storageKey = getStorageKey(dateKey);
     const payload = {
       version: 1,
       date: dateKey,
@@ -58,12 +64,37 @@
       data: workoutData,
     };
 
+    // Preserve fast local availability; NexusSync mirrors this same key to
+    // nexus_state with user_id=NEXUS_USER_ID or queues it while offline.
     writeWorkout(dateKey, payload);
+    const nx = window.NexusSync;
+    if (nx && typeof nx.save === 'function') {
+      nx.save(storageKey, payload).catch(function (error) {
+        console.warn('[NEXUS workout] remote save queued', error);
+      });
+    }
+
     return Promise.resolve({ data: payload, error: null, local: true });
   }
 
   function loadWorkout(date) {
-    return Promise.resolve(readWorkout(date));
+    const dateKey = toDateKey(date);
+    const storageKey = getStorageKey(dateKey);
+    const nx = window.NexusSync;
+    if (!nx || typeof nx.load !== 'function') return Promise.resolve(readWorkout(dateKey));
+
+    return nx.load(storageKey)
+      .then(function (result) {
+        if (result && result.data != null) {
+          writeWorkout(dateKey, result.data);
+          return result.data;
+        }
+        return readWorkout(dateKey);
+      })
+      .catch(function (error) {
+        console.warn('[NEXUS workout] remote load failed; using local copy', error);
+        return readWorkout(dateKey);
+      });
   }
 
   window.NexusWorkoutStore = {

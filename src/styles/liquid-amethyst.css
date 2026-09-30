@@ -111,6 +111,7 @@ body::before {
   filter: blur(140px);
   opacity: .12;
   will-change: transform;
+  transform: translateZ(0);
   top: -140px; right: -120px;
   animation: la-drift1 28s ease-in-out infinite;
 }
@@ -120,6 +121,7 @@ body::before {
   filter: blur(120px);
   opacity: .08;
   will-change: transform;
+  transform: translateZ(0);
   bottom: -100px; left: -80px;
   animation: la-drift2 38s ease-in-out infinite;
 }
@@ -129,6 +131,7 @@ body::before {
   filter: blur(100px);
   opacity: .06;
   will-change: transform;
+  transform: translateZ(0);
   top: 42%; left: 38%;
   animation: la-drift3 46s ease-in-out infinite;
 }

@@ -1252,14 +1252,17 @@
     }
   </style>
   <link rel="stylesheet" href="/styles/animations.css">
-  <script src="/scripts/workout-persistence.js" defer></script>
+  <script src="/scripts/sync.js"></script>
+  <script src="/scripts/workout-persistence.js"></script>
   <script src="/scripts/animations.js" defer></script>
 </head>
 
 <body>
   <header class="navbar" data-navbar>
     <a class="logo" href="/" aria-label="NEXUS home">
-        <img src="/icon-192.png" width="32" height="32" alt="NEXUS logo">
+        <span class="logo-icon" aria-hidden="true">
+            <img src="/icon-192.png" width="32" height="32" alt="NEXUS logo">
+        </span>
         <span class="logo-text">NEXUS</span>
     </a>
     <nav class="nav-pill">
@@ -1308,28 +1311,28 @@
         <div class="dc-label">Monday</div>
         <div class="dc-name">Push Day</div>
         <div class="dc-focus">Chest · Shoulders · Triceps + Core</div>
-        <div class="dc-meta"><b>10</b> exercises · <b>23</b> sets</div>
+        <div class="dc-meta"><b>10</b> exercises · <b>24</b> sets</div>
       </div>
       <div class="day-card card" data-day="tuesday" onclick="selectDay('tuesday')">
         <span class="dc-emoji">🔄</span>
         <div class="dc-label">Tuesday</div>
         <div class="dc-name">Pull Day</div>
         <div class="dc-focus">Back · Lats · Biceps + Core</div>
-        <div class="dc-meta"><b>10</b> exercises · <b>23</b> sets</div>
+        <div class="dc-meta"><b>11</b> exercises · <b>28</b> sets</div>
       </div>
       <div class="day-card card" data-day="thursday" onclick="selectDay('thursday')">
         <span class="dc-emoji">🦵</span>
         <div class="dc-label">Thursday</div>
         <div class="dc-name">Leg Day</div>
         <div class="dc-focus">Quads · Hamstrings · Glutes + Core</div>
-        <div class="dc-meta"><b>10</b> exercises · <b>23</b> sets</div>
+        <div class="dc-meta"><b>11</b> exercises · <b>26</b> sets</div>
       </div>
       <div class="day-card card" data-day="friday" onclick="selectDay('friday')">
         <span class="dc-emoji">⚡</span>
         <div class="dc-label">Friday</div>
-        <div class="dc-name">Full Body</div>
-        <div class="dc-focus">Athletic Power · Push/Pull + Core</div>
-        <div class="dc-meta"><b>8</b> exercises · <b>20</b> sets</div>
+        <div class="dc-name">Arms + Aesthetics</div>
+        <div class="dc-focus">Chest · Arms · Shoulders + Core</div>
+        <div class="dc-meta"><b>12</b> exercises · <b>31</b> sets</div>
       </div>
     </div>
 
@@ -1541,14 +1544,14 @@
         exercises: [
           { id: 'mw1', name: 'Wrist Circles', muscles: ['Wrists'], sets: 1, reps: '30s each direction', notes: 'Both directions — non-negotiable before wrist loading', isWarmup: true },
           { id: 'mw2', name: 'Scapular Push-Ups', muscles: ['Scapula'], sets: 1, reps: '15', notes: 'Protract and retract blades only — zero arm bend', isWarmup: true },
-          { id: 'mw3', name: 'Arm Swings + Shoulder CARs', muscles: ['Shoulders'], sets: 1, reps: '10 each direction', notes: 'Full shoulder range of motion prep', isWarmup: true },
-          { id: 'm1', name: 'Chair Dips', muscles: ['Chest', 'Triceps'], sets: 4, reps: '15–20', notes: 'Stable chair · controlled descent · shoulders down', isCore: false },
-          { id: 'm2', name: 'Pike Push-Ups', muscles: ['Shoulders'], sets: 3, reps: '10–15', notes: 'Elevate feet for more difficulty' },
-          { id: 'm3', name: 'Diamond Push-Ups', muscles: ['Triceps', 'Inner Chest'], sets: 3, reps: '10–15', notes: '' },
-          { id: 'm4', name: 'Wide Push-Ups', muscles: ['Chest'], sets: 3, reps: '12–20', notes: 'Weighted vest or feet elevated' },
-          { id: 'm5', name: 'Lateral Raise', muscles: ['Lateral Delts'], sets: 3, reps: '15', notes: 'Bands or dumbbells · controlled tempo' },
-          { id: 'm6', name: 'Hollow Body Hold', muscles: ['Deep Core'], sets: 2, reps: '20–30s', notes: 'Arms extended · lower back pressed flat', isCore: true },
-          { id: 'm7', name: 'Hanging Leg Raises', muscles: ['Full Core'], sets: 2, reps: '10–15', notes: 'Pull-up bar · controlled reps without swinging', isCore: true }
+          { id: 'mw3', name: 'Shoulder CARs', muscles: ['Shoulders'], sets: 1, reps: '10 each direction', notes: 'Controlled articular rotations through full shoulder range', isWarmup: true },
+          { id: 'mw4', name: 'Arm Swings', muscles: ['Shoulders', 'Chest'], sets: 1, reps: '20', notes: 'Dynamic shoulder and chest mobility', isWarmup: true },
+          { id: 'm1', name: 'Pseudo-Planche Push-Ups', muscles: ['Chest', 'Shoulders'], sets: 4, reps: '8–10', notes: 'Hands beside hips, lean bodyweight forward' },
+          { id: 'm2', name: 'Chest Dips (deep ROM)', muscles: ['Chest', 'Triceps'], sets: 4, reps: '8–12', notes: 'Slight forward lean, full depth for chest emphasis' },
+          { id: 'm3', name: 'Pike Push-Ups', muscles: ['Shoulders'], sets: 3, reps: '10–12', notes: '' },
+          { id: 'm4', name: 'Lateral Raise', muscles: ['Lateral Delts'], sets: 3, reps: '15–20', notes: '' },
+          { id: 'm5', name: 'Diamond Push-Ups', muscles: ['Triceps'], sets: 3, reps: '12–15', notes: '' },
+          { id: 'm6', name: 'Hollow Body Hold', muscles: ['Deep Core'], sets: 3, reps: '30–45s', notes: 'Arms extended · lower back pressed flat', isCore: true }
         ]
       },
       tuesday: {
@@ -1557,13 +1560,14 @@
           { id: 'tw1', name: 'Dead Hang', muscles: ['Shoulders', 'Grip'], sets: 2, reps: '30–45s', notes: 'Passive hang — shoulder decompression and grip activation', isWarmup: true },
           { id: 'tw2', name: 'Scapular Pull-Ups', muscles: ['Lats'], sets: 2, reps: '10', notes: 'Retract blades only, zero arm bend', isWarmup: true },
           { id: 'tw3', name: 'Cross-Body Arm Swings', muscles: ['Rear Delts'], sets: 1, reps: '20 each direction', notes: 'Posterior shoulder and rotator cuff prep', isWarmup: true },
-          { id: 't1', name: 'Pull-Ups', muscles: ['Lats', 'Biceps'], sets: 4, reps: '3–5 AMRAP', notes: 'Full ROM · stop when form breaks' },
-          { id: 't2', name: 'Chin-Ups', muscles: ['Biceps', 'Lower Lats'], sets: 3, reps: '3–6 AMRAP', notes: 'Supinated grip · squeeze at top' },
-          { id: 't3', name: 'Hollow Body Hold', muscles: ['Deep Core'], sets: 3, reps: '20–30s hold', rest: 45, notes: 'Focus on lower back pressed to floor, legs straight and low', isCore: true },
-          { id: 't4', name: 'Scapular Push-ups', muscles: ['Scapula'], sets: 3, reps: '12–15', rest: 45, notes: 'In plank position, protract and retract shoulder blades without bending elbows — pure scapular control, zero equipment' },
-          { id: 't5', name: 'Hammer Curls', muscles: ['Brachialis', 'Forearms'], sets: 3, reps: '12', notes: 'Neutral grip · DB or band' },
-          { id: 't6', name: 'Floor Leg Raises', muscles: ['Lower Core', 'Hip Flexors'], sets: 2, reps: '12–15', notes: 'Keep your lower back controlled against the floor', isCore: true },
-          { id: 't7', name: 'Side Plank', muscles: ['Obliques', 'QL'], sets: 2, reps: '25–30s/side', notes: 'Each side = one set · stay rigid', isCore: true },
+          { id: 't1', name: 'Pull-Ups', muscles: ['Lats', 'Biceps'], sets: 4, reps: '6–8', notes: 'Controlled tempo, not AMRAP. Quality over grinding' },
+          { id: 't2', name: 'Chin-Ups', muscles: ['Biceps', 'Lower Lats'], sets: 3, reps: '8–10', notes: '' },
+          { id: 't3', name: 'Australian Rows', muscles: ['Back', 'Lats'], sets: 3, reps: '12–15', notes: '' },
+          { id: 't4', name: 'Hammer Curls', muscles: ['Brachialis', 'Forearms'], sets: 3, reps: '12', notes: '' },
+          { id: 't5', name: 'Scapular Pull-Ups', muscles: ['Scapula', 'Lats'], sets: 2, reps: '12', notes: '' },
+          { id: 't6', name: 'Face Pulls / Band Pull-Aparts', muscles: ['Rear Delts'], sets: 3, reps: '15', notes: '' },
+          { id: 't7', name: 'Hanging Leg Raises (straight legs)', muscles: ['Full Core'], sets: 3, reps: '10–12', notes: '', isCore: true },
+          { id: 't8', name: 'L-Sit Hold', muscles: ['Core', 'Hip Flexors'], sets: 2, reps: '15–20s', notes: '', isCore: true },
         ]
       },
       thursday: {
@@ -1577,21 +1581,26 @@
           { id: 'h3', name: 'Jump Squats', muscles: ['Power', 'Quads', 'Glutes'], sets: 3, reps: '8–10', notes: 'Land soft · full depth each rep' },
           { id: 'h4', name: 'Hip Thrust', muscles: ['Glutes'], sets: 3, reps: '15', notes: 'Add weight when bodyweight feels easy' },
           { id: 'h5', name: 'Single-Leg Calf Raise', muscles: ['Calves'], sets: 3, reps: '15–20', notes: 'On a step · full range of motion' },
-          { id: 'h6', name: 'Dragon Flag Negatives', muscles: ['Full Core', 'Spinal Erectors'], sets: 2, reps: '5–8', notes: 'Slow eccentric · full body tension', isCore: true },
-          { id: 'h7', name: 'Dead Bug', muscles: ['Deep Core'], sets: 2, reps: '10/side', notes: 'Opposite arm/leg · back flat the whole time', isCore: true },
+          { id: 'h6', name: 'Dragon Flag Negatives', muscles: ['Full Core', 'Spinal Erectors'], sets: 3, reps: '5–8', notes: 'Slow eccentric · full body tension', isCore: true },
+          { id: 'h7', name: 'L-Sit Hold', muscles: ['Core', 'Hip Flexors'], sets: 2, reps: '15s', notes: '', isCore: true },
+          { id: 'h8', name: 'Hanging Windshield Wipers', muscles: ['Obliques', 'Full Core'], sets: 2, reps: '8 each side', notes: '', isCore: true },
         ]
       },
       friday: {
-        name: 'Full Body', label: 'Friday', emoji: '⚡',
+        name: 'Arms + Aesthetics', label: 'Friday', emoji: '🟡',
         exercises: [
-          { id: 'fw1', name: 'Full Body Joint Circuit', muscles: ['Full Body'], sets: 1, reps: '2 rounds', notes: 'Wrists → shoulders → hips → ankles, 30s per joint', isWarmup: true },
-          { id: 'f1', name: 'Burpee Pull-Up', muscles: ['Full Body', 'Power'], sets: 3, reps: '5–8', notes: 'Or muscle-up attempt on good days' },
-          { id: 'f2', name: 'Archer Push-Ups', muscles: ['Chest', 'Triceps'], sets: 3, reps: '10–15', notes: 'Decline or clap variation' },
-          { id: 'f3', name: 'Explosive Pull-Ups', muscles: ['Back', 'Biceps'], sets: 3, reps: '6–10', notes: 'Wide / L-sit / explosive style' },
-          { id: 'f4', name: 'Single-Leg RDL', muscles: ['Hamstrings', 'Balance'], sets: 3, reps: '10/leg', notes: 'DB or bodyweight · hinge deep' },
-          { id: 'f5', name: 'Dip-to-Row Superset', muscles: ['Push', 'Pull'], sets: 3, reps: '10 + 10', notes: 'Minimal rest between exercises' },
-          { id: 'f6', name: 'L-Sit Hold', muscles: ['Hip Flexors', 'Core'], sets: 2, reps: '15s holds', notes: 'Parallettes or floor · full extension', isCore: true },
-          { id: 'f7', name: 'Russian Twist', muscles: ['Obliques', 'Rotation'], sets: 2, reps: '20 reps', notes: 'Weighted for progression', isCore: true },
+          { id: 'fw1', name: 'Full Body Joint Circuit', muscles: ['Full Body'], sets: 1, reps: '2 rounds', notes: 'Light, 5 min — prepare wrists, shoulders, hips, and ankles', isWarmup: true },
+          { id: 'f1', name: 'Archer Push-Ups', muscles: ['Chest', 'Triceps'], sets: 3, reps: '8–10 each side', notes: '' },
+          { id: 'f2', name: 'Tricep Dips / Ring Dips', muscles: ['Triceps', 'Chest'], sets: 3, reps: '10–12', notes: '' },
+          { id: 'f3', name: 'Bodyweight Skull Crushers', muscles: ['Triceps'], sets: 2, reps: '10–12', notes: 'Hands on floor, lower forehead to ground with elbows tracking forward' },
+          { id: 'f4', name: 'Chin-Ups', muscles: ['Biceps', 'Back'], sets: 3, reps: '8–10', notes: 'Controlled, full squeeze at top, slow negative' },
+          { id: 'f5', name: 'Hammer Curls', muscles: ['Brachialis', 'Forearms'], sets: 3, reps: '12–15', notes: '' },
+          { id: 'f6', name: 'Zottman Curls', muscles: ['Biceps', 'Forearms'], sets: 2, reps: '12', notes: 'Curl up supinated, rotate to pronated at top, lower overhand' },
+          { id: 'f7', name: 'Pike Push-Ups', muscles: ['Shoulders'], sets: 3, reps: '10–12', notes: '' },
+          { id: 'f8', name: 'Lateral Raise', muscles: ['Lateral Delts'], sets: 3, reps: '15–20', notes: '' },
+          { id: 'f9', name: 'Rear Delt Row / Face Pull', muscles: ['Rear Delts'], sets: 3, reps: '15', notes: '' },
+          { id: 'f10', name: 'L-Sit Hold', muscles: ['Hip Flexors', 'Core'], sets: 2, reps: 'max time', notes: 'Parallettes or floor · full extension', isCore: true },
+          { id: 'f11', name: 'Dragon Flag Negatives', muscles: ['Full Core'], sets: 2, reps: '5', notes: 'Slow eccentric · full body tension', isCore: true },
         ]
       }
     };

@@ -444,8 +444,9 @@ body::after {
   margin-bottom: 12px;
   position: relative;
   overflow: hidden;
-  /* 3D tilt support */
+  /* 3D tilt support & GPU promotion */
   transform-style: preserve-3d;
+  transform: translateZ(0);
   will-change: transform;
 }
 

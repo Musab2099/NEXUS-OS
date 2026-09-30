@@ -11,6 +11,34 @@ import { collectErrors, waitForAnimations } from './helpers.js';
 
 const SETTLE = 800; // ms after load to let JS render
 
+// Keep module tests independent of Supabase/CDN availability while preserving
+// the sync API and connectivity-status transitions used by the dashboard.
+test.beforeEach(async ({ page }) => {
+  await page.route('**/scripts/sync.js*', route =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/javascript',
+      body: `(function () {
+        const listeners = [];
+        const status = () => navigator.onLine ? 'synced' : 'offline';
+        const notify = () => listeners.slice().forEach(fn => fn(status()));
+        window.addEventListener('online', notify);
+        window.addEventListener('offline', notify);
+        window.NexusSync = {
+          USER_ID: 'nexus-ibrahim',
+          getStatus: status,
+          isOnline: () => navigator.onLine,
+          onStatusChange(fn) { listeners.push(fn); return () => {}; },
+          save: () => Promise.resolve({ ok: true, queued: false }),
+          load: () => Promise.resolve({ data: null, source: 'empty', error: null }),
+          hydrate: () => Promise.resolve(null),
+          flush: () => Promise.resolve(true)
+        };
+      })();`,
+    })
+  );
+});
+
 // ─── Dashboard (index.html) ───────────────────────────────────────────────────
 
 test.describe('Module — Dashboard', () => {
@@ -31,6 +59,19 @@ test.describe('Module — Dashboard', () => {
     const cards = page.locator('[class*="card"], [class*="glass"]');
     await expect(cards.first()).toBeVisible({ timeout: 5000 });
     expect(await cards.count()).toBeGreaterThan(0);
+  });
+
+  test('sync badge reflects offline and restored connectivity', async ({ page, context }) => {
+    const badge = page.locator('#syncStatusBadge');
+    await expect(badge).toBeVisible();
+    await expect(badge).toHaveAttribute('role', 'status');
+    await expect(page.locator('#syncStatusLabel')).toHaveText(/Synced|Offline|Syncing/);
+
+    await context.setOffline(true);
+    await expect(page.locator('#syncStatusLabel')).toHaveText('Offline');
+
+    await context.setOffline(false);
+    await expect(page.locator('#syncStatusLabel')).toHaveText(/Synced|Syncing|Offline/);
   });
 
   test('no JS errors on dashboard', async ({ page }) => {

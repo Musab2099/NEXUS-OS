@@ -104,9 +104,7 @@
 
   function updateConnectionUi(connected) {
     const hint = $('ghConfiguredHint');
-    const refresh = $('ghNavRefresh');
     if (hint) hint.textContent = connected ? 'Connected · auto-fetch checks the local cache first.' : 'Not connected · your PAT never goes through NEXUS servers.';
-    if (refresh) refresh.style.display = connected ? '' : 'none';
   }
 
   function saveConfig(config) {
@@ -534,8 +532,6 @@
   function init() {
     if (!$('ghDashboard')) return;
     $('ghConfigure').addEventListener('click', showConfigModal);
-    if ($('ghNavConfigure')) $('ghNavConfigure').addEventListener('click', showConfigModal);
-    if ($('ghNavRefresh')) $('ghNavRefresh').addEventListener('click', () => load(true));
     if ($('ghUpload')) $('ghUpload').addEventListener('change', event => { if (event.target.files[0]) loadLocalFile(event.target.files[0]); event.target.value = ''; });
     if ($('ghDemo')) $('ghDemo').addEventListener('click', () => { render(demoData(), false, Date.now()); setStatus('Demo data loaded · no network request made.', 'ok'); });
     $('ghClose').addEventListener('click', hideConfigModal);
