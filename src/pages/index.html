@@ -852,6 +852,7 @@ body{
 <script src="/scripts/theme.js" defer></script>
 <script src="/scripts/sync.js"></script>
 <script src="/scripts/workout-persistence.js"></script>
+<script src="/scripts/progression.js" defer></script>
 <script src="/scripts/topbar.js" defer></script>
 <link rel="stylesheet" href="/styles/animations.css">
 <script src="/scripts/animations.js" defer></script>
@@ -968,11 +969,11 @@ body{
             <circle cx="60" cy="60" r="54" stroke="color-mix(in srgb,var(--text-primary) 9%,transparent)" stroke-width="7"/>
             <circle id="pulseRingFill" cx="60" cy="60" r="54" stroke="url(#pulseGrad)" stroke-width="7" stroke-dasharray="339.3" stroke-dashoffset="339.3"/>
           </svg>
-          <div class="pulse-center"><span class="pulse-score" id="pulseScore">0</span><span class="pulse-unit">OVR</span></div>
+          <div class="pulse-center"><span id="ovrGem" aria-hidden="true"></span><span class="pulse-score" id="pulseScore">0</span><span class="pulse-unit">OVR</span></div>
         </div>
         <div class="pulse-copy"><h2 class="card-h">Overall rating</h2><p id="pulseSummary">Your rating grows with the work you log.</p><div class="pulse-breakdown" id="pulseBreakdown"></div>
           <div class="ovr-progression" aria-label="XP and rank progression">
-            <div class="ovr-rank-row"><span class="ovr-level" id="ovrLevel">LEVEL 1</span><span class="ovr-rank" id="ovrRank">✦ ROOKIE</span></div>
+            <div class="ovr-rank-row"><span class="ovr-level" id="ovrLevel">LEVEL 1</span><span class="ovr-rank" id="ovrRank">Opal III</span></div>
             <div class="ovr-xp-label"><span>Next level</span><strong id="ovrLevelProgress">0 / 500 XP</strong></div>
             <div class="ovr-xp-track" role="progressbar" id="ovrXpBar" aria-label="Progress to next level" aria-valuemin="0" aria-valuemax="500" aria-valuenow="0"><div class="ovr-xp-fill" id="ovrXpFill"></div></div>
             <div class="ovr-xp-foot"><span id="ovrTotalXp">0 XP earned</span><span id="ovrNextRank">Starting rank</span></div>
@@ -1630,25 +1631,16 @@ body{
     if (sub) sub.textContent = count ? count + ' active streak' + (count === 1 ? '' : 's') : 'Log an activity to start a streak';
   }
 
-  const NEXUS_RANKS = [
-    { name: 'ROOKIE', min: 0 }, { name: 'GRINDER', min: 1000 }, { name: 'HUSTLER', min: 3000 },
-    { name: 'FOCUSED', min: 6000 }, { name: 'ELITE', min: 12000 }, { name: 'ASCENDANT', min: 25000 }, { name: 'LEGEND', min: 50000 }
-  ];
+  // Progression is owned by the shared model, not a dashboard-specific ladder.
 
   function getProgressXP() {
-    const grind = storeGet('grind_log_v1') || {};
-    const logs = Array.isArray(grind.logs) ? grind.logs : [];
-    return Math.max(0, Math.floor(logs.reduce((sum, log) => sum + (Number(log && log.xp) || 0), 0)));
+    return window.NexusProgression ? window.NexusProgression.calculate().totalXP : 0;
   }
 
   function updateOvrProgress() {
-    const totalXP = getProgressXP();
+    if (!window.NexusProgression) return;
+    const { totalXP, level, xpIntoLevel, rank, nextRank } = window.NexusProgression.calculate();
     const levelSize = 500;
-    const level = Math.floor(totalXP / levelSize) + 1;
-    const xpIntoLevel = totalXP % levelSize;
-    const rankIndex = NEXUS_RANKS.reduce((index, rank, i) => totalXP >= rank.min ? i : index, 0);
-    const rank = NEXUS_RANKS[rankIndex];
-    const nextRank = NEXUS_RANKS[rankIndex + 1];
     const levelEl = document.getElementById('ovrLevel');
     const rankEl = document.getElementById('ovrRank');
     const progressEl = document.getElementById('ovrLevelProgress');
@@ -1667,29 +1659,11 @@ body{
   }
 
   function updatePulse() {
-    const now = dateToKey(new Date());
-    const last7 = Array.from({ length: 7 }, (_, i) => shiftDateKey(now, -i));
-    const data = activityData();
-    const workoutDays = new Set();
-    const skillDays = new Set();
-    const grindDays = new Set();
-    const gymDone = storeGet('ibrahim_gym_done') || {};
-    last7.forEach(day => {
-      if (data.dates.has(day) && (data.dates.get(day).has('gym') || data.dates.get(day).has('workout'))) workoutDays.add(day);
-      if (data.dates.has(day) && data.dates.get(day).has('skills')) skillDays.add(day);
-      if (data.dates.has(day) && data.dates.get(day).has('grind')) grindDays.add(day);
-    });
-    Object.keys(gymDone).forEach(day => { if (last7.includes(day) && gymDone[day]) workoutDays.add(day); });
-    const workoutPts = Math.round(Math.min(1, workoutDays.size / 4) * 25);
-    const skills = Object.keys(data.cali).filter(key => data.cali[key] && Number(data.cali[key].level) > 0);
-    const skillLevels = skills.map(key => Math.min(1, Math.max(0, Number(data.cali[key].level) / (key === 'handstand' ? 6 : 5))));
-    const skillProgress = skillLevels.length ? skillLevels.reduce((sum, level) => sum + level, 0) / skillLevels.length : 0;
-    const skillPts = Math.round(skillProgress * 25);
-    const grindPts = Math.round(Math.min(1, grindDays.size / 5) * 25);
-    const habitsDone = data.habits.reduce((sum, habit) => sum + last7.filter(day => { const done = storeGet('wellness:done:' + day); return Array.isArray(done) && done.includes(habit.id); }).length, 0);
-    const habitCapacity = data.habits.length * 7;
-    const habitPts = habitCapacity ? Math.round(Math.min(1, habitsDone / habitCapacity) * 25) : 0;
-    const score = Math.max(0, Math.min(100, workoutPts + skillPts + grindPts + habitPts));
+    if (!window.NexusProgression) return;
+    const state = window.NexusProgression.calculate();
+    const score = state.ovr;
+    const gem = document.getElementById('ovrGem');
+    if (gem) gem.innerHTML = window.NexusProgression.gem(state.rank.tier);
     const scoreEl = document.getElementById('pulseScore');
     const ring = document.getElementById('pulseRingFill');
     const breakdown = document.getElementById('pulseBreakdown');
@@ -1704,8 +1678,11 @@ body{
     }
     const summary = document.getElementById('pulseSummary');
     if (summary) summary.textContent = score >= 80 ? 'Your recent systems are working in sync.' : score >= 50 ? 'Solid momentum. Keep showing up across the week.' : 'A few consistent sessions will move this score.';
-    breakdown.innerHTML = '<div class="pulse-line"><span>Workouts · target 4 days</span><strong>' + workoutPts + ' / 25</strong></div><div class="pulse-line"><span>Skill progress · ' + skills.length + ' active</span><strong>' + skillPts + ' / 25</strong></div><div class="pulse-line"><span>Grind · target 5 days</span><strong>' + grindPts + ' / 25</strong></div><div class="pulse-line"><span>Habits · last 7 days</span><strong>' + habitPts + ' / 25</strong></div>';
+    breakdown.innerHTML = state.attributes.map(a => '<div class="pulse-line"><span>' + a.name + ' · ' + a.count + '/' + a.target + '</span><strong>' + a.score + ' / 100</strong></div>').join('');
   }
+
+  window.addEventListener('nexus-progression-change', function () { updatePulse(); updateOvrProgress(); });
+  document.addEventListener('DOMContentLoaded', function () { updatePulse(); updateOvrProgress(); });
 
   function updateFaceScanCard() {
     let scan = null;
