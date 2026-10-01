@@ -1,4 +1,6 @@
 import {test,expect} from '@playwright/test';
+// Isolate feature assertions from the documented SW/.html redirect defect.
+test.use({serviceWorkers:'block'});
 test.beforeEach(async({page})=>{
   await page.route('**/scripts/sync.js*',route=>route.fulfill({contentType:'application/javascript',body:'window.NexusSync={USER_ID:"nexus-ibrahim",load:async()=>({data:null}),hydrate:async()=>null,save:async()=>({ok:true}),getStatus:()=>"offline",onStatusChange:()=>()=>{}};'}));
 });
