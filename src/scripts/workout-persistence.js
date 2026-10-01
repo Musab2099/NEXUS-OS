@@ -54,14 +54,36 @@
     }
   }
 
+  function sessionIdentity(data) {
+    return data.sessionId || (data.source === 'gym' ? 'gym:' + data.dayIndex : 'live:' + (data.startTs || (data.session && data.session.date) || 'legacy'));
+  }
+
+  function mergeWorkoutData(previous, incoming) {
+    const sessions = new Map();
+    function collect(data) {
+      if (!data || typeof data !== 'object') return;
+      (Array.isArray(data.sessions) ? data.sessions : []).forEach(function (session) {
+        if (session && typeof session === 'object') sessions.set(sessionIdentity(session), session);
+      });
+      if (data.source === 'gym' || data.startTs || data.session || (Array.isArray(data.log) && data.log.length)) {
+        const session = Object.assign({}, data, { sessionId: sessionIdentity(data) });
+        delete session.sessions;
+        sessions.set(session.sessionId, session);
+      }
+    }
+    collect(previous);
+    collect(incoming);
+    return Object.assign({}, incoming, { sessions: Array.from(sessions.values()) });
+  }
+
   function saveWorkout(date, workoutData) {
     const dateKey = toDateKey(date);
     const storageKey = getStorageKey(dateKey);
     const payload = {
-      version: 1,
+      version: 2,
       date: dateKey,
       savedAt: new Date().toISOString(),
-      data: workoutData,
+      data: mergeWorkoutData((readWorkout(dateKey) || {}).data, workoutData),
     };
 
     // Preserve fast local availability; NexusSync mirrors this same key to

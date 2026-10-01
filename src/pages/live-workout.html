@@ -1713,7 +1713,7 @@
           const d = SKILLS[sk];
           return {
             id: 'sk_' + sk, name: d.icon + ' ' + d.name,
-            muscles: [d.prog], sets: d.sets, reps: d.reps,
+            muscles: ({ planche: ['Shoulders','Chest','Core'], front_lever: ['Lats','Core'], handstand: ['Shoulders','Core'], muscle_up: ['Lats','Biceps','Triceps'], l_sit: ['Core','Hip Flexors'], back_lever: ['Back','Shoulders','Core'] })[sk].slice(), sets: d.sets, reps: d.reps,
             notes: 'Skill block · focus on quality, not quantity',
             isSkill: true,
           };
@@ -1725,6 +1725,8 @@
       S.log = [];
       S.notes = {};
       S.startTs = Date.now();
+      S.sessionId = 'live:' + S.startTs + ':' + Math.random().toString(36).slice(2, 8);
+      S.finishedSession = null;
       persistWorkoutState();
 
       clearInterval(S.elapsedTick);
@@ -1846,7 +1848,7 @@
       const noteKey = `${ex.id}_${S.curSet}`;
       S.notes[noteKey] = document.getElementById('set-note').value;
 
-      S.log.push({ exId: ex.id, exName: ex.name, set: S.curSet, reps: S.curReps, note: S.notes[noteKey], ts: Date.now() });
+      S.log.push({ exId: ex.id, exName: ex.name, set: S.curSet, reps: S.curReps, note: S.notes[noteKey], ts: Date.now(), muscles: ex.muscles.slice(), isWarmup: !!ex.isWarmup, isSkill: !!ex.isSkill });
       persistWorkoutState();
 
       // Flash feedback
@@ -1964,6 +1966,8 @@
     /* ── SUMMARY ─────────────────────────────────────────────────── */
     function buildFinishedSession() {
       return {
+        sessionId: S.sessionId || 'live:' + S.startTs,
+        startTs: S.startTs,
         day: S.day,
         dayName: WORKOUTS[S.day].name,
         date: new Date().toISOString(),
@@ -2028,6 +2032,7 @@
       // Always save locally
       let hist = [];
       try { hist = JSON.parse(localStorage.getItem('nx-workout-hist') || '[]'); } catch (e) { hist = []; }
+      hist = hist.filter(item => item.sessionId !== session.sessionId);
       hist.unshift(session);
       localStorage.setItem('nx-workout-hist', JSON.stringify(hist.slice(0, 100)));
       localStorage.removeItem('nx-session-snap');
@@ -2056,12 +2061,14 @@
 
     /* ── PERSISTENCE ─────────────────────────────────────────────── */
     function localWorkoutDateKey() {
-      const now = new Date();
+      const now = new Date(S.startTs || Date.now());
       return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
     }
 
     function workoutPayload() {
       return {
+        source: 'live',
+        sessionId: S.sessionId || 'live:' + S.startTs,
         day: S.day,
         dayName: S.day && WORKOUTS[S.day] ? WORKOUTS[S.day].name : null,
         exIdx: S.exIdx,
@@ -2086,7 +2093,7 @@
     function snapshot() {
       try {
         localStorage.setItem('nx-session-snap', JSON.stringify({
-          day: S.day, exIdx: S.exIdx, curSet: S.curSet, curReps: S.curReps,
+          sessionId: S.sessionId, day: S.day, exIdx: S.exIdx, curSet: S.curSet, curReps: S.curReps,
           log: S.log, notes: S.notes, startTs: S.startTs,
           exercises: S.exercises, pickedSkills: S.pickedSkills,
         }));
@@ -2097,8 +2104,10 @@
     async function hydrateWorkoutFromLocal() {
       try {
         const stored = await window.NexusWorkoutStore.load(localWorkoutDateKey());
-        const payload = stored && stored.data ? stored.data : stored;
-        if (!payload || payload.finished || !payload.day || !Array.isArray(payload.exercises)) return null;
+        const data = stored && stored.data ? stored.data : stored;
+        const candidates = data && Array.isArray(data.sessions) ? data.sessions : [];
+        const payload = candidates.slice().reverse().find(item => item.source !== 'gym' && !item.finished && item.day && Array.isArray(item.exercises)) || data;
+        if (!payload || payload.source === 'gym' || payload.finished || !payload.day || !Array.isArray(payload.exercises)) return null;
         Object.assign(S, payload);
         return payload;
       } catch (error) {
