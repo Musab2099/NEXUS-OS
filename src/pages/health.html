@@ -926,8 +926,10 @@
      Supabase (user_id: NEXUS_USER_ID) via window.NexusSync. localStorage is
      the offline fallback only — sync.js queues remote writes while offline. */
   const sync=()=>window.NexusSync||null;
-  const set=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(error){console.warn('[NEXUS wellness] local state save failed',error);}
-    if(k!=='wellness:tab'&&sync())sync().save(k,v).catch(()=>{});};
+  const set=(k,v)=>{
+    if(k!=='wellness:tab'&&sync())sync().save(k,v).catch(()=>{});
+    else try{localStorage.setItem(k,JSON.stringify(v));}catch(error){console.warn('[NEXUS wellness] local state save failed',error);}
+  };
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const pad2=n=>String(n).padStart(2,'0');
   function today(){const d=new Date();return`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
@@ -1023,9 +1025,9 @@
       let S = {};
       try { S = JSON.parse(localStorage.getItem('grind_log_v1')) || {}; } catch (e) {}
       if (!Array.isArray(S.logs)) S.logs = [];
+      if (S.logs.some(log => log && log.date === today() && /All daily habits/.test(log.name || ''))) return;
       S.logs.push({ name: 'All daily habits → grind XP synergy', xp: 25, cat: 'focus', date: today(), ts: Date.now() });
-      localStorage.setItem('grind_log_v1', JSON.stringify(S));
-      if (sync()) sync().save('grind_log_v1', S).catch(() => {});
+      set('grind_log_v1', S);
       window.dispatchEvent(new Event('storage'));
       if (typeof window.nexusChime === 'function') window.nexusChime();
     } catch (e) {}
@@ -1047,6 +1049,8 @@
     const btn=e.target.closest('[data-act]');if(!btn)return;const id=btn.dataset.id;
     if(btn.dataset.act==='toggle'){
       const done=getDone(today());const idx=done.indexOf(id);idx===-1?done.push(id):done.splice(idx,1);
+      // Persist default definitions only after user activity, never at boot.
+      if (!get('wellness:habits')) setHabits(getHabits());
       setDone(today(),done);
       checkHabitsXPSynergy(getHabits(), done);
     }

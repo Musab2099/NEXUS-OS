@@ -1848,7 +1848,7 @@
       const noteKey = `${ex.id}_${S.curSet}`;
       S.notes[noteKey] = document.getElementById('set-note').value;
 
-      S.log.push({ exId: ex.id, exName: ex.name, set: S.curSet, reps: S.curReps, note: S.notes[noteKey], ts: Date.now(), muscles: ex.muscles.slice(), isWarmup: !!ex.isWarmup, isSkill: !!ex.isSkill });
+      S.log.push({ exId: ex.id, exName: ex.name, set: S.curSet, reps: S.curReps, note: S.notes[noteKey], ts: Date.now(), sessionId: S.sessionId || 'live:' + S.startTs, unit: /\d\s*(?:[–-]\s*\d+)?s\b|time|holds/i.test(ex.reps) ? 'sec' : 'reps', muscles: ex.muscles.slice(), isWarmup: !!ex.isWarmup, isSkill: !!ex.isSkill });
       persistWorkoutState();
 
       // Flash feedback
@@ -1869,6 +1869,7 @@
       }
 
       renderTracker();
+      persistWorkoutState(); // Save the next-set cursor, not only the completed set.
       openRest(nextLabel, ex.isWarmup ? 30 : (ex.rest || 90));
     }
 
@@ -2027,7 +2028,7 @@
     async function saveSession() {
       const session = S.finishedSession || buildFinishedSession();
       const date = localWorkoutDateKey();
-      await persistWorkoutState({ finished: true, session: session }, date);
+      const saved = await persistWorkoutState({ finished: true, session: session }, date);
 
       // Always save locally
       let hist = [];
@@ -2037,7 +2038,7 @@
       localStorage.setItem('nx-workout-hist', JSON.stringify(hist.slice(0, 100)));
       localStorage.removeItem('nx-session-snap');
 
-      confirmSave(window.NexusSync && window.NexusSync.getStatus() === 'synced' ? 'Saved & synced ✓' : 'Saved locally · sync pending');
+      confirmSave(!saved.local ? 'Save failed · local storage unavailable' : !saved.queued && !saved.error && window.NexusSync ? 'Saved & synced ✓' : 'Saved locally · sync pending');
     }
 
     function confirmSave(msg) {
@@ -2106,8 +2107,10 @@
         const stored = await window.NexusWorkoutStore.load(localWorkoutDateKey());
         const data = stored && stored.data ? stored.data : stored;
         const candidates = data && Array.isArray(data.sessions) ? data.sessions : [];
-        const payload = candidates.slice().reverse().find(item => item.source !== 'gym' && !item.finished && item.day && Array.isArray(item.exercises)) || data;
+        const payload = candidates.slice().reverse().find(item => item && item.source !== 'gym' && !item.finished && item.day && Array.isArray(item.exercises)) || data;
         if (!payload || payload.source === 'gym' || payload.finished || !payload.day || !Array.isArray(payload.exercises)) return null;
+        // A slow cloud read must not replace a session started while it was pending.
+        if (S.startTs && S.startTs !== payload.startTs) return null;
         Object.assign(S, payload);
         return payload;
       } catch (error) {
@@ -2123,6 +2126,7 @@
       }
 
       const localPayload = await hydrateWorkoutFromLocal();
+      if (S.startTs && !localPayload) return;
       if (localPayload) {
         S.elapsedTick = setInterval(tickElapsed, 1000);
         goTo('v-tracker');

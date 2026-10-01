@@ -10,6 +10,27 @@ test('muscle map is unranked without snapshots and excludes warmups/unknown lega
   assert.equal(data.unclassified,1);
   assert.ok(setup().calculateMuscles().groups.every(g=>g.rank===null));
 });
+test('rank boundaries and max rank are exact',()=>{
+  const date='2026-09-28', now=new Date(date+'T12:00:00');
+  for(const [xp,name] of [[0,'Opal III'],[499,'Opal III'],[500,'Opal II'],[1499,'Opal I'],[1500,'Quartz III'],[6000,'Diamond III'],[7000,'Diamond I'],[9000,'Diamond I']]) {
+    const state=setup({grind_log_v1:{logs:[{name:'work',date,xp,ts:1}]}}).calculate(now);
+    assert.equal(state.rank.name,name); if(xp>=7000)assert.equal(state.nextRank,null);
+  }
+});
+test('all XP sources dedupe by date with fixed fixtures',()=>{
+  const date='2026-09-28', now=new Date(date+'T12:00:00');
+  const data={grind_log_v1:{logs:[{name:'Work',xp:100,date,ts:1},{name:'Work',xp:100,date,ts:1},{name:'Gym Workout',xp:50,date,ts:2},{name:'All daily habits',xp:25,date,ts:3},{name:'All daily habits',xp:25,date,ts:4}]},ibrahim_gym_done:{[date]:1},['nexus_workout_'+date]:{data:{sessions:[{source:'gym',done:true},{finished:true,log:[{reps:8}]}]}},'wellness:habits':[{id:'a'}],['wellness:done:'+date]:['a','a'],cali_skills_v1:{a:{sessions:[{date,value:10},{date,value:20}]}},'wellness:sleep':[{date,dur:8},{date,dur:7}],'wellness:recovery':[{date}],'wellness:journal':[{date,content:'Actual entry'}]};
+  assert.equal(setup(data).calculate(now).totalXP,200);
+});
+test('retained Gym completion survives a new unfinished live session',()=>{
+  const date=setup().dateKey(); const state=setup({['nexus_workout_'+date]:{data:{source:'live',finished:false,log:[],sessions:[{source:'gym',done:true}]}}}).calculate();
+  assert.equal(state.totalXP,50);
+});
+test('zero targets and null rows do not throw or create fake scores',()=>{
+  const state=setup({'gym_schedule_v1':[],'wellness:habits':[null],cali_skills_v1:{a:null,b:{sessions:[null]}},'wellness:sleep':[null]}).calculate();
+  assert.equal(state.ovr,0);assert.equal(state.attributes[0].target,0);
+  assert.ok(state.attributes.every(a=>a.score>=0&&a.score<=100));
+});
 test('empty progression is zero with 15 ranks',()=>{const p=setup();assert.equal(p.ranks.length,15);assert.equal(p.calculate().totalXP,0);assert.equal(p.calculate().ovr,0);assert.equal(p.calculate().rank.name,'Opal III');});
 test('rank boundaries use 500 XP with uncapped levels',()=>{const today=setup().dateKey();const p=setup({grind_log_v1:{logs:[{name:'work',xp:1500,cat:'code',date:today,ts:1}]}});assert.equal(p.calculate().rank.name,'Quartz III');assert.equal(p.calculate().level,4);assert.equal(p.calculate().xpIntoLevel,0);});
 test('workout evidence and legacy synergy award only one bonus per date',()=>{const today=setup().dateKey();const p=setup({grind_log_v1:{logs:[{name:'Gym Workout',xp:50,date:today,ts:1},{name:'Completed workout (Push)',xp:50,date:today,ts:2}]},ibrahim_gym_done:{[today]:1},['nexus_workout_'+today]:{data:{done:true}}});assert.equal(p.calculate().totalXP,50);assert.equal(p.calculate().attributes[0].score,25);assert.equal(p.calculate().ovr,6);});

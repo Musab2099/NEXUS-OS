@@ -7,41 +7,42 @@
   function read(key, fallback) { try { const data = JSON.parse(localStorage.getItem(key)); return data == null ? fallback : data; } catch (_) { return fallback; } }
   function dateKey(date = new Date()) { return date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0') + '-' + String(date.getDate()).padStart(2,'0'); }
   function days(count, now = new Date()) { return Array.from({length:count},(_,i)=>{const d=new Date(now);d.setDate(d.getDate()-i);return dateKey(d);}); }
-  function validDate(date) { return typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date) && date <= dateKey(); }
+  function validDate(date, now = new Date()) { return typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date) && dateKey(new Date(date+'T12:00:00')) === date && date <= dateKey(now); }
   function rows(key) { const value=read(key,[]);return Array.isArray(value)?value:[]; }
   function calculate(now = new Date()) {
+    const valid = date => validDate(date, now);
     const week=days(7,now), logs=read('grind_log_v1',{}).logs || [], gym=read('ibrahim_gym_v1',{}), done=read('ibrahim_gym_done',{}), skills=read('cali_skills_v1',{});
     const workoutDays=new Set(), skillDays=new Set(), focusDays=new Set(), bonus=new Map(), seenLogs=new Set();
-    Object.entries(done).forEach(([date,count])=>{if(validDate(date)&&Number(count)>0)workoutDays.add(date);});
-    Object.entries(gym).forEach(([key,value])=>{const match=key.match(/^done_\d_(\d{4}-\d{2}-\d{2})$/);if(match&&value&&validDate(match[1]))workoutDays.add(match[1]);});
-    Object.values(skills).forEach(skill=>(Array.isArray(skill.sessions)?skill.sessions:[]).forEach(s=>{if(validDate(s.date)&&Number(s.value)>0)skillDays.add(s.date);}));
+    Object.entries(done).forEach(([date,count])=>{if(valid(date)&&Number(count)>0)workoutDays.add(date);});
+    Object.entries(gym).forEach(([key,value])=>{const match=key.match(/^done_\d_(\d{4}-\d{2}-\d{2})$/);if(match&&value&&valid(match[1]))workoutDays.add(match[1]);});
+    Object.values(skills).forEach(skill=>(skill && Array.isArray(skill.sessions)?skill.sessions:[]).forEach(s=>{if(s && valid(s.date)&&Number(s.value)>0)skillDays.add(s.date);}));
     for(let i=0;i<localStorage.length;i++) {
       const key=localStorage.key(i);if(!/^nexus_workout_\d{4}-\d{2}-\d{2}$/.test(key))continue;
       const date=key.slice(14), record=read(key,{}), data=record.data||{};
-      if(validDate(date)&&(data.done || (data.finished&&Array.isArray(data.log)&&data.log.length)))workoutDays.add(date);
-      (Array.isArray(data.sessions)?data.sessions:[]).forEach(session=>{if(session.finished&&session.log&&session.log.length&&validDate(date))workoutDays.add(date);});
+      if(valid(date)&&(data.done || (data.finished&&Array.isArray(data.log)&&data.log.length)))workoutDays.add(date);
+      (Array.isArray(data.sessions)?data.sessions:[]).forEach(session=>{if(session && (session.done || (session.finished&&Array.isArray(session.log)&&session.log.length)) && valid(date))workoutDays.add(date);});
     }
     let loggedXP=0;
     (Array.isArray(logs)?logs:[]).forEach(log=>{
-      if(!log||!validDate(log.date)||!Number.isFinite(Number(log.xp))||Number(log.xp)<=0)return;
+      if(!log||!valid(log.date)||!Number.isFinite(Number(log.xp))||Number(log.xp)<=0)return;
       const id=log.ts!=null?'log:'+log.ts:JSON.stringify(log);if(seenLogs.has(id))return;seenLogs.add(id);
       const workout=log.name==='Gym Workout'||/^Completed workout/.test(log.name||'');
       const habit=/All daily habits/.test(log.name||'');
-      if(workout||habit) { const id=(workout?'workout:':'habits:')+log.date;bonus.set(id,Math.max(bonus.get(id)||0,Number(log.xp)));if(workout)workoutDays.add(log.date); }
+      if(workout||habit) { const id=(workout?'workout:':'habits:')+log.date;bonus.set(id,workout ? 50 : 25);if(workout)workoutDays.add(log.date); }
       else {loggedXP+=Math.floor(Number(log.xp));if(['code','study','content','focus','other'].includes(log.cat))focusDays.add(log.date);}
     });
     workoutDays.forEach(date=>{if(!bonus.has('workout:'+date))bonus.set('workout:'+date,50);});
     skillDays.forEach(date=>bonus.set('skill:'+date,10));
-    const habits=rows('wellness:habits');
+    const habits=Array.from(new Map(rows('wellness:habits').filter(h=>h && typeof h.id === 'string').map(h=>[h.id,h])).values());
     for(let i=0;i<localStorage.length;i++) {
       const key=localStorage.key(i);if(!/^wellness:done:\d{4}-\d{2}-\d{2}$/.test(key))continue;
       const date=key.slice(14), completed=rows(key);
-      if(validDate(date)&&habits.length&&habits.every(h=>completed.includes(h.id))&&!bonus.has('habits:'+date))bonus.set('habits:'+date,25);
+      if(valid(date)&&habits.length&&habits.every(h=>completed.includes(h.id))&&!bonus.has('habits:'+date))bonus.set('habits:'+date,25);
     }
-    ['wellness:sleep','wellness:recovery','wellness:journal'].forEach(key=>rows(key).forEach(row=>{if(validDate(row.date)&&(key!=='wellness:sleep'||Number(row.dur)>0)&&(key!=='wellness:journal'||String(row.content||'').trim()))bonus.set(key+':'+row.date,5);}));
+    ['wellness:sleep','wellness:recovery','wellness:journal'].forEach(key=>rows(key).forEach(row=>{if(row && valid(row.date)&&(key!=='wellness:sleep'||Number(row.dur)>0)&&(key!=='wellness:journal'||String(row.content||'').trim()))bonus.set(key+':'+row.date,5);}));
     const totalXP=Math.floor(loggedXP+Array.from(bonus.values()).reduce((a,b)=>a+b,0));
     const rankIndex=Math.min(ranks.length-1,Math.floor(totalXP/500)), schedule=read('gym_schedule_v1',[1,2,4,5]);
-    const target=Array.isArray(schedule)&&schedule.length?new Set(schedule).size:4;
+    const target=Array.isArray(schedule)?new Set(schedule.filter(day=>Number.isInteger(day)&&day>=0&&day<=6)).size:4;
     const habitCount=week.reduce((sum,date)=>sum+habits.filter(h=>rows('wellness:done:'+date).includes(h.id)).length,0);
     function attr(name,count,target,unit) {return {name,count,target,unit,score:target?Math.round(Math.min(1,count/target)*100):0};}
     const attributes=[attr('Training',week.filter(d=>workoutDays.has(d)).length,target,'workout days'),attr('Focus',week.filter(d=>focusDays.has(d)).length,5,'productive days'),attr('Discipline',habitCount,habits.length*7,'habit completions'),attr('Skill practice',week.filter(d=>skillDays.has(d)).length,3,'practice days')];
@@ -121,7 +122,7 @@
     const total=document.getElementById('xpTotal'), name=document.getElementById('rankName'), fill=document.getElementById('xpBarFill');
     if(total)total.textContent=state.totalXP.toLocaleString();if(name)name.textContent=state.rank.name;if(fill) { fill.style.width='100%'; fill.style.transform='scaleX('+(state.xpIntoLevel/500)+')'; }
     const left=document.getElementById('xpBarLeft'),right=document.getElementById('xpBarRight');
-    if(left)left.textContent=state.xpIntoLevel+' / 500 XP';if(right)right.textContent=(500-state.xpIntoLevel)+' XP to level '+(state.level+1);
+    if(left)left.textContent=state.xpIntoLevel+' / 500 XP';if(right)right.textContent=state.nextRank ? (state.nextRank.min-state.totalXP)+' XP to '+state.nextRank.name : 'Top rank reached';
   }
   window.NexusProgression={ranks,calculate,calculateMuscles,refresh,gem,render,dateKey,days};
   window.addEventListener('nexus-progression-change',render);

@@ -1211,13 +1211,14 @@ body{
   // ──────────────────────────────────────────────
   function storeGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }
   function storeSet(k, v) {
-    try { localStorage.setItem(k, JSON.stringify(v)); }
+    const nx = window.NexusSync;
+    if (nx) nx.save(k, v).catch(() => { });
+    else try { localStorage.setItem(k, JSON.stringify(v)); }
     catch (error) { console.warn('[NEXUS dashboard] local state save failed', error); }
     /* Cross-device sync: dashboard writes (goals, quick logs) are mirrored to
        Supabase (user_id: NEXUS_USER_ID) via window.NexusSync. localStorage
        stays the offline fallback only — sync.js queues writes while offline. */
-    const nx = window.NexusSync;
-    if (k !== 'day_window_v1' && nx) nx.save(k, v).catch(() => { });
+
   }
 
   /* Dashboard sync status — driven solely by NexusSync's public status API. */
@@ -1370,11 +1371,7 @@ body{
     }
     document.getElementById('grindDay').textContent = 'Day ' + (streak || 0);
     document.getElementById('grindBadge').textContent = streak >= 7 ? '🔥 On fire' : streak >= 3 ? '⚡ Rolling' : '💪 Keep going';
-    const localWorkoutXP = localWorkoutLogs.reduce((sum, row) => {
-      const log = row.data && row.data.session && Array.isArray(row.data.session.log) ? row.data.session.log : row.data && Array.isArray(row.data.log) ? row.data.log : [];
-      return sum + log.reduce((inner, item) => inner + (Number(item.xp) || 0), 0);
-    }, 0);
-    const totalXP = localWorkoutXP + total;
+    const totalXP = window.NexusProgression ? window.NexusProgression.calculate().totalXP : total;
     document.getElementById('grindTotalXP').textContent = totalXP.toLocaleString();
     const todayKey = dashboardDateKey(new Date());
     const localTodayXP = localWorkoutLogs.filter(row => row.date === todayKey).reduce((sum, row) => {
@@ -1633,10 +1630,6 @@ body{
 
   // Progression is owned by the shared model, not a dashboard-specific ladder.
 
-  function getProgressXP() {
-    return window.NexusProgression ? window.NexusProgression.calculate().totalXP : 0;
-  }
-
   function updateOvrProgress() {
     if (!window.NexusProgression) return;
     const { totalXP, level, xpIntoLevel, rank, nextRank } = window.NexusProgression.calculate();
@@ -1681,8 +1674,8 @@ body{
     breakdown.innerHTML = state.attributes.map(a => '<div class="pulse-line"><span>' + a.name + ' · ' + a.count + '/' + a.target + '</span><strong>' + a.score + ' / 100</strong></div>').join('');
   }
 
-  window.addEventListener('nexus-progression-change', function () { updatePulse(); updateOvrProgress(); });
-  document.addEventListener('DOMContentLoaded', function () { updatePulse(); updateOvrProgress(); });
+  window.addEventListener('nexus-progression-change', function () { updateGrindCard(); updatePulse(); updateOvrProgress(); });
+  document.addEventListener('DOMContentLoaded', function () { updateGrindCard(); updatePulse(); updateOvrProgress(); });
 
   function updateFaceScanCard() {
     let scan = null;
@@ -2079,7 +2072,7 @@ body{
     sleepLogs = sleepLogs.filter(l => l.date !== td);
     sleepLogs.unshift({ id: Date.now(), date: td, bed: '23:00', wake: '07:00', dur: 8, q: 3, notes: 'Quick log' });
     storeSet('wellness:sleep', sleepLogs);
-    updateWellnessCard();
+    updateWellnessCard(); updateOvrProgress(); refreshActivityWidgets();
   }
   function quickLogMood() {
     const td = getActiveDate();
@@ -2087,7 +2080,7 @@ body{
     journal = journal.filter(e => e.date !== td);
     journal.unshift({ date: td, mood: '😊', content: 'Quick log: Feeling great!', ts: Date.now() });
     storeSet('wellness:journal', journal);
-    updateWellnessCard();
+    updateWellnessCard(); updateOvrProgress(); refreshActivityWidgets();
   }
   document.getElementById('qaWorkout').addEventListener('click', quickLogWorkout);
   document.getElementById('qaSleep').addEventListener('click', quickLogSleep);

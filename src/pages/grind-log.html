@@ -649,6 +649,8 @@
 <noscript><style>html:not(.nexus-ready) body{visibility:visible!important}</style></noscript>
 <script src="/scripts/theme.js" defer></script>
 <script src="/scripts/sync.js"></script>
+<script src="/scripts/workout-persistence.js"></script>
+<script src="/scripts/progression.js" defer></script>
 <script src="/scripts/topbar.js" defer></script>
 <link rel="stylesheet" href="/styles/animations.css">
 <script src="/scripts/animations.js" defer></script>
@@ -800,20 +802,16 @@
       {id:'other',name:'Other',emoji:'⚡',color:'#8A7FA8',bg:'rgba(138,127,168,0.12)',xpDef:25,presets:[]},
     ];
 
-    const RANKS=[
-      {name:'ROOKIE',min:0,max:1000},{name:'GRINDER',min:1000,max:3000},{name:'HUSTLER',min:3000,max:6000},
-      {name:'FOCUSED',min:6000,max:12000},{name:'ELITE',min:12000,max:25000},{name:'ASCENDANT',min:25000,max:50000},{name:'LEGEND',min:50000,max:Infinity},
-    ];
-    function getRank(xp){for(let i=RANKS.length-1;i>=0;i--){if(xp>=RANKS[i].min)return{...RANKS[i],idx:i};}return{...RANKS[0],idx:0};}
-
     const LS_KEY='grind_log_v1';
     /* Cross-device sync: state writes are mirrored to Supabase
        (user_id: NEXUS_USER_ID) via window.NexusSync; localStorage stays as
        the offline fallback only — sync.js queues writes while offline. */
     const sync=()=>window.NexusSync||null;
     function load(){try{const r=localStorage.getItem(LS_KEY);return r?JSON.parse(r):{}}catch{return{}}}
-    function save(s){try{localStorage.setItem(LS_KEY,JSON.stringify(s))}catch(error){console.warn('[NEXUS grind] local state save failed',error)}
-      if(sync())sync().save(LS_KEY,s).catch(()=>{});}
+    function save(s){
+      if(sync())sync().save(LS_KEY,s).catch(()=>{});
+      else try{localStorage.setItem(LS_KEY,JSON.stringify(s))}catch(error){console.warn('[NEXUS grind] local state save failed',error)}
+    }
     let S=load();
     function gs(key,def){return S[key]!=null?S[key]:def}
     function ss(key,val){S[key]=val;save(S)}
@@ -835,8 +833,10 @@
 
     // ─── GOALS ───
     function getLongGoals(){try{return JSON.parse(localStorage.getItem('long_goals_v1'))||[];}catch{return[];}}
-    function setLongGoals(goals){try{localStorage.setItem('long_goals_v1',JSON.stringify(goals));}catch(error){console.warn('[NEXUS grind] goal save failed',error)}
-      if(sync())sync().save('long_goals_v1',goals).catch(()=>{});}
+    function setLongGoals(goals){
+      if(sync())sync().save('long_goals_v1',goals).catch(()=>{});
+      else try{localStorage.setItem('long_goals_v1',JSON.stringify(goals));}catch(error){console.warn('[NEXUS grind] goal save failed',error)}
+    }
     function goalPct(g){
       const cur=Number(g.current)||0,tgt=Number(g.target)||0,start=Number(g.start!=null?g.start:g.current)||0;
       let pct;
@@ -904,13 +904,7 @@
 
     // ─── RENDER ───
     function renderHero(){
-      const total=getTotalXP();const rank=getRank(total);const nextRank=RANKS[rank.idx+1];
-      const pct=nextRank?Math.min(100,((total-rank.min)/(nextRank.min-rank.min))*100):100;
-      document.getElementById('xpTotal').textContent=total.toLocaleString();
-      document.getElementById('rankName').textContent=rank.name;
-      document.getElementById('xpBarFill').style.transform = 'scaleX(' + (pct/100) + ')';
-      document.getElementById('xpBarLeft').textContent=total.toLocaleString()+' XP';
-      document.getElementById('xpBarRight').textContent=nextRank?(nextRank.min-total).toLocaleString()+' XP to '+nextRank.name:'MAX RANK';
+      if(window.NexusProgression)window.NexusProgression.render();
     }
 
     function renderStats(){
@@ -960,7 +954,7 @@
       logs.forEach((log)=>{
         const cat=CATS.find(c=>c.id===log.cat)||CATS[CATS.length-1];
         const allLogs=getAllLogs();
-        const realIdx=allLogs.length-1-getTodayLogs().slice().reverse().indexOf(log);
+        const realIdx=allLogs.indexOf(log);
         const linkedGoal=log.goalIdx!=null&&log.goalIdx!==''?goals[Number(log.goalIdx)]:null;
         const row=document.createElement('div');row.className='task-row';
         row.innerHTML=`
@@ -1073,7 +1067,5 @@
     })();
   })();
   </script>
-<script src="/scripts/workout-persistence.js"></script>
-<script src="/scripts/progression.js"></script>
 </body>
 </html>

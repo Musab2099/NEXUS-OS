@@ -61,13 +61,18 @@
     flushPromise = serialize(async () => {
       if (!online()) { notify(); return false; }
       const snapshot = queue();
-      if (!snapshot.length) return true;
+      if (!snapshot.length) {
+        inflight++; notify();
+        try { await bounded(getClient()); lastOk = true; return true; }
+        catch (_) { lastOk = false; return false; }
+        finally { inflight--; notify(); }
+      }
       inflight++; notify();
       try {
         const sb = await getClient();
         const latest = new Map(snapshot.map(e => [e.key, e]));
         const rows = Array.from(latest.values(), e => ({ user_id: USER_ID, key: e.key, data: e.data, updated_at: new Date(e.queuedAt).toISOString() }));
-        const result = await sb.from(TABLE).upsert(rows, { onConflict: 'user_id,key' });
+        const result = await bounded(sb.from(TABLE).upsert(rows, { onConflict: 'user_id,key' }));
         if (result.error) throw result.error;
         removeSent(snapshot); lastOk = true; return true;
       } catch (error) { lastOk = false; console.warn('[NEXUS sync] writes retained for retry', error); return false; }
@@ -88,7 +93,7 @@
     inflight++; notify();
     try {
       const sb = await getClient();
-      const result = await sb.from(TABLE).select('data').eq('user_id', USER_ID).eq('key', key).maybeSingle();
+      const result = await bounded(sb.from(TABLE).select('data').eq('user_id', USER_ID).eq('key', key).maybeSingle());
       if (result.error) throw result.error;
       lastOk = true;
       if (revision !== (revisions.get(key) || 0) || queue().some(e => e.key === key)) return { data: read(key, null), source: 'local', error: null };
@@ -102,6 +107,8 @@
     const revision = revisions.get(key) || 0;
     const result = await load(key);
     if (revision !== (revisions.get(key) || 0)) return read(key, null);
+    // A local/queued result must never be passed to a remote-wins merger.
+    if (result.source !== 'remote') return result.data;
     const merged = typeof merge === 'function' ? merge(result.data, local) : result.data;
     if (merged != null && JSON.stringify(merged) !== JSON.stringify(result.data)) await save(key, merged);
     return merged;
@@ -124,7 +131,7 @@
     try {
       const sb=await getClient();
       for(let i=0;i<legacyRows.length;i+=50) {
-        const result=await sb.from(TABLE).upsert(legacyRows.slice(i,i+50),{onConflict:'user_id,key',ignoreDuplicates:true});
+        const result=await bounded(sb.from(TABLE).upsert(legacyRows.slice(i,i+50),{onConflict:'user_id,key',ignoreDuplicates:true}));
         if(result.error)throw result.error;
       }
       write(BACKFILL_KEY,{completedAt:new Date().toISOString()});lastOk=true;return true;

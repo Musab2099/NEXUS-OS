@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 // Isolate feature assertions from the documented SW/.html redirect defect.
 test.use({serviceWorkers:'block'});
 test.beforeEach(async({page})=>{
-  await page.route('**/scripts/sync.js*',route=>route.fulfill({contentType:'application/javascript',body:'window.NexusSync={USER_ID:"nexus-ibrahim",load:async()=>({data:null}),hydrate:async()=>null,save:async()=>({ok:true}),getStatus:()=>"offline",onStatusChange:()=>()=>{}};'}));
+  await page.route('**/scripts/sync.js*',route=>route.fulfill({contentType:'application/javascript',body:'window.NexusSync={USER_ID:"nexus-ibrahim",load:async()=>({data:null}),hydrate:async()=>null,save:async(key,data)=>{localStorage.setItem(key,JSON.stringify(data));return {ok:true,local:true,queued:false};},getStatus:()=>"offline",onStatusChange:()=>()=>{}};'}));
 });
 test('live workout snapshots muscle labels and retains a second session', async ({page}) => {
   await page.goto('/live-workout.html');

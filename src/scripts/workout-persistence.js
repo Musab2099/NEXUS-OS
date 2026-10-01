@@ -88,17 +88,18 @@
 
     // Preserve fast local availability; NexusSync mirrors this same key to
     // nexus_state with user_id=NEXUS_USER_ID or queues it while offline.
-    writeWorkout(dateKey, payload);
     const nx = window.NexusSync;
     if (nx && typeof nx.save === 'function') {
       return nx.save(storageKey, payload).then(function (result) {
-        return { data: payload, error: result.error || null, local: true, queued: !!result.queued };
+        return { data: payload, error: result.error || null, local: result.local !== false, queued: !!result.queued };
       }).catch(function (error) {
-        return { data: payload, error: error, local: true, queued: true };
+        const stored = readWorkout(dateKey);
+        return { data: payload, error: error, local: !!stored && JSON.stringify(stored) === JSON.stringify(payload), queued: true };
       });
     }
 
-    return Promise.resolve({ data: payload, error: null, local: true });
+    const local = writeWorkout(dateKey, payload);
+    return Promise.resolve({ data: payload, error: local ? null : new Error('Local workout save failed'), local, queued: false });
   }
 
   function loadWorkout(date) {
@@ -110,8 +111,8 @@
     return nx.load(storageKey)
       .then(function (result) {
         if (result && result.data != null) {
-          writeWorkout(dateKey, result.data);
-          return result.data;
+          // NexusSync already updates the mirror and protects writes made while loading.
+          return readWorkout(dateKey) || result.data;
         }
         return readWorkout(dateKey);
       })

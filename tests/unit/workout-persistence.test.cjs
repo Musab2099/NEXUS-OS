@@ -27,9 +27,15 @@ test('legacy payloads migrate without discarding finished history',async()=>{
   assert.equal(store.readLocal('2026-09-28').version,2);
   assert.equal(store.readLocal('2026-09-28').data.sessions.length,2);
 });
+test('rejected sync save cannot falsely report a successful local save',async()=>{
+  const window={localStorage:{getItem:()=>null,setItem:()=>{throw new Error('quota');}},NexusSync:{save:async()=>{throw new Error('unavailable');}}};
+  vm.runInNewContext(fs.readFileSync('src/scripts/workout-persistence.js','utf8'),{window,console,Date,Map,Promise});
+  const result=await window.NexusWorkoutStore.save('2026-09-28',{startTs:1,log:[]});
+  assert.equal(result.local,false);assert.ok(result.error);
+});
 test('cloud saves receive all retained sessions',async()=>{
   const values=new Map();let pushed;
-  const window={localStorage:{getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,v)},NexusSync:{save:async(k,data)=>{pushed=data;return {queued:true};}}};
+  const window={localStorage:{getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,v)},NexusSync:{save:async(k,data)=>{pushed=data;values.set(k,JSON.stringify(data));return {queued:true,local:true};}}};
   vm.runInNewContext(fs.readFileSync('src/scripts/workout-persistence.js','utf8'),{window,console,Date,Map,Promise});
   await window.NexusWorkoutStore.save('2026-09-28',{sessionId:'one',startTs:1,log:[]});
   const result=await window.NexusWorkoutStore.save('2026-09-28',{sessionId:'two',startTs:2,log:[]});

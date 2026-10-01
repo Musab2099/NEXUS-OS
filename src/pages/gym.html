@@ -2306,26 +2306,26 @@
       function sync() { return window.NexusSync || null; }
       function load() { try { const r = localStorage.getItem(LS); return r ? JSON.parse(r) : {}; } catch { return {}; } }
       function save(s) {
-        try { localStorage.setItem(LS, JSON.stringify(s)); } catch { }
         if (sync()) sync().save(LS, s).catch(() => { });
+        else try { localStorage.setItem(LS, JSON.stringify(s)); } catch { }
       }
       function loadPR() { try { return JSON.parse(localStorage.getItem(PR_LS)) || {}; } catch { return {}; } }
       function savePR(d) {
-        try { localStorage.setItem(PR_LS, JSON.stringify(d)); } catch { }
         if (sync()) sync().save(PR_LS, d).catch(() => { });
+        else try { localStorage.setItem(PR_LS, JSON.stringify(d)); } catch { }
       }
       function loadMeas() { try { return JSON.parse(localStorage.getItem(MEAS_LS)) || []; } catch { return []; } }
       function saveMeas(d) {
-        try { localStorage.setItem(MEAS_LS, JSON.stringify(d)); } catch { }
         if (sync()) sync().save(MEAS_LS, d).catch(() => { });
+        else try { localStorage.setItem(MEAS_LS, JSON.stringify(d)); } catch { }
       }
       function getSchedule() {
         try { const s = JSON.parse(localStorage.getItem(SCHED_LS)); if (Array.isArray(s) && s.length === 4) return s; }
         catch { } return DEFAULT_SCHEDULE;
       }
       function saveScheduleLS(days) {
-        try { localStorage.setItem(SCHED_LS, JSON.stringify(days)); } catch { }
         if (sync()) sync().save(SCHED_LS, days).catch(() => { });
+        else try { localStorage.setItem(SCHED_LS, JSON.stringify(days)); } catch { }
       }
 
       let S = load();
@@ -2975,8 +2975,8 @@
           // Auto-award XP for completing a workout
           let grindS = {}; try { grindS = JSON.parse(localStorage.getItem('grind_log_v1')) || {}; } catch { }
           const logs = Array.isArray(grindS.logs) ? grindS.logs : [];
-          const dayTag = ['Day A (Push)', 'Day B (Pull)', 'Day C (Handstand)', 'Day D (Legs)'][currentDay] || 'Workout';
-          const alreadyAwarded = logs.some(l => l.date === tk && l.name && l.name.startsWith('Completed workout'));
+          const dayTag = WORKOUT_LABELS[currentDay] || 'Workout';
+          const alreadyAwarded = logs.some(l => l && l.date === tk && (l.name === 'Gym Workout' || (l.name || '').startsWith('Completed workout')));
           if (!alreadyAwarded) {
             logs.push({
               name: 'Completed workout (' + dayTag + ')',
@@ -3299,8 +3299,8 @@
         let parsed = {};
         try { parsed = JSON.parse(localStorage.getItem('ibrahim_gym_done')) || {}; } catch { }
         parsed[tk] = doneCount;
-        try { localStorage.setItem('ibrahim_gym_done', JSON.stringify(parsed)); } catch { }
         if (sync()) sync().save('ibrahim_gym_done', parsed).catch(() => { });
+        else try { localStorage.setItem('ibrahim_gym_done', JSON.stringify(parsed)); } catch { }
       }
 
       const REMOTE_RENDER_KEYS = [LS, PR_LS, MEAS_LS, SCHED_LS, 'ibrahim_gym_done'];
@@ -3314,24 +3314,29 @@
 
       /* ─────────────────────────── INIT ───────────────────────────────────── */
       async function hydrateGymFromCloud() {
-        if (!window.NexusWorkoutStore) return;
+        const nx = sync();
+        if (!nx || !window.NexusWorkoutStore) return;
+        // Hydrate the canonical tracker before restoring absent legacy fields.
+        // Otherwise restoration queues stale S and prevents remote tracker hydration.
+        await nx.hydrate(LS).then(function () { S = load(); }).catch(function (error) { console.warn('[NEXUS gym] state hydration failed', error); });
         try {
           const tk = todayKey();
           const remote = await window.NexusWorkoutStore.load(tk);
-          if (remote && remote.data && remote.data.source === 'gym' && remote.data.dayIndex === currentDay) {
-            const d = remote.data;
+          const data = remote && remote.data;
+          const gymSession = data && Array.isArray(data.sessions) ? data.sessions.find(item => item && item.source === 'gym' && item.dayIndex === currentDay) : null;
+          if (gymSession || (data && data.source === 'gym' && data.dayIndex === currentDay)) {
+            const d = gymSession || data;
             if (Array.isArray(d.checked)) {
               const exKey = 'ex_' + currentDay + '_' + tk;
-              const existing = gs(exKey, []);
-              if (!existing.length && d.checked.length) ss(exKey, d.checked);
+              if (S[exKey] == null && d.checked.length) ss(exKey, d.checked);
             }
             if (d.done != null) {
               const doneKey = 'done_' + currentDay + '_' + tk;
-              if (!gs(doneKey, false) && d.done) ss(doneKey, true);
+              if (S[doneKey] == null && d.done) ss(doneKey, true);
             }
             if (d.missed != null) {
               const missedKey = 'missed_' + currentDay + '_' + tk;
-              if (!gs(missedKey, false) && d.missed) ss(missedKey, true);
+              if (S[missedKey] == null && d.missed) ss(missedKey, true);
             }
             renderWorkout(); renderHistory(); renderHeatmap(); renderConsistencyChart(); syncGymDone();
           }
@@ -3342,11 +3347,7 @@
         /* Cross-device hydration: pull all five tracker keys from Supabase
            (user_id-filtered). Remote wins when present; localStorage is only
            the fallback when Supabase fails or the key doesn't exist yet. */
-        const nx = sync();
-        if (!nx) return;
-        await nx.hydrate(LS, function (remote, local) { return remote != null ? remote : local; })
-          .then(function () { S = load(); loadLog(); loadWeight(); renderWorkout(); renderHistory(); renderHeatmap(); renderConsistencyChart(); })
-          .catch(function (error) { console.warn('[NEXUS gym] state hydration failed', error); });
+        S = load(); loadLog(); loadWeight(); renderWorkout(); renderHistory(); renderHeatmap(); renderConsistencyChart();
         await nx.hydrate(PR_LS).catch(function (error) { console.warn('[NEXUS gym] PR hydration failed', error); });
         await nx.hydrate(MEAS_LS).then(function () { renderMeasurements(); }).catch(function (error) { console.warn('[NEXUS gym] measurement hydration failed', error); });
         await nx.hydrate(SCHED_LS).then(function () { updateDayTabLabels(); renderSchedPicker(); }).catch(function (error) { console.warn('[NEXUS gym] schedule hydration failed', error); });

@@ -561,6 +561,8 @@ html[data-theme] body::after {
 html[data-theme="periwinkle"] body::after { opacity: .10 !important; }
 html[data-theme] body :is(.orbs, .nx-ambient) { opacity: .28; }
 html[data-theme] body .navbar {
+  position: sticky !important;
+  z-index: 200 !important;
   border-radius: 0 0 var(--r-card) var(--r-card);
   background: var(--topbar-bg);
   box-shadow: none;
