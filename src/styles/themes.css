@@ -77,61 +77,73 @@
   /* Font */
   --font:  -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
   --mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --r:     14px;
+  --r:     20px;
+  --r-card: 22px;
+  --r-pill: 999px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --gap: 16px;
+  --card-padding: clamp(20px, 3vw, 26px);
+  --deep: var(--card-2);
+  --glass-border-hover: var(--bdr-hov);
+  --glass-blur: blur(12px);
+  --amber: #F5BC62;
+  --red: #F47194;
 }
 
 /* ─── 2. DEEP CYBER AMETHYST (default) ──────────────────────────────── */
 :root,
 [data-theme="nexus-dark"] {
-  --bg:      #07051A;
-  --card:    rgba(14, 10, 42, 0.48);
-  --card-2:  rgba(124, 58, 237, 0.06);
-  --border:  rgba(167, 139, 250, 0.15);
-  --bdr-hov: rgba(167, 139, 250, 0.32);
-  --shadow:  0 8px 32px rgba(0,0,0,0.50), inset 0 1px 0 rgba(167,139,250,0.08);
+  --bg:      #080A18;
+  --card:    #14182F;
+  --card-2:  #1B203D;
+  --border:  rgba(158, 168, 230, 0.14);
+  --bdr-hov: rgba(163, 153, 255, 0.38);
+  --shadow:  0 4px 16px rgba(2, 4, 15, 0.16);
 
-  --t1:  #EDE9FE;
-  --t2:  rgba(212, 205, 255, 0.88);
-  --t3:  rgba(139, 126, 200, 0.78);
+  --t1:  #F3F2FF;
+  --t2:  #B7BCD8;
+  --t3:  #929AB9;
 
-  --a1:  #7C3AED;
-  --a2:  #A78BFA;
-  --a3:  #D946EF;
-  --ag:  linear-gradient(135deg, #7C3AED 0%, #A855F7 45%, #D946EF 100%);
+  --a1:  #7775F6;
+  --a2:  #B2A4FF;
+  --a3:  #A176F5;
+  --ag:  linear-gradient(135deg, #6866DF 0%, #8670E8 55%, #9D6BE2 100%);
 
-  --bar:  linear-gradient(90deg, #7C3AED, #A78BFA, #D946EF);
-  --bar2: #A78BFA;
-  --bar3: #B026FF;
-  --bar4: #5B4E8C;
+  --bar:  linear-gradient(90deg, #7775F6, #A176F5, #B2A4FF);
+  --bar2: #B2A4FF;
+  --bar3: #8A2BE2;
+  --bar4: #5D668D;
 
-  --sbg:  rgba(124, 58, 237, 0.06);
-  --sbdr: rgba(167, 139, 250, 0.14);
-  --pill-on: #7C3AED;
+  --sbg:  rgba(155, 164, 232, 0.07);
+  --sbdr: rgba(155, 164, 232, 0.16);
+  --pill-on: #6866DF;
   --pill-tc: #ffffff;
-  --logo-c:  #A78BFA;
-  --logo-g:  linear-gradient(90deg, #7C3AED, #D946EF);
-  --green:   #10B981;
-  --ring-s:  #A78BFA;
+  --logo-c:  #B2A4FF;
+  --logo-g:  linear-gradient(90deg, #7775F6, #B2A4FF);
+  --green:   #58D6AA;
+  --ring-s:  #B2A4FF;
 
-  --dot-on:  #7C3AED;
-  --hm0: rgba(124, 58, 237, 0.06);
-  --hm1: rgba(124, 58, 237, 0.18);
-  --hm2: rgba(124, 58, 237, 0.40);
-  --hm3: rgba(124, 58, 237, 0.65);
-  --hm4: #7C3AED;
+  --dot-on:  #7775F6;
+  --hm0: rgba(155, 164, 232, 0.07);
+  --hm1: rgba(119, 117, 246, 0.20);
+  --hm2: rgba(119, 117, 246, 0.42);
+  --hm3: rgba(119, 117, 246, 0.70);
+  --hm4: #B2A4FF;
 
-  --o1c: #7C3AED; --o1o: .26;
-  --o2c: #B026FF; --o2o: .17;
-  --o3c: #D946EF; --o3o: .13;
+  --o1c: #7775F6; --o1o: .08;
+  --o2c: #8A2BE2; --o2o: .05;
+  --o3c: #A176F5; --o3o: .04;
 
-  --push: #D946EF;
-  --pull: #A78BFA;
-  --legs: #7C3AED;
-  --core: #5B4E8C;
+  --push: #A176F5;
+  --pull: #B2A4FF;
+  --legs: #7775F6;
+  --core: #929AB9;
 
-  --nav-bg: rgba(7, 5, 26, 0.72);
-  --topbar-bg: #02020C;
-  --topbar-border: rgba(255, 255, 255, 0.07);
+  --nav-bg: rgba(8, 10, 24, 0.94);
+  --topbar-bg: rgba(13, 16, 35, 0.94);
+  --topbar-border: rgba(158, 168, 230, 0.12);
 
   color-scheme: dark;
 }
@@ -139,11 +151,11 @@
 /* ─── 3. ARCTIC WHITE ───────────────────────────────────────────────── */
 [data-theme="arctic-white"] {
   --bg:      #EEF5FF;
-  --card:    rgba(255, 255, 255, 0.90);
-  --card-2:  rgba(37, 99, 235, 0.06);
+  --card:    #FFFFFF;
+  --card-2:  #E5EDFC;
   --border:  rgba(37, 99, 235, 0.11);
   --bdr-hov: rgba(37, 99, 235, 0.28);
-  --shadow:  0 4px 24px rgba(37, 99, 235, 0.09), inset 0 1px 0 rgba(255,255,255,0.90);
+  --shadow:  0 4px 16px rgba(30, 58, 138, 0.05);
 
   --t1:  #0C1A3A;
   --t2:  rgba(30, 58, 138, 0.72);
@@ -152,7 +164,7 @@
 
   --a1:  #2563EB;
   --a2:  #3B82F6;
-  --a3:  #7DD3FC;
+  --a3:  #6366D9;
   --ag:  linear-gradient(135deg, #1D4ED8 0%, #3B82F6 50%, #38BDF8 100%);
 
   --bar:  linear-gradient(90deg, #1D4ED8, #3B82F6, #38BDF8);
@@ -203,7 +215,7 @@
 
   --t1:  #EEF2FF;
   --t2:  rgba(199, 210, 254, 0.84);
-  --t3:  rgba(165, 180, 252, 0.55);
+  --t3:  #9CAACC;
 
   --a1:  #818CF8;
   --a2:  #A5B4FC;
@@ -531,13 +543,14 @@
    user-facing theme is Focus: cooler accents, quieter surfaces, and less glow. */
 [data-theme="periwinkle"] {
   --bg: #0D1030;
-  --card: rgba(20, 25, 68, 0.02);
-  --card-2: rgba(129, 140, 248, 0.03);
+  --card: #171E3B;
+  --card-2: #202A4B;
   --border: rgba(129, 140, 248, 0.10);
   --bdr-hov: rgba(165, 180, 252, 0.18);
   --a1: #5B8BF5;
   --a2: #7DD3FC;
   --a3: #A5B4FC;
+  --shadow: 0 4px 16px rgba(2, 4, 15, 0.12);
   --ag: linear-gradient(135deg, #5B8BF5 0%, #7C8CF8 50%, #7DD3FC 100%);
   --bar: linear-gradient(90deg, #5B8BF5, #7C8CF8, #7DD3FC);
   --bar2: #7DD3FC;
@@ -545,7 +558,7 @@
   --bar4: #64748B;
   --sbg: rgba(91, 139, 245, 0.04);
   --sbdr: rgba(125, 211, 252, 0.10);
-  --pill-on: #5B8BF5;
+  --pill-on: #365DB7;
   --logo-c: #7DD3FC;
   --logo-g: linear-gradient(90deg, #5B8BF5, #7DD3FC);
   --ring-s: #5B8BF5;
@@ -565,6 +578,68 @@
 
 [data-theme="periwinkle"] .nx-ambient-orb,
 [data-theme="periwinkle"] body::before { display: none !important; }
+
+/* Shared semantic layer wins over legacy liquid-amethyst aliases without
+   removing any public token names. Components consume this in every theme. */
+:root,
+[data-theme="nexus-dark"],
+[data-theme="arctic-white"],
+[data-theme="periwinkle"] {
+  --bg-card: var(--card);
+  --bg-secondary: var(--sbg);
+  --glass: var(--card);
+  --glass-bg: var(--card);
+  --glass-shadow: var(--shadow);
+  --input-bg: color-mix(in srgb, var(--bg) 65%, var(--card));
+  --input-focus: var(--card-2);
+  --text-primary: var(--t1);
+  --text-secondary: var(--t2);
+  --text-tertiary: var(--t3);
+  --text-quaternary: var(--t3);
+  --text-1: var(--t1);
+  --text-2: var(--t2);
+  --text-3: var(--t3);
+  --text-4: var(--t3);
+  --t4: var(--t3);
+  --amethyst: var(--a1);
+  --indigo: var(--a2);
+  --violet: var(--a2);
+  --magenta: var(--a3);
+  --accent: var(--a2);
+  --success: var(--green);
+  --warning: var(--amber);
+  --danger: var(--red);
+  --xp-color: var(--a2);
+  --xp-glow: color-mix(in srgb, var(--a2) 18%, transparent);
+  --gray-rest: var(--bar4);
+  --violet-muted: var(--bar4);
+  --light-accent: var(--a2);
+  --cyan: var(--bar3);
+  --border-soft: color-mix(in srgb, var(--border) 60%, transparent);
+  --border-strong: var(--bdr-hov);
+  --border-lit: var(--bdr-hov);
+  --glass-border: var(--border);
+  --surface: var(--sbg);
+  --surface-2: var(--card-2);
+  --space-2: var(--card);
+  --space-3: var(--card-2);
+  --grad-amethyst: var(--ag);
+  --grad-amethyst-h: var(--bar);
+  --status-blue: #8BAEFF;
+  --gym-heat: #ED6A99;
+  --star-color: color-mix(in srgb, var(--t2) 28%, transparent);
+  --accent-soft: color-mix(in srgb, var(--a1) 12%, var(--card));
+  --accent-glow: 0 0 24px color-mix(in srgb, var(--a1) 12%, transparent);
+}
+
+[data-theme="arctic-white"] {
+  --green: #147B58;
+  --amber: #95600D;
+  --red: #BC3158;
+  --status-blue: #295BBD;
+  --gym-heat: #C84470;
+  --star-color: color-mix(in srgb, var(--a1) 12%, transparent);
+}
 
 /* Legacy class name retained for persisted preferences and old selectors. */
 /* Periwinkle uses softer indigo tones for component highlights */

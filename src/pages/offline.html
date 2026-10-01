@@ -6,7 +6,12 @@
   <meta name="theme-color" content="#0A0813">
   <title>Offline · NEXUS</title>
   <style>
-    :root { color-scheme: dark; }
+    :root {
+      color-scheme: dark;
+      --bg: #080A18; --card: #14182F; --t1: #F3F2FF;
+      --t2: #B7BCD8; --t3: #929AB9; --a1: #7775F6; --a2: #B2A4FF;
+      --border: rgba(158,168,230,.14);
+    }
     *, *::before, *::after { box-sizing: border-box; }
     html, body { min-height: 100%; }
     body {
@@ -17,8 +22,8 @@
       overflow-y: auto;
       overflow-x: hidden;
       font-family: Inter, system-ui, sans-serif;
-      background: #0A0813;
-      color: #EDE9FE;
+      background: var(--bg);
+      color: var(--t1);
     }
     body::before {
       content: '';
@@ -26,17 +31,18 @@
       inset: 0;
       pointer-events: none;
       background:
-        radial-gradient(ellipse 52% 48% at 12% 12%, rgba(124,58,237,.32), transparent 68%),
-        radial-gradient(ellipse 46% 42% at 88% 86%, rgba(217,70,239,.22), transparent 68%);
-      filter: blur(24px);
+        radial-gradient(circle, rgba(178,164,255,.18) .6px, transparent 1px),
+        radial-gradient(ellipse at 80% 0%, rgba(119,117,246,.08), transparent 55%);
+      background-size: 97px 113px, 100% 100%;
+      filter: none;
     }
     .offline-shell { position: relative; z-index: 1; width: min(100% - 32px, 460px); }
     .offline-card {
       padding: clamp(26px, 6vw, 42px);
-      border: 1px solid rgba(167,139,250,.22);
-      border-radius: 24px;
-      background: linear-gradient(145deg, rgba(20,14,54,.74), rgba(8,6,24,.64));
-      box-shadow: 0 24px 64px rgba(0,0,0,.5);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: var(--card);
+      box-shadow: 0 4px 16px rgba(2,4,15,.16);
       backdrop-filter: blur(24px) saturate(140%);
       -webkit-backdrop-filter: blur(24px) saturate(140%);
     }
@@ -44,7 +50,7 @@
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      color: #C4B5FD;
+      color: var(--a2);
       font-size: 16px;
       font-weight: 900;
       letter-spacing: .2em;
@@ -56,11 +62,11 @@
       place-items: center;
       border: 1px solid rgba(167,139,250,.4);
       border-radius: 10px;
-      color: #D946EF;
+      color: var(--a1);
     }
     .offline-kicker {
       margin-top: 30px;
-      color: #A78BFA;
+      color: var(--a2);
       font: 700 10px ui-monospace, monospace;
       letter-spacing: .2em;
       text-transform: uppercase;
@@ -70,10 +76,12 @@
       font-size: clamp(28px, 7vw, 38px);
       line-height: 1.04;
       letter-spacing: -.045em;
+      font-weight: 900;
+      font-style: italic;
     }
     .offline-subtitle {
       margin: 0 0 22px;
-      color: rgba(212,205,255,.78);
+      color: var(--t2);
       font-size: 13px;
       line-height: 1.6;
     }
@@ -96,7 +104,7 @@
       font-size: 13px;
     }
     .offline-list a {
-      color: #C4B5FD;
+      color: var(--a2);
       text-decoration: none;
       font-weight: 600;
     }
@@ -105,7 +113,7 @@
       padding: 3px 9px;
       border-radius: 999px;
       background: rgba(124,58,237,.18);
-      color: #C4B5FD;
+      color: var(--a2);
       font: 700 9px ui-monospace, monospace;
       letter-spacing: .14em;
       text-transform: uppercase;
@@ -117,7 +125,7 @@
       padding: 12px 18px;
       border: 0;
       border-radius: 12px;
-      background: linear-gradient(135deg, #7C3AED, #A855F7 48%, #D946EF);
+      background: linear-gradient(135deg, #6866DF, #8670E8 55%, #9D6BE2);
       color: #fff;
       font: 800 11px Inter, system-ui;
       letter-spacing: .12em;
@@ -127,7 +135,7 @@
     .offline-retry:hover { filter: brightness(1.1); }
     .offline-note {
       margin: 18px 0 0;
-      color: rgba(212,205,255,.5);
+      color: var(--t3);
       font-size: 11px;
       line-height: 1.55;
     }

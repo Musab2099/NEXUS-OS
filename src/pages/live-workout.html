@@ -32,30 +32,31 @@
    ============================================================ */
     :root {
       --transition-theme: background 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+      --live-radius: 22px;
     }
 
     [data-theme="amethyst"] {
-      --bg: #07051A;
-      --bg2: #0E0828;
-      --a1: #7C3AED;
-      --a2: #D946EF;
-      --glass: rgba(255, 255, 255, 0.04);
-      --glass-hover: rgba(255, 255, 255, 0.07);
+      --bg: #080A18;
+      --bg2: #1B203D;
+      --a1: #7775F6;
+      --a2: #A176F5;
+      --glass: #14182F;
+      --glass-hover: #1B203D;
       --border: rgba(255, 255, 255, 0.08);
       --border-hi: rgba(255, 255, 255, 0.15);
-      --text: #E2E8F0;
-      --muted: #94A3B8;
-      --muted2: #64748B;
-      --glow1: rgba(124, 58, 237, 0.25);
-      --glow2: rgba(217, 70, 239, 0.18);
+      --text: #F3F2FF;
+      --muted: #B7BCD8;
+      --muted2: #929AB9;
+      --glow1: rgba(119, 117, 246, 0.08);
+      --glow2: rgba(161, 118, 245, 0.05);
       --core-tint: rgba(217, 70, 239, 0.08);
       --core-border: rgba(217, 70, 239, 0.22);
-      --skill-tint: rgba(34, 211, 238, 0.08);
-      --skill-border: rgba(34, 211, 238, 0.22);
+      --skill-tint: rgba(178, 164, 255, 0.08);
+      --skill-border: rgba(178, 164, 255, 0.22);
       --btn-fg: #ffffff;
       --overlay-bg: rgba(7, 5, 26, 0.80);
-      --ring-c1: #7C3AED;
-      --ring-c2: #D946EF;
+      --ring-c1: #7775F6;
+      --ring-c2: #B2A4FF;
     }
 
     [data-theme="arctic"] {
@@ -63,13 +64,13 @@
       --bg2: #DDE8FF;
       --a1: #2563EB;
       --a2: #38BDF8;
-      --glass: rgba(37, 99, 235, 0.06);
+      --glass: #FFFFFF;
       --glass-hover: rgba(37, 99, 235, 0.11);
       --border: rgba(37, 99, 235, 0.14);
       --border-hi: rgba(37, 99, 235, 0.28);
       --text: #0F172A;
       --muted: #475569;
-      --muted2: #94A3B8;
+      --muted2: #526381;
       --glow1: rgba(37, 99, 235, 0.18);
       --glow2: rgba(56, 189, 248, 0.15);
       --core-tint: rgba(56, 189, 248, 0.10);
@@ -87,15 +88,15 @@
       --bg2: #141840;
       --a1: #818CF8;
       --a2: #C7D2FE;
-      --glass: rgba(129, 140, 248, 0.06);
+      --glass: #171E3B;
       --glass-hover: rgba(129, 140, 248, 0.11);
       --border: rgba(129, 140, 248, 0.12);
       --border-hi: rgba(129, 140, 248, 0.25);
-      --text: #E2E8F0;
+      --text: #F3F2FF;
       --muted: #A5B4FC;
-      --muted2: #6366F1;
-      --glow1: rgba(129, 140, 248, 0.20);
-      --glow2: rgba(199, 210, 254, 0.12);
+      --muted2: #9CAACC;
+      --glow1: rgba(91, 139, 245, 0.04);
+      --glow2: rgba(125, 211, 252, 0.02);
       --core-tint: rgba(199, 210, 254, 0.07);
       --core-border: rgba(199, 210, 254, 0.18);
       --skill-tint: rgba(129, 140, 248, 0.08);
@@ -165,9 +166,9 @@
     .card {
       background: var(--glass);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      border-radius: var(--live-radius);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
       transition: var(--transition-theme);
     }
 
@@ -1230,6 +1231,19 @@
     /* ============================================================
    MISC UTILITIES
    ============================================================ */
+    /* Standalone tracker uses its existing theme IDs; no new theme runtime. */
+    body::after {
+      content: ''; position: fixed; inset: 0; z-index: -1;
+      background-image: radial-gradient(circle, var(--muted2) .6px, transparent 1px);
+      background-size: 97px 113px; opacity: .15;
+    }
+    .ds-title, .session-title, .finish-title {
+      font-weight: 900; font-style: italic; letter-spacing: -.045em;
+    }
+    .dc-label, .ds-eyebrow { color: var(--muted); letter-spacing: .14em; }
+    .card { box-shadow: 0 4px 16px var(--glow1); }
+    .t-dot[data-t="amethyst"] { background: linear-gradient(135deg, #7775F6, #A176F5); }
+
     /* Decorative and generated layers never capture touch or pointer input. */
     .day-card::before,
     .btn-grad::after,

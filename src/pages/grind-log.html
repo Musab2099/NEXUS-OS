@@ -21,40 +21,13 @@
     @media(max-width:600px){.page,.shell,main{padding-bottom:0!important}}
     /* Theme-agnostic tokens */
     :root {
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
       --font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     }
-    /* Page-local color tokens — only applied in amethyst theme. Other themes
-       consume the canonical tokens from themes.css. */
-    [data-theme="nexus-dark"] {
-      --bg: #0A0813;
-      --bg-deep: #0A0813;
-      --bg-card: #12101F;
-      --bg-secondary: rgba(138, 43, 226, 0.05);
-      --glass-bg: rgba(138, 43, 226, 0.05);
-      --glass-shadow: 0 1px 0 0 rgba(176, 38, 255, 0.10) inset, 0 12px 40px rgba(0, 0, 0, 0.55), 0 1px 2px rgba(0, 0, 0, 0.30);
-      --text-primary: #FFFFFF;
-      --text-secondary: #D4CFE5;
-      --text-tertiary: #8A7FA8;
-      --text-quaternary: #5A4E78;
-      --amethyst: #8A2BE2;
-      --magenta: #FF1493;
-      --indigo: #B026FF;
-      --violet-muted: #6B4FA0;
-      --gray-rest: #4A445E;
-      --light-accent: #C77DFF;
-      /* Back-compat aliases for code references */
-      --accent: #B026FF;
-      --success: #FF1493;
-      --warning: #C77DFF;
-      --danger: #8A7FA8;
-      --xp-color: #C77DFF;
-      --xp-glow: rgba(199, 125, 255, 0.40);
-      color-scheme: dark;
-    }
+    /* All theme colors and compatibility aliases come from themes.css. */
     *{box-sizing:border-box;margin:0;padding:0;}
     html,body{
       background:var(--bg-main);
