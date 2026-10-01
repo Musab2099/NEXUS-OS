@@ -82,6 +82,7 @@
     return flushQueue().then(ok => ({ ok: ok && !queue().some(e => e.id === entry.id), local, queued: queue().some(e => e.key === key), error: ok ? null : new Error('Remote save pending') }));
   }
   async function load(key) {
+    await backfillPromise;
     const revision = revisions.get(key) || 0;
     if (!online() || queue().some(e => e.key === key)) return { data: read(key, null), source: 'local', error: null };
     inflight++; notify();
@@ -105,6 +106,34 @@
     if (merged != null && JSON.stringify(merged) !== JSON.stringify(result.data)) await save(key, merged);
     return merged;
   }
+  // Insert-only migration: an existing remote row always wins, even if a
+  // second device inserts it between discovery and this request.
+  const BACKFILL_KEY = 'nexus_backfill_v1';
+  const fixedKeys = new Set(['ibrahim_gym_v1','ibrahim_gym_done','gym_pr_v1','gym_measurements_v1','gym_schedule_v1','grind_log_v1','cali_skills_v1','long_goals_v1','day_window_v1','wellness:habits','wellness:sleep','wellness:recovery','wellness:dreams','wellness:journal']);
+  function isDataKey(key) { return fixedKeys.has(key) || /^wellness:done:\d{4}-\d{2}-\d{2}$/.test(key) || /^nexus_workout_\d{4}-\d{2}-\d{2}$/.test(key); }
+  const legacyRows = [];
+  try {
+    for (let i=0;i<localStorage.length;i++) {
+      const key=localStorage.key(i); if (!isDataKey(key)) continue;
+      const data=read(key,null); if(data!=null) legacyRows.push({user_id:USER_ID,key,data});
+    }
+  } catch (_) {}
+  async function backfill() {
+    if(read(BACKFILL_KEY,false) || !online()) return false;
+    inflight++;notify();
+    try {
+      const sb=await getClient();
+      for(let i=0;i<legacyRows.length;i+=50) {
+        const result=await sb.from(TABLE).upsert(legacyRows.slice(i,i+50),{onConflict:'user_id,key',ignoreDuplicates:true});
+        if(result.error)throw result.error;
+      }
+      write(BACKFILL_KEY,{completedAt:new Date().toISOString()});lastOk=true;return true;
+    } catch(error) {lastOk=false;console.warn('[NEXUS sync] backfill will retry',error);return false;}
+    finally {inflight--;notify();}
+  }
+  const backfillPromise=serialize(backfill);
+  window.addEventListener('online',()=>serialize(backfill));
+
   window.NexusSync = {
     USER_ID, save, load, hydrate, flush: flushQueue, getStatus: status, isOnline: online,
     _getClient: getClient,

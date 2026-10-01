@@ -2,10 +2,10 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const vm = require('node:vm');
 const fs = require('node:fs');
-function runtime(remote = new Map()) {
-  const values = new Map(); const handlers = {};
+function runtime(remote = new Map(), initial = []) {
+  const values = new Map(initial); const handlers = {};
   const client = { from: () => ({
-    upsert: async rows => { for (const row of (Array.isArray(rows) ? rows : [rows])) remote.set(row.key, row.data); return { error: null }; },
+    upsert: async (rows, options = {}) => { for (const row of (Array.isArray(rows) ? rows : [rows])) { if (!options.ignoreDuplicates || !remote.has(row.key)) remote.set(row.key, row.data); } return { error: null }; },
     select: () => { let key; const query = { eq: (field, value) => { if (field === 'key') key = value; return query; }, maybeSingle: async () => ({ data: remote.has(key) ? { data: remote.get(key) } : null }) }; return query; }
   }) };
   const context = { console, setTimeout, clearTimeout, Map, Set, Promise, Date, Math, JSON, AbortController, Response,
@@ -33,10 +33,21 @@ test('hydrate captures local data before remote mirror updates', async () => {
 });
 test('new writes arriving during flush survive its acknowledgement', async () => {
   const r = runtime(); let release;
+  await r.nx.load('empty');
   r.client.from = () => ({ upsert: rows => new Promise(resolve => { release = () => { for (const row of rows) r.remote.set(row.key,row.data); resolve({}); }; }) });
   const first = r.nx.save('x', 1); await new Promise(resolve => setTimeout(resolve, 0));
   const second = r.nx.save('x', 2); release(); await first; await second;
   assert.equal(JSON.parse(r.values.get('nexus_sync_queue_v1'))[0].data, 2);
   // Drain scheduled retry before test teardown.
   await new Promise(resolve => setTimeout(resolve, 5)); release(); await r.nx.flush();
+});
+test('backfill inserts missing data once, never overwrites remote, ignores private config', async () => {
+  const r = runtime(new Map([['grind_log_v1', {logs:['remote']}]]), [
+    ['grind_log_v1', JSON.stringify({logs:['old']})], ['wellness:sleep','[{"date":"2026-09-30","dur":8}]'], ['nexus_health_github_config_v1','{"token":"not-for-sync"}']
+  ]);
+  await r.nx.load('empty');
+  assert.equal(r.remote.get('grind_log_v1').logs[0], 'remote');
+  assert.equal(r.remote.get('wellness:sleep')[0].dur, 8);
+  assert.equal(r.remote.has('nexus_health_github_config_v1'), false);
+  assert.ok(JSON.parse(r.values.get('nexus_backfill_v1')).completedAt);
 });
