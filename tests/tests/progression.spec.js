@@ -25,6 +25,15 @@ test('live workout snapshots muscle labels and retains a second session', async 
 for(const width of [390,1280])test(`progression ladder and insights at ${width}px`,async({page})=>{
   await page.setViewportSize({width,height:844});await page.goto('/grind-log.html');
   await expect(page.locator('#rankLadder .rank-row')).toHaveCount(15);
+  await expect(page.locator('#muscleMapNote')).toContainText('No muscle snapshots yet');
+  await expect(page.locator('#muscleMap .muscle-stat')).toHaveCount(11);
+  await page.evaluate(() => {
+    const date = NexusProgression.dateKey();
+    localStorage.setItem('nexus_workout_'+date, JSON.stringify({data:{sessionId:'map-test',log:[{exId:'press',set:1,reps:8,muscles:['Chest','Shoulders']}]}}));
+    NexusProgression.render();
+  });
+  await expect(page.locator('#muscleMap .is-trained')).toHaveCount(3);
+  await expect(page.locator('#muscleMap .muscle-stat').filter({hasText:'Chest'})).toContainText('1 set');
   await expect(page.locator('#rankLadder [aria-current="step"]')).toContainText('Opal III');
   await page.evaluate(()=>{const date=window.NexusProgression.dateKey();localStorage.setItem('grind_log_v1',JSON.stringify({logs:[{name:'Built feature',xp:1500,cat:'code',date,ts:1}]}));window.NexusProgression.render();});
   await expect(page.locator('#rankLadder [aria-current="step"]')).toContainText('Quartz III');
