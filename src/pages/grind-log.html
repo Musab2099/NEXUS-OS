@@ -745,6 +745,17 @@
       <div class="task-list" id="taskList"><div class="tasks-empty">Nothing logged yet — start your grind above.</div></div>
     </div>
 
+    <section class="card progression-panel" id="insights" aria-labelledby="insightsTitle">
+      <h2 id="insightsTitle" class="card-h">Overall insights</h2>
+      <div id="progressionInsights" aria-live="polite"></div>
+    </section>
+    <section class="card progression-panel" id="xp-ladder" aria-labelledby="ladderTitle">
+      <div class="card-eyebrow">Lifetime progression</div>
+      <h2 id="ladderTitle" class="card-h">The crystal ladder</h2>
+      <p class="progression-note">Five tiers, three sub-tiers each. Earn 500 XP per step. No multipliers or rarity claims.</p>
+      <ol id="rankLadder" class="rank-ladder"></ol>
+    </section>
+
     <!-- ANALYTICS -->
     <div class="section-title">Analytics</div>
     <div class="hist-grid">
@@ -989,6 +1000,7 @@
 
     function render(){
       renderHero();renderStats();renderCatGrid();renderQuickPills();renderTaskList();renderHistory();renderGoalDropdown();renderGoalContribs();updateXpDefault();
+      if(window.NexusProgression)window.NexusProgression.render();
     }
 
     // ─── ADD TASK ───
@@ -1054,5 +1066,7 @@
     })();
   })();
   </script>
+<script src="/scripts/workout-persistence.js"></script>
+<script src="/scripts/progression.js"></script>
 </body>
 </html>

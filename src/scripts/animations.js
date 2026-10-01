@@ -277,7 +277,11 @@
         });
       }
     });
-    observer.observe(source, { attributes: true, childList: true, characterData: true, subtree: true });
+    // Watch data changes, not the animation classes this callback adds itself.
+    // Observing `class` here creates an endless MutationObserver microtask loop.
+    observer.observe(source, source.id === 'rankName'
+      ? { childList: true, characterData: true, subtree: true }
+      : { attributes: true, attributeFilter: ['style'] });
     initialized = true;
   }
 
