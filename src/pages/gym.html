@@ -2986,7 +2986,8 @@
               ts: Date.now()
             });
             grindS.logs = logs;
-            localStorage.setItem('grind_log_v1', JSON.stringify(grindS));
+            if (sync()) sync().save('grind_log_v1', grindS).catch(() => {});
+            else localStorage.setItem('grind_log_v1', JSON.stringify(grindS));
             window.dispatchEvent(new Event('storage'));
           }
           if (typeof window.nexusChime === 'function') window.nexusChime();
@@ -3317,7 +3318,7 @@
         try {
           const tk = todayKey();
           const remote = await window.NexusWorkoutStore.load(tk);
-          if (remote && remote.data) {
+          if (remote && remote.data && remote.data.source === 'gym' && remote.data.dayIndex === currentDay) {
             const d = remote.data;
             if (Array.isArray(d.checked)) {
               const exKey = 'ex_' + currentDay + '_' + tk;
@@ -3344,7 +3345,7 @@
         const nx = sync();
         if (!nx) return;
         await nx.hydrate(LS, function (remote, local) { return remote != null ? remote : local; })
-          .then(function () { renderHistory(); renderHeatmap(); renderConsistencyChart(); })
+          .then(function () { S = load(); loadLog(); loadWeight(); renderWorkout(); renderHistory(); renderHeatmap(); renderConsistencyChart(); })
           .catch(function (error) { console.warn('[NEXUS gym] state hydration failed', error); });
         await nx.hydrate(PR_LS).catch(function (error) { console.warn('[NEXUS gym] PR hydration failed', error); });
         await nx.hydrate(MEAS_LS).then(function () { renderMeasurements(); }).catch(function (error) { console.warn('[NEXUS gym] measurement hydration failed', error); });
@@ -3358,7 +3359,6 @@
         setDay(todayDow != null ? todayDow : 0);
         loadLog(); loadWeight();
         renderHistory(); renderHeatmap(); renderConsistencyChart(); renderMeasurements();
-        syncGymDone();
         hydrateGymFromCloud();
       }
       init();

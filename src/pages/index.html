@@ -2070,7 +2070,7 @@ body{
 
   function quickLogWorkout() {
     const dow = new Date().getDay();
-    let sched = [1, 2, 3, 4];
+    let sched = [1, 2, 4, 5];
     try { const s = JSON.parse(localStorage.getItem('gym_schedule_v1')); if (Array.isArray(s) && s.length === 4) sched = s; } catch { }
     const schedIdx = sched.indexOf(dow);
     if (schedIdx === -1) {
@@ -2079,16 +2079,16 @@ body{
     const td = dateToKey(new Date());
     let gymS = {}; try { gymS = JSON.parse(localStorage.getItem('ibrahim_gym_v1')) || {}; } catch { }
     gymS['done_' + schedIdx + '_' + td] = true;
-    localStorage.setItem('ibrahim_gym_v1', JSON.stringify(gymS));
+    storeSet('ibrahim_gym_v1', gymS);
 
     // Award XP
     let grindS = {}; try { grindS = JSON.parse(localStorage.getItem('grind_log_v1')) || {}; } catch { }
     const logs = Array.isArray(grindS.logs) ? grindS.logs : [];
-    const alreadyAwarded = logs.some(l => l.date === td && l.name === 'Gym Workout');
+    const alreadyAwarded = logs.some(l => l.date === td && (l.name === 'Gym Workout' || (l.name || '').startsWith('Completed workout')));
     if (!alreadyAwarded) {
       logs.push({ name: 'Gym Workout', xp: 50, cat: 'fitness', date: td, ts: Date.now() });
       grindS.logs = logs;
-      localStorage.setItem('grind_log_v1', JSON.stringify(grindS));
+      storeSet('grind_log_v1', grindS);
     }
     updateGymCard();
     updateGrindCard();
@@ -2101,7 +2101,7 @@ body{
     let sleepLogs = []; try { sleepLogs = JSON.parse(localStorage.getItem('wellness:sleep')) || []; } catch { }
     sleepLogs = sleepLogs.filter(l => l.date !== td);
     sleepLogs.unshift({ id: Date.now(), date: td, bed: '23:00', wake: '07:00', dur: 8, q: 3, notes: 'Quick log' });
-    localStorage.setItem('wellness:sleep', JSON.stringify(sleepLogs));
+    storeSet('wellness:sleep', sleepLogs);
     updateWellnessCard();
   }
   function quickLogMood() {
@@ -2109,7 +2109,7 @@ body{
     let journal = []; try { journal = JSON.parse(localStorage.getItem('wellness:journal')) || []; } catch { }
     journal = journal.filter(e => e.date !== td);
     journal.unshift({ date: td, mood: '😊', content: 'Quick log: Feeling great!', ts: Date.now() });
-    localStorage.setItem('wellness:journal', JSON.stringify(journal));
+    storeSet('wellness:journal', journal);
     updateWellnessCard();
   }
   document.getElementById('qaWorkout').addEventListener('click', quickLogWorkout);

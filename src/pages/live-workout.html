@@ -2032,7 +2032,7 @@
       localStorage.setItem('nx-workout-hist', JSON.stringify(hist.slice(0, 100)));
       localStorage.removeItem('nx-session-snap');
 
-      confirmSave('Saved locally ✓');
+      confirmSave(window.NexusSync && window.NexusSync.getStatus() === 'synced' ? 'Saved & synced ✓' : 'Saved locally · sync pending');
     }
 
     function confirmSave(msg) {
@@ -2079,8 +2079,8 @@
     function persistWorkoutState(override, date) {
       var payload = Object.assign(workoutPayload(), override || {});
       var keyDate = date || localWorkoutDateKey();
-      try { localStorage.setItem('nexus_workout_' + keyDate, JSON.stringify({ version: 1, date: keyDate, savedAt: new Date().toISOString(), data: payload })); } catch (e) { console.warn('[NEXUS workout] local state save failed', e); }
       snapshot();
+      return window.NexusWorkoutStore.save(keyDate, payload);
     }
 
     function snapshot() {
@@ -2096,8 +2096,7 @@
 
     async function hydrateWorkoutFromLocal() {
       try {
-        const raw = localStorage.getItem('nexus_workout_' + localWorkoutDateKey());
-        const stored = raw ? JSON.parse(raw) : null;
+        const stored = await window.NexusWorkoutStore.load(localWorkoutDateKey());
         const payload = stored && stored.data ? stored.data : stored;
         if (!payload || payload.finished || !payload.day || !Array.isArray(payload.exercises)) return null;
         Object.assign(S, payload);

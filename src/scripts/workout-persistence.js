@@ -69,8 +69,10 @@
     writeWorkout(dateKey, payload);
     const nx = window.NexusSync;
     if (nx && typeof nx.save === 'function') {
-      nx.save(storageKey, payload).catch(function (error) {
-        console.warn('[NEXUS workout] remote save queued', error);
+      return nx.save(storageKey, payload).then(function (result) {
+        return { data: payload, error: result.error || null, local: true, queued: !!result.queued };
+      }).catch(function (error) {
+        return { data: payload, error: error, local: true, queued: true };
       });
     }
 

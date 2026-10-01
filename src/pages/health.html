@@ -1006,7 +1006,7 @@
 
   /* HABITS */
   const DEFAULT_HABITS=[{id:'h_water',icon:'💧',name:'Drink 2L water'},{id:'h_stretch',icon:'🤸',name:'Morning stretch'},{id:'h_sun',icon:'☀️',name:'Get sunlight 10+ min'},{id:'h_phone',icon:'📵',name:'No phone 1hr before bed'},{id:'h_read',icon:'📚',name:'Read 15+ min'},{id:'h_shower',icon:'🚿',name:'Cold shower'}];
-  function getHabits(){const s=get('wellness:habits');if(!s){set('wellness:habits',DEFAULT_HABITS);return DEFAULT_HABITS;}return s;}
+  function getHabits(){const s=get('wellness:habits');if(!s)return DEFAULT_HABITS;return s;}
   function setHabits(h){set('wellness:habits',h);}
   function getDone(d){return get(`wellness:done:${d}`)||[];}
   function setDone(d,a){set(`wellness:done:${d}`,a);}
@@ -1252,6 +1252,9 @@
      fallback when Supabase fails or returns empty, then re-render. */
   (async function hydrateWellnessFromCloud(){
     const nx=sync();if(!nx)return;
+    await nx.load('wellness:habits');
+    const habitDays=Array.from({length:30},(_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());});
+    await Promise.all(habitDays.map(day=>nx.load('wellness:done:'+day)));
     const KEYS=['wellness:sleep','wellness:recovery','wellness:dreams','wellness:journal'];
     for(const k of KEYS){
       try{
